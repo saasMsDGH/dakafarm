@@ -16,6 +16,7 @@ class Users(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(),server_default=func.now())
 
     role = relationship("UserRole",back_populates="user")
+    house = relationship("House", back_populates="user")
 
 
 class Roles(Base):
@@ -31,8 +32,8 @@ class Roles(Base):
 class UserRole(Base):
     __tablename__ = "userrole"
     id = Column(Integer,primary_key=True)
-    user_id = Column(Integer,ForeignKey("users.id"))
-    role_id = Column(Integer,ForeignKey("roles.id"))
+    user_id = Column(Integer,ForeignKey("users.id",ondelete="CASCADE"))
+    role_id = Column(Integer,ForeignKey("roles.id" ,ondelete="CASCADE"))
 
 
     user = relationship("Users",back_populates="role")

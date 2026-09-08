@@ -16,7 +16,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: As
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    return jwt_token.verify_token(token, credentials_exception, db)
+    return await jwt_token.verify_token(token, credentials_exception, db)
 
 async def get_optional_current_user(
     token: Annotated[str | None, Depends(oauth2_scheme_optional)] = None,
