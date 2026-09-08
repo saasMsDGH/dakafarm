@@ -9,3 +9,4 @@ psycopg[binary]
 pwdlib[argon2]
 pyjwt
 pydantic[email]
+python-multipart
