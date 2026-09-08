@@ -6,3 +6,6 @@ alembic
 python-dotenv
 pydantic_settings 
 psycopg[binary]
+pwdlib[argon2]
+pyjwt
+pydantic[email]

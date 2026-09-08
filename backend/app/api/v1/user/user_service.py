@@ -3,6 +3,7 @@ from app.api.v1.user import schemas,models
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException,status
+from app.core.security import Hash
 
 
 
@@ -20,7 +21,7 @@ class UserService:
              last_name = request.last_name,
              email = request.email,
              phone = request.phone,
-             password_hash = request.password_hash 
+             password_hash = Hash.hash(request.password_hash) 
          )
 
        
