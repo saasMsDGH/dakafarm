@@ -1,6 +1,6 @@
 
 from app.api.v1.user import models
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException,status
 
@@ -11,7 +11,7 @@ from fastapi import HTTPException,status
 
 class UserRepo:
     @staticmethod
-    async def createUser(db:Session,user:models.Users):
+    async def createUser(db:AsyncSession,user:models.Users):
 
         try:
             db.add(user)

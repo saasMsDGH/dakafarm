@@ -1,6 +1,6 @@
 from app.api.v1.user.repository import UserRepo
 from app.api.v1.user import schemas,models
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException,status
 
@@ -12,7 +12,7 @@ class UserService:
     @staticmethod
     async def CreateUser_service(
          request:schemas.User,
-         db:Session
+         db:AsyncSession
     ):
          user = models.Users( 
             first_name = request.first_name,
