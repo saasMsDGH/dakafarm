@@ -1,5 +1,5 @@
 
 from app.core.database import Base
-from app.api.v1.user.models import Users
+from app.api.v1.user.models import Users,Roles,UserRole
 
-__all__ = ["Base","Users"]
+__all__ = ["Base","Users","Roles","UserRole"]

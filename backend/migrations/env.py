@@ -21,7 +21,7 @@ if config.config_file_name is not None:
 
 # ── import settings AFTER fileConfig so the URL override sticks ───────────
 from app.core.config import settings
-from backend.app.core.database import Base
+from app.core.database import Base
 
 # Import ALL models here so their tables are registered on Base.metadata
 from app.db import *  # noqa: F401
