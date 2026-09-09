@@ -23,3 +23,4 @@ class Flock(Base):
     house = relationship("House", back_populates="flocks")
     user = relationship("Users")  # Link to creator
     feed_records = relationship("FeedRecord", back_populates="flock", cascade="all, delete-orphan")
+    production_records = relationship("ProductionRecord", back_populates="flock", cascade="all, delete-orphan")
