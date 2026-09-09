@@ -1,13 +1,16 @@
 from pydantic import BaseModel
+from typing import Optional
 from datetime import date
 
 
 class User(BaseModel):
-    first_name : str
-    last_name : str
-    email :str
-    phone : str 
-    password_hash : str
+    first_name: str
+    last_name: str
+    email: str
+    phone: str
+    password_hash: str
+    role: Optional[str] = "Farm Worker"  # Default role for new users
+
 
 
 class UserReseponse(BaseModel):

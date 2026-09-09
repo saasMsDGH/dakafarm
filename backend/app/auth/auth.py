@@ -30,6 +30,6 @@ async def get_optional_current_user(
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-        return jwt_token.verify_token(token, credentials_exception, db)
+        return await jwt_token.verify_token(token, credentials_exception, db)
     except Exception:
-        return None
+        return None

@@ -12,40 +12,32 @@ from app.core.security import Hash
 class UserService:
     @staticmethod
     async def CreateUser_service(
-         request: schemas.User,
-         db: AsyncSession,
+        request: schemas.User,
+        db: AsyncSession,
     ):
-       
-         user = models.Users( 
-             first_name = request.first_name,
-             last_name = request.last_name,
-             email = request.email,
-             phone = request.phone,
-             password_hash = Hash.hash(request.password_hash) 
-         )
+        user = models.Users(
+            first_name=request.first_name,
+            last_name=request.last_name,
+            email=request.email,
+            phone=request.phone,
+            password_hash=Hash.hash(request.password_hash),
+        )
 
-       
-         user = await UserRepo.createUser(db, user)
+        user = await UserRepo.createUser(db, user)
 
-        
-         role_to_assign = ["Farm Worker", "Farm Manager"]
+        # Assign the requested role (defaults to "Farm Worker" if not specified)
+        role = await UserRepo.get_role(db, request.role)
+        if not role:
+            await db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Role '{request.role}' does not exist. Seed roles first via POST /db.",
+            )
 
-         for role_name in role_to_assign:
-              role = await UserRepo.get_role(db, role_name)
-              if not role:
-               raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, 
-                    detail=f"Role '{role_name}' does not exist in the database."
-               )
-              if role:
-                   user_role = models.UserRole(
-                        user_id = user.id, # This is now a valid ID
-                        role_id = role.id
-                   )
-                   db.add(user_role)
-         
-         # 4. Commit everything together
-         await db.commit()
-         await db.refresh(user)
+        user_role = models.UserRole(user_id=user.id, role_id=role.id)
+        db.add(user_role)
 
-         return user
+        await db.commit()
+        await db.refresh(user)
+
+        return user

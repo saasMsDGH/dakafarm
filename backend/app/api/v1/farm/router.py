@@ -3,7 +3,7 @@ from fastapi import APIRouter
 
 
 router = APIRouter(
-    prefix="/v1"
+    prefix="/farm"
 )
 
-router.include_router(house_router.router)
+router.include_router(house_router.router)
