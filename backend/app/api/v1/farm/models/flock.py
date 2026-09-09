@@ -19,6 +19,7 @@ class Flock(Base):
     created_at = Column(DateTime (timezone=True),server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(),server_default=func.now())
 
-  
+    # Relationships
     house = relationship("House", back_populates="flocks")
     user = relationship("Users")  # Link to creator
+    feed_records = relationship("FeedRecord", back_populates="flock", cascade="all, delete-orphan")
