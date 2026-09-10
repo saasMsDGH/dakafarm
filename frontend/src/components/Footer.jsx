@@ -7,7 +7,7 @@ export default () => {
 
   return (
     <div>
-      <footer className="footer section py-5">
+      <footer className="footer section py-5 d-print-none">
         <Row>
           <Col xs={12} className="mb-4 mb-lg-0">
             <p className="mb-0 text-center text-xl-center">

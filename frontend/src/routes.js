@@ -8,7 +8,7 @@ export const Routes = {
     // User Subsystem
     Settings: { path: "/settings" }, // Profile & Settings
 
-    // Farm Subsystem (To be implemented later)
+    // Farm Subsystem
     Houses: { path: "/farm/houses" },
     Flocks: { path: "/farm/flocks" },
     Medications: { path: "/farm/medications" },
@@ -16,4 +16,5 @@ export const Routes = {
     Productions: { path: "/farm/productions" },
     Mortalities: { path: "/farm/mortalities" },
     Feeds: { path: "/farm/feeds" },
+    FarmReport: { path: "/farm/report" },
 };

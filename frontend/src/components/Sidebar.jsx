@@ -84,7 +84,7 @@ export default (props = {}) => {
 
   return (
     <>
-      <Navbar expand={false} collapseOnSelect variant="dark" className="navbar-theme-primary px-4 d-md-none">
+      <Navbar expand={false} collapseOnSelect variant="dark" className="navbar-theme-primary px-4 d-md-none d-print-none">
         <Navbar.Brand className="me-lg-5" as={Link} to={Routes.DashboardOverview.path}>
           <Image src={ReactHero} className="navbar-brand-light" />
         </Navbar.Brand>
@@ -93,7 +93,7 @@ export default (props = {}) => {
         </Navbar.Toggle>
       </Navbar>
       <CSSTransition timeout={300} in={show} classNames="sidebar-transition">
-        <SimpleBar className={`collapse ${showClass} sidebar d-md-block bg-primary text-white`}>
+        <SimpleBar className={`collapse ${showClass} sidebar d-md-block bg-primary text-white d-print-none`}>
           <div className="sidebar-inner px-4 pt-3">
             <div className="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
               <div className="d-flex align-items-center">
@@ -124,6 +124,7 @@ export default (props = {}) => {
                 <NavItem title={t('productions')} link={Routes.Productions?.path || '#'} />
                 <NavItem title={t('mortalities')} link={Routes.Mortalities?.path || '#'} />
                 <NavItem title={t('feeds')} link={Routes.Feeds?.path || '#'} />
+                <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
               </CollapsableNavItem>
 
               <Dropdown.Divider className="my-3 border-indigo" />
