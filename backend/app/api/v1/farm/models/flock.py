@@ -26,3 +26,4 @@ class Flock(Base):
     feed_records = relationship("FeedRecord", back_populates="flock", cascade="all, delete-orphan")
     production_records = relationship("ProductionRecord", back_populates="flock", cascade="all, delete-orphan")
     mortality_records = relationship("MortalityRecord", back_populates="flock", cascade="all, delete-orphan")
+    medication_records = relationship("MedicationRecord", back_populates="flock", cascade="all, delete-orphan")
