@@ -1,20 +1,18 @@
-
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import SimpleBar from 'simplebar-react';
 import { useLocation } from "react-router-dom";
 import { CSSTransition } from 'react-transition-group';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBook, faBoxOpen, faChartPie, faCog, faFileAlt, faHandHoldingUsd, faSignOutAlt, faTable, faTimes, faCalendarAlt, faMapPin, faInbox, faRocket } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faChartPie, faSignOutAlt, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { Nav, Badge, Image, Button, Dropdown, Accordion, Navbar } from '@themesberg/react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { useAuth } from "../context/AuthContext";
 import { Routes } from "../routes";
-import ThemesbergLogo from "../assets/img/themesberg.svg";
 import ReactHero from "../assets/img/technologies/react-hero-logo.svg";
 
-export default (props = {}) => {
+const Sidebar = (props) => {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -27,7 +25,7 @@ export default (props = {}) => {
   const UserAvatar = ({ name }) => {
     const initial = name ? name.charAt(0).toUpperCase() : 'U';
     return (
-      <div 
+      <div
         className="user-avatar lg-avatar rounded-circle d-flex align-items-center justify-content-center bg-secondary text-white fw-bold me-4 border-white"
         style={{ fontSize: '1.5rem', border: '2px solid white', width: '3rem', height: '3rem' }}
       >
@@ -71,7 +69,6 @@ export default (props = {}) => {
           <span>
             {icon ? <span className="sidebar-icon"><FontAwesomeIcon icon={icon} /> </span> : null}
             {image ? <Image src={image} width={20} height={20} className="sidebar-icon svg-icon" /> : null}
-
             <span className="sidebar-text">{title}</span>
           </span>
           {badgeText ? (
@@ -111,27 +108,34 @@ export default (props = {}) => {
             </div>
             <Nav className="flex-column pt-3 pt-md-0">
               <NavItem title="AMAS FARM" link={Routes.DashboardOverview.path} image={ReactHero} />
-
               <Dropdown.Divider className="my-3 border-indigo" />
-
-              <NavItem title={t('dashboard')} link={Routes.DashboardOverview.path} icon={faChartPie} />
-              
-              <CollapsableNavItem eventKey="farm/" title={t('farm_management')} icon={faBoxOpen}>
-                <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
-                <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
-                <NavItem title={t('medications')} link={Routes.Medications?.path || '#'} />
-                <NavItem title={t('vaccinations')} link={Routes.Vaccinations?.path || '#'} />
-                <NavItem title={t('productions')} link={Routes.Productions?.path || '#'} />
-                <NavItem title={t('mortalities')} link={Routes.Mortalities?.path || '#'} />
-                <NavItem title={t('feeds')} link={Routes.Feeds?.path || '#'} />
-                <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
-              </CollapsableNavItem>
-
-              <Dropdown.Divider className="my-3 border-indigo" />
-              
-              <NavItem title={t('my_profile')} icon={faCog} link={Routes.Settings.path} />
-
-              <Dropdown.Divider className="my-3 border-indigo" />
+              {user?.role_name === 'admin' ? (
+                <>
+                  <NavItem title={t('dashboard')} link={Routes.DashboardOverview.path} icon={faChartPie} />
+                  <CollapsableNavItem eventKey="farm/" title={t('farm_management')} icon={faBoxOpen}>
+                    <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
+                    <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
+                    <NavItem title={t('medications')} link={Routes.Medications?.path || '#'} />
+                    <NavItem title={t('vaccinations')} link={Routes.Vaccinations?.path || '#'} />
+                    <NavItem title={t('productions')} link={Routes.Productions?.path || '#'} />
+                    <NavItem title={t('mortalities')} link={Routes.Mortalities?.path || '#'} />
+                    <NavItem title={t('feeds')} link={Routes.Feeds?.path || '#'} />
+                    <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
+                  </CollapsableNavItem>
+                  <Dropdown.Divider className="my-3 border-indigo" />
+                </>
+              ) : (
+                <>
+                  <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
+                  <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
+                  <NavItem title={t('medications')} link={Routes.Medications?.path || '#'} />
+                  <NavItem title={t('vaccinations')} link={Routes.Vaccinations?.path || '#'} />
+                  <NavItem title={t('productions')} link={Routes.Productions?.path || '#'} />
+                  <NavItem title={t('mortalities')} link={Routes.Mortalities?.path || '#'} />
+                  <NavItem title={t('feeds')} link={Routes.Feeds?.path || '#'} />
+                  <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
+                </>
+              )}
             </Nav>
           </div>
         </SimpleBar>
@@ -139,3 +143,5 @@ export default (props = {}) => {
     </>
   );
 };
+
+export default Sidebar;
