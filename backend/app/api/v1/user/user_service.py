@@ -1,15 +1,28 @@
-from app.api.v1.user.repository import UserRepo
-from app.api.v1.user import schemas,models
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
-from fastapi import HTTPException,status
+from fastapi import HTTPException, status
+
+from app.api.v1.user.repository import UserRepo
+from app.api.v1.user import schemas, models
 from app.core.security import Hash
-
-
-
+from app.shared.pagination import PaginationParams, compute_pages
 
 
 class UserService:
+    
+    @staticmethod
+    def _extract_primary_role(user: models.Users) -> str:
+        """Helper to extract the string name of the user's role."""
+        if user.role and len(user.role) > 0 and user.role[0].roleid:
+            return user.role[0].roleid.name
+        return "Unknown"
+
+    @staticmethod
+    def _to_response(user: models.Users) -> schemas.UserResponse:
+        """Helper to map model to UserResponse."""
+        resp = schemas.UserResponse.model_validate(user)
+        resp.role_name = UserService._extract_primary_role(user)
+        return resp
+
     @staticmethod
     async def CreateUser_service(
         request: schemas.User,
@@ -39,5 +52,106 @@ class UserService:
 
         await db.commit()
         await db.refresh(user)
+        
+        # Load relationships for proper response
+        full_user = await UserRepo.get_user_by_id(db, user.id)
+        return UserService._to_response(full_user)
 
-        return user
+    @staticmethod
+    async def get_me(db: AsyncSession, current_user_id: int) -> schemas.UserResponse:
+        user = await UserRepo.get_user_by_id(db, current_user_id)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+        return UserService._to_response(user)
+
+    @staticmethod
+    async def get_all_users(db: AsyncSession, params: PaginationParams) -> schemas.UserListResponse:
+        users, total = await UserRepo.list_users(db, params)
+        items = [UserService._to_response(u) for u in users]
+        return schemas.UserListResponse(
+            items=items,
+            total=total,
+            page=params.page,
+            limit=params.limit,
+            pages=compute_pages(total, params.limit)
+        )
+
+    @staticmethod
+    async def update_user(
+        db: AsyncSession, 
+        target_user_id: int, 
+        request: schemas.UserUpdate, 
+        current_user: models.Users
+    ) -> schemas.UserResponse:
+        
+        # 1. Fetch current user role info to verify permissions
+        full_current_user = await UserRepo.get_user_by_id(db, current_user.id)
+        is_admin = UserService._extract_primary_role(full_current_user) == "admin"
+        
+        # Permission check
+        if current_user.id != target_user_id and not is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to update this user."
+            )
+
+        # 2. Fetch target user
+        target_user = await UserRepo.get_user_by_id(db, target_user_id)
+        if not target_user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+        # 3. Prevent non-admins from updating roles
+        update_data = request.model_dump(exclude_unset=True)
+        new_role_name = update_data.pop("role", None)
+        
+        if new_role_name:
+            if not is_admin:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Only admins can change roles."
+                )
+            
+            # Find new role
+            role_record = await UserRepo.get_role(db, new_role_name)
+            if not role_record:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Role '{new_role_name}' does not exist."
+                )
+                
+            # Update user's role mapping
+            if target_user.role:
+                target_user.role[0].role_id = role_record.id
+            else:
+                user_role = models.UserRole(user_id=target_user.id, role_id=role_record.id)
+                db.add(user_role)
+
+        # 4. Apply standard updates
+        updated_user = await UserRepo.update_user(db, target_user, update_data)
+        
+        # Ensure relationships are loaded fully
+        final_user = await UserRepo.get_user_by_id(db, updated_user.id)
+        return UserService._to_response(final_user)
+
+    @staticmethod
+    async def delete_user(
+        db: AsyncSession, 
+        target_user_id: int, 
+        current_user: models.Users
+    ) -> None:
+        
+        # Permission check
+        full_current_user = await UserRepo.get_user_by_id(db, current_user.id)
+        is_admin = UserService._extract_primary_role(full_current_user) == "admin"
+        
+        if current_user.id != target_user_id and not is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to delete this user."
+            )
+
+        target_user = await UserRepo.get_user_by_id(db, target_user_id)
+        if not target_user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+        await UserRepo.delete_user(db, target_user)
