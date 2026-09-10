@@ -34,4 +34,4 @@
   "updating_password": "Updating password...",
   "password_changed": "Password changed successfully!",
   "failed_change_password": "Failed to change password."
-,"logout": "Logout"}
+,"logout": "Logout","add_house": "Add House", "house_name": "House Name", "capacity": "Capacity", "is_active": "Status", "actions": "Actions", "edit": "Edit", "delete": "Delete", "save": "Save", "cancel": "Cancel", "active": "Active", "inactive": "Inactive", "houses_title": "Houses (Mabanda)","location": "Location", "description": "Description", "admin_only_delete": "This action is for admins only"}

@@ -16,6 +16,7 @@ class HouseCreate(BaseModel):
     location: Optional[str] = Field(None, max_length=255, description="Physical location")
     capacity: Optional[int] = Field(None, ge=1, description="Maximum bird capacity")
     description: Optional[str] = Field(None, description="Additional notes")
+    status: Optional[bool] = Field(True, description="Active status")
 
 
 class HouseUpdate(BaseModel):
@@ -25,6 +26,7 @@ class HouseUpdate(BaseModel):
     location: Optional[str] = Field(None, max_length=255)
     capacity: Optional[int] = Field(None, ge=1)
     description: Optional[str] = None
+    status: Optional[bool] = None
 
 
 # ── Response schemas ───────────────────────────────────────────────────────────
@@ -37,6 +39,7 @@ class HouseResponse(BaseModel):
     location: Optional[str] = None
     capacity: Optional[int] = None
     description: Optional[str] = None
+    status: Optional[bool] = True
     created_by: Optional[int] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

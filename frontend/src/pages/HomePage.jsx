@@ -9,6 +9,8 @@ import Signin from "./examples/Signin";
 import NotFoundPage from "./examples/NotFound";
 import ServerError from "./examples/ServerError";
 
+import Houses from "./farm/Houses";
+
 // components
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -72,6 +74,7 @@ export default () => (
     {/* pages */}
     <RouteWithSidebar exact path={Routes.DashboardOverview.path} component={DashboardOverview} />
     <RouteWithSidebar exact path={Routes.Settings.path} component={Settings} />
+    <RouteWithSidebar exact path={Routes.Houses.path} component={Houses} />
 
     <Redirect to={Routes.NotFound.path} />
   </Switch>
