@@ -12,6 +12,7 @@ import ServerError from "./examples/ServerError";
 import Houses from "./farm/Houses";
 import Flocks from "./farm/Flocks";
 import MedicationRecords from "./farm/MedicationRecords";
+import VaccinationRecords from "./farm/VaccinationRecords";
 
 // components
 import Sidebar from "../components/Sidebar";
@@ -79,6 +80,7 @@ export default () => (
     <RouteWithSidebar exact path={Routes.Houses.path} component={Houses} />
     <RouteWithSidebar exact path={Routes.Flocks.path} component={Flocks} />
     <RouteWithSidebar exact path={Routes.Medications.path} component={MedicationRecords} />
+    <RouteWithSidebar exact path={Routes.Vaccinations.path} component={VaccinationRecords} />
 
     <Redirect to={Routes.NotFound.path} />
   </Switch>
