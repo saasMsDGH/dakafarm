@@ -9,19 +9,32 @@ import { Nav, Badge, Image, Button, Dropdown, Accordion, Navbar } from '@themesb
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+import { useAuth } from "../context/AuthContext";
 import { Routes } from "../routes";
 import ThemesbergLogo from "../assets/img/themesberg.svg";
 import ReactHero from "../assets/img/technologies/react-hero-logo.svg";
-import ProfilePicture from "../assets/img/team/profile-picture-3.jpg";
 
 export default (props = {}) => {
   const { t } = useTranslation();
+  const { user, logout } = useAuth();
   const location = useLocation();
   const { pathname } = location;
   const [show, setShow] = useState(false);
   const showClass = show ? "show" : "";
 
   const onCollapse = () => setShow(!show);
+
+  const UserAvatar = ({ name }) => {
+    const initial = name ? name.charAt(0).toUpperCase() : 'U';
+    return (
+      <div 
+        className="user-avatar lg-avatar rounded-circle d-flex align-items-center justify-content-center bg-secondary text-white fw-bold me-4 border-white"
+        style={{ fontSize: '1.5rem', border: '2px solid white', width: '3rem', height: '3rem' }}
+      >
+        {initial}
+      </div>
+    );
+  };
 
   const CollapsableNavItem = (props) => {
     const { eventKey, title, icon, children = null } = props;
@@ -84,13 +97,11 @@ export default (props = {}) => {
           <div className="sidebar-inner px-4 pt-3">
             <div className="user-card d-flex d-md-none align-items-center justify-content-between justify-content-md-center pb-4">
               <div className="d-flex align-items-center">
-                <div className="user-avatar lg-avatar me-4">
-                  <Image src={ProfilePicture} className="card-img-top rounded-circle border-white" />
-                </div>
+                <UserAvatar name={user?.first_name} />
                 <div className="d-block">
-                  <h6>Hi, Jane</h6>
-                  <Button as={Link} variant="secondary" size="xs" to={Routes.Signin.path} className="text-dark">
-                    <FontAwesomeIcon icon={faSignOutAlt} className="me-2" /> Sign Out
+                  <h6>Hi, {user?.first_name}</h6>
+                  <Button variant="secondary" size="xs" onClick={logout} className="text-dark">
+                    <FontAwesomeIcon icon={faSignOutAlt} className="me-2" /> {t('logout', 'Sign Out')}
                   </Button>
                 </div>
               </div>

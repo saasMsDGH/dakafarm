@@ -1,15 +1,18 @@
-
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faCog, faEnvelopeOpen, faSearch, faSignOutAlt, faUserShield } from "@fortawesome/free-solid-svg-icons";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import { Row, Col, Nav, Form, Image, Navbar, Dropdown, Container, ListGroup, InputGroup } from '@themesberg/react-bootstrap';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
+import { useAuth } from "../context/AuthContext";
+import { Routes } from "../routes";
 import NOTIFICATIONS_DATA from "../data/notifications";
-import Profile3 from "../assets/img/team/profile-picture-3.jpg";
-
 
 export default (props) => {
+  const { t } = useTranslation();
+  const { user, logout } = useAuth();
   const [notifications, setNotifications] = useState(NOTIFICATIONS_DATA);
   const areNotificationsRead = notifications.reduce((acc, notif) => acc && notif.read, true);
 
@@ -19,6 +22,17 @@ export default (props) => {
     }, 300);
   };
 
+  const UserAvatar = ({ name }) => {
+    const initial = name ? name.charAt(0).toUpperCase() : 'U';
+    return (
+      <div 
+        className="user-avatar md-avatar rounded-circle d-flex align-items-center justify-content-center bg-secondary text-white fw-bold"
+        style={{ fontSize: '1.2rem' }}
+      >
+        {initial}
+      </div>
+    );
+  };
 
   const Notification = (props) => {
     const { link, sender, image, time, message, read = false } = props;
@@ -86,30 +100,21 @@ export default (props) => {
             <Dropdown as={Nav.Item}>
               <Dropdown.Toggle as={Nav.Link} className="pt-1 px-0">
                 <div className="media d-flex align-items-center">
-                  <Image src={Profile3} className="user-avatar md-avatar rounded-circle" />
+                  <UserAvatar name={user?.first_name} />
                   <div className="media-body ms-2 text-dark align-items-center d-none d-lg-block">
-                    <span className="mb-0 font-small fw-bold">Bonnie Green</span>
+                    <span className="mb-0 font-small fw-bold">{user?.first_name} {user?.last_name}</span>
                   </div>
                 </div>
               </Dropdown.Toggle>
               <Dropdown.Menu className="user-dropdown dropdown-menu-right mt-2">
-                <Dropdown.Item className="fw-bold">
-                  <FontAwesomeIcon icon={faUserCircle} className="me-2" /> My Profile
-                </Dropdown.Item>
-                <Dropdown.Item className="fw-bold">
-                  <FontAwesomeIcon icon={faCog} className="me-2" /> Settings
-                </Dropdown.Item>
-                <Dropdown.Item className="fw-bold">
-                  <FontAwesomeIcon icon={faEnvelopeOpen} className="me-2" /> Messages
-                </Dropdown.Item>
-                <Dropdown.Item className="fw-bold">
-                  <FontAwesomeIcon icon={faUserShield} className="me-2" /> Support
+                <Dropdown.Item as={Link} to={Routes.Settings.path} className="fw-bold">
+                  <FontAwesomeIcon icon={faUserCircle} className="me-2" /> {t('my_profile')}
                 </Dropdown.Item>
 
                 <Dropdown.Divider />
 
-                <Dropdown.Item className="fw-bold">
-                  <FontAwesomeIcon icon={faSignOutAlt} className="text-danger me-2" /> Logout
+                <Dropdown.Item onClick={logout} className="fw-bold">
+                  <FontAwesomeIcon icon={faSignOutAlt} className="text-danger me-2" /> {t('logout', 'Logout')}
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
