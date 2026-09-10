@@ -67,8 +67,9 @@ class ProductionRecordService:
             )
 
         # 3. Auto-calculations
+        total_birds = flock.current_quantity
         good_eggs, laying_percentage = ProductionRecordService._calculate_automated_fields(
-            total_birds=request.total_birds,
+            total_birds=total_birds,
             total_eggs=request.total_eggs,
             damaged_eggs=request.damaged_eggs,
         )
@@ -76,7 +77,7 @@ class ProductionRecordService:
         new_record = ProductionRecord(
             flock_id=request.flock_id,
             record_date=request.record_date,
-            total_birds=request.total_birds,
+            total_birds=total_birds,
             total_eggs=request.total_eggs,
             damaged_eggs=request.damaged_eggs,
             good_eggs=good_eggs,
@@ -137,7 +138,7 @@ class ProductionRecordService:
         update_data = request.model_dump(exclude_unset=True)
         
         # Determine values for recalculation
-        new_total_birds = update_data.get("total_birds", record.total_birds)
+        # Note: total_birds is locked to the original record's total_birds (which captured the state at that time)
         new_total_eggs = update_data.get("total_eggs", record.total_eggs)
         new_damaged_eggs = update_data.get("damaged_eggs", record.damaged_eggs)
         
@@ -150,7 +151,7 @@ class ProductionRecordService:
 
         # Recalculate
         good_eggs, laying_percentage = ProductionRecordService._calculate_automated_fields(
-            total_birds=new_total_birds,
+            total_birds=record.total_birds,
             total_eggs=new_total_eggs,
             damaged_eggs=new_damaged_eggs,
         )

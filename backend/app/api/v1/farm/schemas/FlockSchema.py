@@ -38,6 +38,7 @@ class FlockResponse(BaseModel):
     house_id: int
     breed: Optional[str] = None
     initial_quantity: int
+    current_quantity: int
     arrival_date: date
     status: Optional[str] = None
     created_by: Optional[int] = None

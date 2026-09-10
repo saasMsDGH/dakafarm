@@ -12,6 +12,7 @@ class Flock(Base):
     house_id = Column(Integer, ForeignKey("houses.id", ondelete="RESTRICT"), nullable=False)
     breed = Column(String, nullable=True)
     initial_quantity = Column(Integer, nullable=False)
+    current_quantity = Column(Integer, nullable=False, default=0) # Automatically tracked
     arrival_date = Column(Date, nullable=False)
     status = Column(String, nullable=True)
     
@@ -24,3 +25,4 @@ class Flock(Base):
     user = relationship("Users")  # Link to creator
     feed_records = relationship("FeedRecord", back_populates="flock", cascade="all, delete-orphan")
     production_records = relationship("ProductionRecord", back_populates="flock", cascade="all, delete-orphan")
+    mortality_records = relationship("MortalityRecord", back_populates="flock", cascade="all, delete-orphan")

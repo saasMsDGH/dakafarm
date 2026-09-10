@@ -75,8 +75,9 @@ class FlockService:
             house_id=request.house_id,
             breed=request.breed,
             initial_quantity=request.initial_quantity,
+            current_quantity=request.initial_quantity,
             arrival_date=request.arrival_date,
-            status=request.status,
+            status=request.status or "active",
             created_by=current_user_id,
         )
         return await FlockRepo.create_flock(db, new_flock)
