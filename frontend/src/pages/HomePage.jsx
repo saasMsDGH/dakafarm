@@ -14,6 +14,7 @@ import Flocks from "./farm/Flocks";
 import MedicationRecords from "./farm/MedicationRecords";
 import VaccinationRecords from "./farm/VaccinationRecords";
 import ProductionRecords from "./farm/ProductionRecords";
+import MortalityRecords from "./farm/MortalityRecords";
 
 // components
 import Sidebar from "../components/Sidebar";
@@ -83,6 +84,7 @@ export default () => (
     <RouteWithSidebar exact path={Routes.Medications.path} component={MedicationRecords} />
     <RouteWithSidebar exact path={Routes.Vaccinations.path} component={VaccinationRecords} />
     <RouteWithSidebar exact path={Routes.Productions.path} component={ProductionRecords} />
+    <RouteWithSidebar exact path={Routes.Mortalities.path} component={MortalityRecords} />
 
     <Redirect to={Routes.NotFound.path} />
   </Switch>
