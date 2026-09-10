@@ -85,3 +85,18 @@ async def delete_user_endpoint(
     - Admins can delete any user.
     """
     return await UserService.delete_user(db, user_id, current_user)
+
+
+@router.put("/{user_id}/password", response_model=schemas.UserResponse)
+async def reset_password_endpoint(
+    user_id: int,
+    request: schemas.UserPasswordReset,
+    current_user: Users = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Reset a user's password.
+    - Users must provide 'old_password' to change their own password.
+    - Admins can bypass 'old_password' to reset anyone's password directly.
+    """
+    return await UserService.reset_password(db, user_id, request, current_user)

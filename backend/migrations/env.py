@@ -28,7 +28,6 @@ from app.db import *  # noqa: F401
 
 # Override the URL from settings (env.py always wins over alembic.ini)
 config.set_main_option("sqlalchemy.url", str(settings.DATABASE_URL))
-
 target_metadata = Base.metadata
 
 

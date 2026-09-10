@@ -155,3 +155,51 @@ class UserService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
         await UserRepo.delete_user(db, target_user)
+
+    @staticmethod
+    async def reset_password(
+        db: AsyncSession, 
+        target_user_id: int, 
+        request: schemas.UserPasswordReset, 
+        current_user: models.Users
+    ) -> schemas.UserResponse:
+        # Permission check
+        full_current_user = await UserRepo.get_user_by_id(db, current_user.id)
+        is_admin = UserService._extract_primary_role(full_current_user) == "admin"
+        
+        if current_user.id != target_user_id and not is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to reset this user's password."
+            )
+
+        target_user = await UserRepo.get_user_by_id(db, target_user_id)
+        if not target_user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+        # Logic for Normal User
+        if not is_admin:
+            if not request.old_password:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, 
+                    detail="old_password is required to change your password."
+                )
+            # Verify old password
+            if not Hash.verify_password(request.old_password, target_user.password_hash):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST, 
+                    detail="Invalid old password."
+                )
+
+        if request.new_password == request.old_password:
+            raise HTTPException(status_code=400,detail="password mpya imefanana na yazamani")
+
+        # Hash new password and save
+        hashed_new_password = Hash.hash(request.new_password)
+
+
+        await UserRepo.update_user(db, target_user, {"password_hash": hashed_new_password})
+        
+        # Reload to eagerly load relationships for response
+        final_user = await UserRepo.get_user_by_id(db, target_user_id)
+        return UserService._to_response(final_user)
