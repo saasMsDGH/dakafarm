@@ -10,6 +10,7 @@ import NotFoundPage from "./examples/NotFound";
 import ServerError from "./examples/ServerError";
 
 import Houses from "./farm/Houses";
+import Flocks from "./farm/Flocks";
 
 // components
 import Sidebar from "../components/Sidebar";
@@ -75,6 +76,7 @@ export default () => (
     <RouteWithSidebar exact path={Routes.DashboardOverview.path} component={DashboardOverview} />
     <RouteWithSidebar exact path={Routes.Settings.path} component={Settings} />
     <RouteWithSidebar exact path={Routes.Houses.path} component={Houses} />
+    <RouteWithSidebar exact path={Routes.Flocks.path} component={Flocks} />
 
     <Redirect to={Routes.NotFound.path} />
   </Switch>
