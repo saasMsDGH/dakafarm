@@ -33,6 +33,7 @@ class ProductService:
             category_id=request.category_id,
             unit_of_measure=request.unit_of_measure,
             unit_price=request.unit_price,
+            selling_price=request.selling_price,
             reorder_level=request.reorder_level,
             description=request.description,
             is_active=request.is_active,

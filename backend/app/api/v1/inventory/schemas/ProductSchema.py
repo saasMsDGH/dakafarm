@@ -11,6 +11,7 @@ class ProductCreate(BaseModel):
     category_id: int = Field(..., description="ID of the product category")
     unit_of_measure: str = Field(..., min_length=1, max_length=50, description="e.g., kg, bags, liters")
     unit_price: Optional[Decimal] = Field(Decimal('0.00'), description="Default cost per unit")
+    selling_price: Optional[Decimal] = Field(Decimal('0.00'), description="Default selling price")
     reorder_level: Optional[Decimal] = Field(Decimal('0.000'), description="Low stock alert threshold")
     description: Optional[str] = Field(None, max_length=255)
     is_active: Optional[bool] = Field(True, description="Active status")
@@ -20,6 +21,7 @@ class ProductUpdate(BaseModel):
     category_id: Optional[int] = None
     unit_of_measure: Optional[str] = Field(None, min_length=1, max_length=50)
     unit_price: Optional[Decimal] = None
+    selling_price: Optional[Decimal] = None
     reorder_level: Optional[Decimal] = None
     description: Optional[str] = Field(None, max_length=255)
     is_active: Optional[bool] = None
@@ -32,6 +34,7 @@ class ProductResponse(BaseModel):
     name: str
     unit_of_measure: str
     unit_price: Decimal
+    selling_price: Decimal
     current_stock: Decimal
     reorder_level: Decimal
     description: Optional[str] = None
