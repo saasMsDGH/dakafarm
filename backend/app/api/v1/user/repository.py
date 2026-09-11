@@ -38,8 +38,8 @@ class UserRepo:
         return user_role
 
     @staticmethod
-    async def get_user_by_id(db: AsyncSession, user_id: int) -> Optional[models.Users]:
-        result = await db.execute(
+    async def get_user_by_id(db: AsyncSession, user_id: int, force_refresh: bool = False) -> Optional[models.Users]:
+        stmt = (
             select(models.Users)
             .options(
                 selectinload(models.Users.role)
@@ -47,6 +47,10 @@ class UserRepo:
             )
             .where(models.Users.id == user_id)
         )
+        if force_refresh:
+            stmt = stmt.execution_options(populate_existing=True)
+            
+        result = await db.execute(stmt)
         return result.scalar_one_or_none()
 
     @staticmethod

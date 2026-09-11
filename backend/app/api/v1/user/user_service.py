@@ -130,7 +130,7 @@ class UserService:
         updated_user = await UserRepo.update_user(db, target_user, update_data)
         
         # Ensure relationships are loaded fully
-        final_user = await UserRepo.get_user_by_id(db, updated_user.id)
+        final_user = await UserRepo.get_user_by_id(db, updated_user.id, force_refresh=True)
         return UserService._to_response(final_user)
 
     @staticmethod
@@ -201,5 +201,5 @@ class UserService:
         await UserRepo.update_user(db, target_user, {"password_hash": hashed_new_password})
         
         # Reload to eagerly load relationships for response
-        final_user = await UserRepo.get_user_by_id(db, target_user_id)
+        final_user = await UserRepo.get_user_by_id(db, target_user_id, force_refresh=True)
         return UserService._to_response(final_user)
