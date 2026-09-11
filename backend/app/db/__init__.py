@@ -7,5 +7,6 @@ from app.api.v1.farm.models.production_record import ProductionRecord
 from app.api.v1.farm.models.mortality_record import MortalityRecord
 from app.api.v1.farm.models.medication_record import MedicationRecord
 from app.api.v1.farm.models.vaccination_record import VaccinationRecord
+from app.api.v1.inventory.models.product_category import ProductCategory
 
-__all__ = ["Base","Users","Roles","UserRole","House","Flock","FeedRecord", "ProductionRecord", "MortalityRecord", "MedicationRecord", "VaccinationRecord"]
+__all__ = ["Base","Users","Roles","UserRole","House","Flock","FeedRecord", "ProductionRecord", "MortalityRecord", "MedicationRecord", "VaccinationRecord", "ProductCategory"]

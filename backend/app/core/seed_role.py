@@ -27,6 +27,8 @@ DEFAULT_ROLES = [
         "name":"Sales Officer"
     },{
         "name": "Farm Worker"
+    },{
+        "name": "inventory_admin"
     }
 ]
 
