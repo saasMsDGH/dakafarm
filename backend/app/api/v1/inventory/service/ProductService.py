@@ -18,7 +18,7 @@ class ProductService:
         name = await ProductRepo.get_by_name(db,product_name=request.name)
 
         if name :
-            raise HTTPException(status_code=409,detail="product with that name already exisist")
+            raise HTTPException(status_code=409,detail="product with that name already exist")
         
         category = await ProductCategoryRepo.get_by_id(db, request.category_id)
         if not category:
