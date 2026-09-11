@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Numeric
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Numeric
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
@@ -24,6 +24,7 @@ class Product(Base):
     # Relationships
     category = relationship("ProductCategory")
     user = relationship("Users")
+    movements = relationship("StockMovement", back_populates="product", cascade="all, delete-orphan")
     feed_record = relationship("FeedRecord",back_populates="product")
     medication = relationship("MedicationRecord", back_populates="product")
     vaccination = relationship("VaccinationRecord", back_populates="product")
