@@ -31,5 +31,5 @@ class FeedRecord(Base):
 
     # Relationships
     flock = relationship("Flock", back_populates="feed_records")
-    product = relationship("Prosuct",back_populates="feed_record")
+    product = relationship("Product",back_populates="feed_record")
     user = relationship("Users")  # Recorded by user

@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.farm.models.feed_record import FeedRecord
 from app.api.v1.farm.repository.FeedRecordRepo import FeedRecordRepo
 from app.api.v1.farm.repository.FlockRepo import FlockRepo
+from app.api.v1.inventory.repository.ProductRepo import ProductRepo
 from app.api.v1.farm.schemas.FeedRecordSchema import (
     FeedRecordCreate,
     FeedRecordListResponse,
@@ -32,6 +33,14 @@ class FeedRecordService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Flock with id {request.flock_id} not found.",
+            )
+
+        product = await ProductRepo.get_by_id(db, request.product_id)
+
+        if not product:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="product with that id not found"
             )
 
         

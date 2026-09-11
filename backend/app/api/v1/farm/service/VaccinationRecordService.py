@@ -8,6 +8,7 @@ from decimal import Decimal
 
 from app.api.v1.farm.models.vaccination_record import VaccinationRecord
 from app.api.v1.farm.repository.VaccinationRecordRepo import VaccinationRecordRepo
+from app.api.v1.inventory.repository.ProductRepo import ProductRepo
 from app.api.v1.farm.repository.FlockRepo import FlockRepo
 from app.api.v1.farm.schemas.VaccinationRecordSchema import (
     VaccinationRecordCreate,
@@ -33,6 +34,14 @@ class VaccinationRecordService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Flock with id {request.flock_id} not found.",
+            )
+
+        product = await ProductRepo.get_by_id(db, request.product_id)
+
+        if not product:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="product with that id not found"
             )
 
         # 2. Auto-calculations

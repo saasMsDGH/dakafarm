@@ -9,6 +9,7 @@ from decimal import Decimal
 from app.api.v1.farm.models.medication_record import MedicationRecord
 from app.api.v1.farm.repository.MedicationRecordRepo import MedicationRecordRepo
 from app.api.v1.farm.repository.FlockRepo import FlockRepo
+from app.api.v1.inventory.repository.ProductRepo import ProductRepo
 from app.api.v1.farm.schemas.MedicationRecordSchema import (
     MedicationRecordCreate,
     MedicationRecordListResponse,
@@ -33,6 +34,14 @@ class MedicationRecordService:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Flock with id {request.flock_id} not found.",
+            )
+
+        product = await ProductRepo.get_by_id(db, request.product_id)
+
+        if not product:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="product with that id not found"
             )
 
         # 2. Auto-calculations

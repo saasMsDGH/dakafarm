@@ -24,7 +24,7 @@ class Product(Base):
     # Relationships
     category = relationship("ProductCategory")
     user = relationship("Users")
-    feed_record = relationship(" FeedRecord",back_populates="product")
+    feed_record = relationship("FeedRecord",back_populates="product")
     medication = relationship("MedicationRecord", back_populates="product")
-    VaccinationRecord = relationship("VaccinationRecord", back_populates="product")
+    vaccination = relationship("VaccinationRecord", back_populates="product")
 
