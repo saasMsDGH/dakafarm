@@ -11,6 +11,7 @@ class Product(Base):
     name = Column(String(100), index=True, nullable=False)
     unit_of_measure = Column(String(50), nullable=False) # e.g., kg, liters, bags
     unit_price = Column(Numeric(15, 2), default=0.00)
+    selling_price = Column (Numeric(15,2) , default =0.00 )
     current_stock = Column(Numeric(15, 3), default=0.000)
     reorder_level = Column(Numeric(15, 3), default=0.000)
     description = Column(String(255), nullable=True)
