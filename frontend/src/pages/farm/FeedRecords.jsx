@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrash, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination } from '@themesberg/react-bootstrap';
@@ -12,6 +12,7 @@ export default () => {
   
   const [records, setRecords] = useState([]);
   const [flocks, setFlocks] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   
   // Pagination and Search
@@ -24,10 +25,9 @@ export default () => {
   const [isEdit, setIsEdit] = useState(false);
   const [currentRecord, setCurrentRecord] = useState({
     flock_id: '',
+    product_id: '',
     record_date: moment().format('YYYY-MM-DD'),
-    opening_quantity: '',
     quantity_used: '',
-    cost_per_unit: ''
   });
 
   const fetchFlocks = async () => {
@@ -36,6 +36,16 @@ export default () => {
       setFlocks(response.data.items);
     } catch (error) {
       console.error("Failed to fetch flocks:", error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      // For now, fetch all products. Later this can be filtered by category (e.g. Feed)
+      const response = await api.get('/api/v1/inventory/products/', { params: { limit: 100 } });
+      setProducts(response.data.items);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
     }
   };
 
@@ -56,6 +66,7 @@ export default () => {
 
   useEffect(() => {
     fetchFlocks();
+    fetchProducts();
   }, []);
 
   useEffect(() => {
@@ -67,18 +78,16 @@ export default () => {
       setCurrentRecord({
         ...record,
         record_date: record.record_date || moment().format('YYYY-MM-DD'),
-        opening_quantity: record.opening_quantity || '',
+        product_id: record.product_id || '',
         quantity_used: record.quantity_used || '',
-        cost_per_unit: record.cost_per_unit || ''
       });
       setIsEdit(true);
     } else {
       setCurrentRecord({
-        flock_id: flocks.length > 0 ? flocks[0].id : '',
+        flock_id: '',
+        product_id: '',
         record_date: moment().format('YYYY-MM-DD'),
-        opening_quantity: '',
         quantity_used: '',
-        cost_per_unit: ''
       });
       setIsEdit(false);
     }
@@ -89,34 +98,31 @@ export default () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCurrentRecord({
-      ...currentRecord,
-      [name]: value
-    });
+    setCurrentRecord({ ...currentRecord, [name]: value });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const payload = {
+        ...currentRecord,
         flock_id: parseInt(currentRecord.flock_id),
-        record_date: currentRecord.record_date,
-        opening_quantity: currentRecord.opening_quantity ? parseFloat(currentRecord.opening_quantity) : null,
+        product_id: currentRecord.product_id ? parseInt(currentRecord.product_id) : null,
         quantity_used: parseFloat(currentRecord.quantity_used),
-        cost_per_unit: currentRecord.cost_per_unit ? parseFloat(currentRecord.cost_per_unit) : null
       };
 
       if (isEdit) {
         await api.put(`/api/v1/farm/feed-records/${currentRecord.id}`, payload);
-        Swal.fire('Success', t('profile_updated') || 'Updated successfully', 'success');
+        Swal.fire('Updated!', 'The record has been updated.', 'success');
       } else {
         await api.post('/api/v1/farm/feed-records/', payload);
-        Swal.fire('Success', 'Added successfully', 'success');
+        Swal.fire('Saved!', 'The record has been added.', 'success');
       }
       handleCloseModal();
       fetchRecords();
     } catch (error) {
-      Swal.fire('Error', error.response?.data?.detail || 'Failed to save', 'error');
+      const errorMsg = error.response?.data?.detail || 'An error occurred while saving the record.';
+      Swal.fire('Error', errorMsg, 'error');
     }
   };
 
@@ -126,8 +132,8 @@ export default () => {
       text: "You won't be able to revert this!",
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
       confirmButtonText: 'Yes, delete it!'
     });
 
@@ -151,15 +157,21 @@ export default () => {
     return flock ? `${flock.flock_code} (${flock.breed || 'N/A'})` : flockId;
   };
 
+  const getProductDisplay = (productId) => {
+    if (!productId) return '-';
+    const product = products.find(p => p.id === productId);
+    return product ? product.name : productId;
+  };
+
   return (
     <>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
-          <h4>{t('feed_records_title')}</h4>
+          <h4>{t('feed_records_title', 'Feed Records')}</h4>
         </div>
         <div className="btn-toolbar mb-2 mb-md-0">
           <Button variant="primary" size="sm" onClick={() => handleShowModal()}>
-            <FontAwesomeIcon icon={faPlus} className="me-2" /> {t('add_feed')}
+            <FontAwesomeIcon icon={faPlus} className="me-2" /> {t('add_feed', 'Add Feed')}
           </Button>
         </div>
       </div>
@@ -185,30 +197,26 @@ export default () => {
           <Table hover className="user-table align-items-center">
             <thead>
               <tr>
-                <th className="border-bottom">{t('record_date')}</th>
-                <th className="border-bottom">{t('flock')}</th>
-                <th className="border-bottom">{t('opening_quantity')}</th>
-                <th className="border-bottom text-warning">{t('quantity_used')}</th>
-                <th className="border-bottom">{t('closing_quantity')}</th>
-                <th className="border-bottom">{t('cost_per_unit')}</th>
-                <th className="border-bottom text-success">{t('total_cost')}</th>
+                <th className="border-bottom">{t('record_date', 'Date')}</th>
+                <th className="border-bottom">{t('flock', 'Flock')}</th>
+                <th className="border-bottom">{t('product', 'Product')}</th>
+                <th className="border-bottom text-warning">{t('quantity_used', 'Qty Used')}</th>
+                <th className="border-bottom text-success">{t('total_cost', 'Total Cost')}</th>
                 <th className="border-bottom">{t('actions', 'Actions')}</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="8" className="text-center">Loading...</td></tr>
+                <tr><td colSpan="6" className="text-center">Loading...</td></tr>
               ) : records.length === 0 ? (
-                <tr><td colSpan="8" className="text-center">No records found</td></tr>
+                <tr><td colSpan="6" className="text-center">No records found</td></tr>
               ) : (
                 records.map(record => (
                   <tr key={record.id}>
                     <td><span className="fw-normal">{record.record_date}</span></td>
                     <td><span className="fw-normal">{getFlockDisplay(record.flock_id)}</span></td>
-                    <td><span className="fw-normal">{record.opening_quantity || '-'}</span></td>
+                    <td><span className="fw-normal">{getProductDisplay(record.product_id)}</span></td>
                     <td><span className="fw-bold text-warning">{record.quantity_used}</span></td>
-                    <td><span className="fw-normal">{record.closing_quantity || '-'}</span></td>
-                    <td><span className="fw-normal">{record.cost_per_unit || '-'}</span></td>
                     <td><span className="fw-bold text-success">{record.total_cost || '-'}</span></td>
                     <td>
                       <Button variant="info" size="sm" className="me-2" onClick={() => handleShowModal(record)}>
@@ -242,26 +250,41 @@ export default () => {
       <Modal as={Modal.Dialog} centered show={showModal} onHide={handleCloseModal}>
         <Form onSubmit={handleSubmit}>
           <Modal.Header closeButton>
-            <Modal.Title>{isEdit ? t('edit', 'Edit') : t('add_feed')}</Modal.Title>
+            <Modal.Title>{isEdit ? t('edit', 'Edit') : t('add_feed', 'Add Feed')}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form.Group id="flock_id" className="mb-3">
-              <Form.Label>{t('select_flock')}</Form.Label>
+              <Form.Label>{t('select_flock', 'Select Flock')}</Form.Label>
               <Form.Select 
                 required 
                 name="flock_id"
                 value={currentRecord.flock_id} 
                 onChange={handleInputChange}
               >
-                <option value="">-- {t('select_flock')} --</option>
+                <option value="">-- {t('select_flock', 'Select Flock')} --</option>
                 {flocks.map(f => (
                   <option key={f.id} value={f.id}>{f.flock_code} ({f.breed || 'N/A'})</option>
                 ))}
               </Form.Select>
             </Form.Group>
+
+            <Form.Group id="product_id" className="mb-3">
+              <Form.Label>{t('select_product', 'Select Product')}</Form.Label>
+              <Form.Select 
+                required 
+                name="product_id"
+                value={currentRecord.product_id} 
+                onChange={handleInputChange}
+              >
+                <option value="">-- {t('select_product', 'Select Product')} --</option>
+                {products.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
             
             <Form.Group id="record_date" className="mb-3">
-              <Form.Label>{t('record_date')}</Form.Label>
+              <Form.Label>{t('record_date', 'Record Date')}</Form.Label>
               <Form.Control 
                 required 
                 type="date" 
@@ -271,47 +294,18 @@ export default () => {
               />
             </Form.Group>
             
-            <Form.Group id="opening_quantity" className="mb-3">
-              <Form.Label>{t('opening_quantity')} (Optional)</Form.Label>
+            <Form.Group id="quantity_used" className="mb-3">
+              <Form.Label>{t('quantity_used', 'Quantity Used')}</Form.Label>
               <Form.Control 
+                required 
                 type="number" 
                 step="0.01"
-                min="0"
-                name="opening_quantity"
-                value={currentRecord.opening_quantity} 
+                min="0.01"
+                name="quantity_used"
+                value={currentRecord.quantity_used} 
                 onChange={handleInputChange} 
               />
             </Form.Group>
-            
-            <Row>
-              <Col md={6}>
-                <Form.Group id="quantity_used" className="mb-3">
-                  <Form.Label>{t('quantity_used')}</Form.Label>
-                  <Form.Control 
-                    required 
-                    type="number" 
-                    step="0.01"
-                    min="0.01"
-                    name="quantity_used"
-                    value={currentRecord.quantity_used} 
-                    onChange={handleInputChange} 
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group id="cost_per_unit" className="mb-3">
-                  <Form.Label>{t('cost_per_unit')}</Form.Label>
-                  <Form.Control 
-                    type="number" 
-                    step="0.01"
-                    min="0"
-                    name="cost_per_unit"
-                    value={currentRecord.cost_per_unit} 
-                    onChange={handleInputChange} 
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
 
           </Modal.Body>
           <Modal.Footer>

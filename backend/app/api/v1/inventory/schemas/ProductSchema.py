@@ -33,10 +33,10 @@ class ProductResponse(BaseModel):
     category_id: int
     name: str
     unit_of_measure: str
-    unit_price: Decimal
-    selling_price: Decimal
-    current_stock: Decimal
-    reorder_level: Decimal
+    unit_price: Optional[Decimal] = None
+    selling_price: Optional[Decimal] = None
+    current_stock: Optional[Decimal] = None
+    reorder_level: Optional[Decimal] = None
     description: Optional[str] = None
     is_active: bool
     created_by: Optional[int] = None
