@@ -16,7 +16,7 @@ class FeedRecordCreate(BaseModel):
     product_id: Optional[int] = Field(None, description="Loose reference to the feed product")
     record_date: date = Field(..., description="Date the feed was given")
     
-    opening_quantity: Optional[Decimal] = Field(None, description="Starting feed amount")
+
     quantity_used: Decimal = Field(..., gt=0, description="Amount of feed used")
 
     
@@ -30,9 +30,9 @@ class FeedRecordUpdate(BaseModel):
     flock_id: Optional[int] = None
     product_id: Optional[int] = None
     record_date: Optional[date] = None
-    opening_quantity: Optional[Decimal] = None
+    
     quantity_used: Optional[Decimal] = Field(None, gt=0)
-    closing_quantity: Optional[Decimal] = None
+
     cost_per_unit: Optional[Decimal] = Field(None, ge=0)
     total_cost: Optional[Decimal] = Field(None, ge=0)
 

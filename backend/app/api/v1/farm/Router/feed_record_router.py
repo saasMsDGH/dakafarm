@@ -97,7 +97,7 @@ async def update_record_endpoint(
     current_user: Users = Depends(manage_record),
     db: AsyncSession = Depends(get_db),
 ) -> FeedRecordResponse:
-    return await FeedRecordService.update(db, record_id, request)
+    return await FeedRecordService.update(db, record_id, request, current_user.id)
 
 
 @router.delete(
@@ -110,4 +110,4 @@ async def delete_record_endpoint(
     current_user: Users = Depends(admin_only),
     db: AsyncSession = Depends(get_db),
 ) -> None:
-    await FeedRecordService.delete(db, record_id)
+    await FeedRecordService.delete(db, record_id, current_user.id)

@@ -94,7 +94,7 @@ async def update_record_endpoint(
     current_user: Users = Depends(manage_record),
     db: AsyncSession = Depends(get_db),
 ) -> VaccinationRecordResponse:
-    return await VaccinationRecordService.update(db, record_id, request)
+    return await VaccinationRecordService.update(db, record_id, request, current_user.id)
 
 
 @router.delete(
@@ -107,4 +107,4 @@ async def delete_record_endpoint(
     current_user: Users = Depends(admin_only),
     db: AsyncSession = Depends(get_db),
 ) -> None:
-    await VaccinationRecordService.delete(db, record_id)
+    await VaccinationRecordService.delete(db, record_id, current_user.id)

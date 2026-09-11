@@ -1,5 +1,5 @@
 """
-VaccinationRecord service — business logic.
+VaccinationRecord service - business logic.
 """
 
 from fastapi import HTTPException, status
@@ -8,8 +8,10 @@ from decimal import Decimal
 
 from app.api.v1.farm.models.vaccination_record import VaccinationRecord
 from app.api.v1.farm.repository.VaccinationRecordRepo import VaccinationRecordRepo
-from app.api.v1.inventory.repository.ProductRepo import ProductRepo
 from app.api.v1.farm.repository.FlockRepo import FlockRepo
+from app.api.v1.inventory.repository.ProductRepo import ProductRepo
+from app.api.v1.inventory.schemas.StockMovementSchema import StockMovementCreate
+from app.api.v1.inventory.service.StockMovementService import StockMovementService
 from app.api.v1.farm.schemas.VaccinationRecordSchema import (
     VaccinationRecordCreate,
     VaccinationRecordListResponse,
@@ -27,7 +29,6 @@ class VaccinationRecordService:
         request: VaccinationRecordCreate,
         current_user_id: int,
     ) -> VaccinationRecord:
-        """Create a new vaccination record with automated cost calculations."""
         # 1. Validate Flock exists
         flock = await FlockRepo.get_by_id(db, request.flock_id)
         if not flock:
@@ -36,12 +37,24 @@ class VaccinationRecordService:
                 detail=f"Flock with id {request.flock_id} not found.",
             )
 
+        if not request.product_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="product_id is strictly required for vaccination records."
+            )
+            
         product = await ProductRepo.get_by_id(db, request.product_id)
-
         if not product:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="product with that id not found"
+            )
+
+        # Check Stock
+        if product.current_stock < request.quantity_used:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Not enough stock! You tried to use {request.quantity_used}, but only {product.current_stock} is available."
             )
 
         # 2. Auto-calculations
@@ -61,11 +74,24 @@ class VaccinationRecordService:
             next_due_date=request.next_due_date,
             recorded_by=current_user_id,
         )
-        return await VaccinationRecordRepo.create(db, new_record)
+        created_record = await VaccinationRecordRepo.create(db, new_record)
+        
+        # 3. Automate the Inventory Movement
+        movement_request = StockMovementCreate(
+            product_id=request.product_id,
+            movement_type="OUT",
+            quantity=request.quantity_used,
+            reference_type="VaccinationRecord",
+            reference_id=created_record.id,
+            movement_date=None
+        )
+        await StockMovementService.create(db, movement_request, current_user_id)
+
+        await db.refresh(created_record)
+        return created_record
 
     @staticmethod
     async def get_record(db: AsyncSession, record_id: int) -> VaccinationRecord:
-        """Return a single vaccination record."""
         record = await VaccinationRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(
@@ -79,7 +105,6 @@ class VaccinationRecordService:
         db: AsyncSession,
         params: PaginationParams,
     ) -> VaccinationRecordListResponse:
-        """List paginated vaccination records."""
         records, total = await VaccinationRecordRepo.list_records(db, params)
         return VaccinationRecordListResponse(
             items=records,
@@ -94,8 +119,8 @@ class VaccinationRecordService:
         db: AsyncSession,
         record_id: int,
         request: VaccinationRecordUpdate,
+        current_user_id: int,
     ) -> VaccinationRecord:
-        """Update a vaccination record and recalculate cost if necessary."""
         record = await VaccinationRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(
@@ -103,33 +128,94 @@ class VaccinationRecordService:
                 detail=f"VaccinationRecord with id {record_id} not found.",
             )
             
-        # Validate new flock_id if it's changing
-        if request.flock_id is not None and request.flock_id != record.flock_id:
-            flock = await FlockRepo.get_by_id(db, request.flock_id)
-            if not flock:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Flock with id {request.flock_id} not found.",
+        old_product_id = record.product_id
+        old_quantity = record.quantity_used
+        new_product_id = request.product_id if request.product_id is not None else old_product_id
+        new_quantity = request.quantity_used if request.quantity_used is not None else old_quantity
+        
+        # Scenario A: Product was changed entirely (Swap)
+        if new_product_id != old_product_id and old_product_id is not None:
+            revert_req = StockMovementCreate(
+                product_id=old_product_id,
+                movement_type="ADJUSTMENT",
+                quantity=old_quantity,
+                reference_type="VaccinationRecord",
+                reference_id=record.id
+            )
+            await StockMovementService.create(db, revert_req, current_user_id)
+            
+            new_prod = await ProductRepo.get_by_id(db, new_product_id)
+            if not new_prod:
+                raise HTTPException(404, "New product not found.")
+            if new_prod.current_stock < new_quantity:
+                raise HTTPException(400, f"Not enough stock of new product (Needs {new_quantity}, has {new_prod.current_stock})")
+                
+            pull_req = StockMovementCreate(
+                product_id=new_product_id,
+                movement_type="OUT",
+                quantity=new_quantity,
+                reference_type="VaccinationRecord",
+                reference_id=record.id
+            )
+            await StockMovementService.create(db, pull_req, current_user_id)
+            await db.refresh(record)
+            
+        # Scenario B: Same product, quantity changed (Delta)
+        elif new_quantity != old_quantity and old_product_id is not None:
+            delta = new_quantity - old_quantity
+            if delta > 0:
+                prod = await ProductRepo.get_by_id(db, old_product_id)
+                if prod.current_stock < delta:
+                    raise HTTPException(400, f"Not enough stock to increase usage by {delta}. Only {prod.current_stock} available.")
+                mov_req = StockMovementCreate(
+                    product_id=old_product_id,
+                    movement_type="OUT",
+                    quantity=delta,
+                    reference_type="VaccinationRecord",
+                    reference_id=record.id
                 )
+                await StockMovementService.create(db, mov_req, current_user_id)
+                await db.refresh(record)
+            elif delta < 0:
+                mov_req = StockMovementCreate(
+                    product_id=old_product_id,
+                    movement_type="ADJUSTMENT",
+                    quantity=abs(delta),
+                    reference_type="VaccinationRecord",
+                    reference_id=record.id
+                )
+                await StockMovementService.create(db, mov_req, current_user_id)
+                await db.refresh(record)
 
         update_data = request.model_dump(exclude_unset=True)
         
-        # Auto-recalculate total_cost if quantity_used or cost_per_unit changes
         new_qty = update_data.get("quantity_used", record.quantity_used)
         new_cost = update_data.get("cost_per_unit", record.cost_per_unit)
-        
         if new_qty is not None and new_cost is not None:
             update_data["total_cost"] = new_qty * new_cost
 
-        return await VaccinationRecordRepo.update(db, record, update_data)
+        updated_record = await VaccinationRecordRepo.update(db, record, update_data)
+        await db.refresh(updated_record)
+        return updated_record
 
     @staticmethod
-    async def delete(db: AsyncSession, record_id: int) -> None:
-        """Delete a vaccination record."""
+    async def delete(db: AsyncSession, record_id: int, current_user_id: int) -> None:
         record = await VaccinationRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"VaccinationRecord with id {record_id} not found.",
             )
+            
+        # Restore stock back to inventory before deleting the record
+        if record.product_id:
+            restore_req = StockMovementCreate(
+                product_id=record.product_id,
+                movement_type="ADJUSTMENT",
+                quantity=record.quantity_used,
+                reference_type="VaccinationRecord_Deleted",
+                reference_id=record.id
+            )
+            await StockMovementService.create(db, restore_req, current_user_id)
+
         await VaccinationRecordRepo.delete(db, record)
