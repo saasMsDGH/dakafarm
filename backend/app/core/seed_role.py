@@ -35,17 +35,13 @@ async def seed_roles(
     db: AsyncSession = Depends(get_db),
     
 ):
+    added_any = False
 
     for role_data in DEFAULT_ROLES:
         exists = (
             await db.execute(select(Roles).where(Roles.name == role_data["name"]))
-            
-            
-
         )
         roles = exists.scalar_one_or_none()
-    
-    
 
         if not roles:
             db.add(Roles(**role_data))
@@ -56,4 +52,4 @@ async def seed_roles(
     if added_any:
         return {"message": "Roles seeded successfully"}
 
-    return {"message": "seed already planted"}
+    return {"message": "seed already planted"}
