@@ -63,9 +63,9 @@ class FeedRecordService:
         opening = product.current_stock
         closing = opening - request.quantity_used
         
-        # Calculate cost
-        cost_per_unit = request.cost_per_unit or Decimal("0.0")
-        total_cost = request.quantity_used * cost_per_unit
+        # 2. Auto-calculations
+        actual_cost_per_unit = product.unit_price
+        total_cost = request.quantity_used * actual_cost_per_unit
 
         # 3. Create the Farm Record
         new_record = FeedRecord(
@@ -75,7 +75,7 @@ class FeedRecordService:
             opening_quantity=opening,
             quantity_used=request.quantity_used,
             closing_quantity=closing,
-            cost_per_unit=cost_per_unit,
+            cost_per_unit=actual_cost_per_unit,
             total_cost=total_cost,
             recorded_by=current_user_id,
         )
@@ -202,6 +202,14 @@ class FeedRecordService:
         if "total_cost" not in update_data:
             c_qty = update_data.get("quantity_used", record.quantity_used)
             c_cost = update_data.get("cost_per_unit", record.cost_per_unit)
+            
+            # If product changed and cost wasn't explicitly provided, fetch new product's price
+            if new_product_id != old_product_id and "cost_per_unit" not in update_data:
+                new_prod = await ProductRepo.get_by_id(db, new_product_id)
+                if new_prod:
+                    c_cost = new_prod.unit_price
+                    update_data["cost_per_unit"] = c_cost
+            
             if c_qty is not None and c_cost is not None:
                 update_data["total_cost"] = c_qty * c_cost
 

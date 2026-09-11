@@ -1,4 +1,4 @@
-﻿from fastapi import HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.inventory.models.product import Product
 from app.api.v1.inventory.repository.ProductRepo import ProductRepo
@@ -32,6 +32,7 @@ class ProductService:
             name=request.name,
             category_id=request.category_id,
             unit_of_measure=request.unit_of_measure,
+            unit_price=request.unit_price,
             reorder_level=request.reorder_level,
             description=request.description,
             is_active=request.is_active,

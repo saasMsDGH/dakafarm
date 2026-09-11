@@ -19,7 +19,7 @@ class MedicationRecordCreate(BaseModel):
     disease_suspected: Optional[str] = Field(None, max_length=255, description="Suspected disease")
     
     quantity_used: Decimal = Field(..., gt=0, description="Amount of medication used")
-    cost_per_unit: Optional[Decimal] = Field(None, ge=0, description="Cost per unit of medication")
+
     
     # Notice: total_cost is omitted. The backend fully automates its calculation.
     
@@ -33,7 +33,7 @@ class MedicationRecordUpdate(BaseModel):
     record_date: Optional[date] = None
     disease_suspected: Optional[str] = Field(None, max_length=255)
     quantity_used: Optional[Decimal] = Field(None, gt=0)
-    cost_per_unit: Optional[Decimal] = Field(None, ge=0)
+    
     withdrawal_period_days: Optional[int] = Field(None, ge=0)
 
 

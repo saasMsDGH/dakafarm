@@ -58,9 +58,8 @@ class MedicationRecordService:
             )
 
         # 2. Auto-calculations
-        total_cost = None
-        if request.cost_per_unit is not None:
-            total_cost = request.quantity_used * request.cost_per_unit
+        actual_cost_per_unit =  product.unit_price
+        total_cost = request.quantity_used * actual_cost_per_unit
 
         new_record = MedicationRecord(
             flock_id=request.flock_id,
@@ -68,7 +67,7 @@ class MedicationRecordService:
             record_date=request.record_date,
             disease_suspected=request.disease_suspected,
             quantity_used=request.quantity_used,
-            cost_per_unit=request.cost_per_unit,
+            cost_per_unit=actual_cost_per_unit,
             total_cost=total_cost,
             withdrawal_period_days=request.withdrawal_period_days,
             recorded_by=current_user_id,
@@ -191,10 +190,19 @@ class MedicationRecordService:
         update_data = request.model_dump(exclude_unset=True)
         
         # Auto-recalculate total_cost
-        new_qty = update_data.get("quantity_used", record.quantity_used)
-        new_cost = update_data.get("cost_per_unit", record.cost_per_unit)
-        if new_qty is not None and new_cost is not None:
-            update_data["total_cost"] = new_qty * new_cost
+        if "total_cost" not in update_data:
+            c_qty = update_data.get("quantity_used", record.quantity_used)
+            c_cost = update_data.get("cost_per_unit", record.cost_per_unit)
+            
+            # If product changed and cost wasn't explicitly provided, fetch new product's price
+            if new_product_id != old_product_id and "cost_per_unit" not in update_data:
+                new_prod = await ProductRepo.get_by_id(db, new_product_id)
+                if new_prod:
+                    c_cost = new_prod.unit_price
+                    update_data["cost_per_unit"] = c_cost
+            
+            if c_qty is not None and c_cost is not None:
+                update_data["total_cost"] = c_qty * c_cost
 
         updated_record = await MedicationRecordRepo.update(db, record, update_data)
         await db.refresh(updated_record)

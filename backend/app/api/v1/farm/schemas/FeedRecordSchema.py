@@ -20,8 +20,7 @@ class FeedRecordCreate(BaseModel):
     quantity_used: Decimal = Field(..., gt=0, description="Amount of feed used")
 
     
-    cost_per_unit: Optional[Decimal] = Field(None, ge=0, description="Cost per unit of feed")
-    # total_cost is auto-calculated if omitted, but can be explicitly provided
+
 
 
 
@@ -33,8 +32,7 @@ class FeedRecordUpdate(BaseModel):
     
     quantity_used: Optional[Decimal] = Field(None, gt=0)
 
-    cost_per_unit: Optional[Decimal] = Field(None, ge=0)
-    total_cost: Optional[Decimal] = Field(None, ge=0)
+   
 
 
 # ── Response schemas ───────────────────────────────────────────────────────────
