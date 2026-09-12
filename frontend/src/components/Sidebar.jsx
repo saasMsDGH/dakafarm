@@ -3,7 +3,7 @@ import SimpleBar from 'simplebar-react';
 import { useLocation } from "react-router-dom";
 import { CSSTransition } from 'react-transition-group';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBoxOpen, faChartPie, faSignOutAlt, faTimes, faWarehouse } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faChartPie, faSignOutAlt, faTimes, faWarehouse, faCashRegister } from "@fortawesome/free-solid-svg-icons";
 import { Nav, Badge, Image, Button, Dropdown, Accordion, Navbar } from '@themesberg/react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -123,22 +123,32 @@ const Sidebar = (props) => {
                     <NavItem title={t('feeds')} link={Routes.Feeds?.path || '#'} />
                     <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
                   </CollapsableNavItem>
-                  <CollapsableNavItem eventKey="inventory/" title={t('inventory_management', 'Inventory Management')} icon={faWarehouse}>
+                  <CollapsableNavItem eventKey="inventory/" title={t('inventory_management')} icon={faWarehouse}>
                     <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
                     <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
                     <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
                     <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
                   </CollapsableNavItem>
                   <Dropdown.Divider className="my-3 border-indigo" />
-                </>
-              ) : user?.role_name === 'inventory_admin' ? (
-                <>
-                  <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
-                  <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
-                  <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
-                  <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
-                </>
-              ) : (
+                  
+                  <CollapsableNavItem eventKey="pos/" title={t('pos_sales', 'POS / Sales')} icon={faCashRegister}>
+                    <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
+                    <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
+                  </CollapsableNavItem>
+                  <Dropdown.Divider className="my-3 border-indigo" />
+                </>                ) : user?.role_name === 'inventory_admin' ? (
+                  <>
+                    <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
+                    <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
+                    <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
+                    <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
+                  </>
+                ) : user?.role_name === 'sell_manager' || user?.role_name === 'sell_officer' ? (
+                  <>
+                    <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
+                    <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
+                  </>
+                ) : (
                 <>
                   <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
                   <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
@@ -159,3 +169,5 @@ const Sidebar = (props) => {
 };
 
 export default Sidebar;
+
+

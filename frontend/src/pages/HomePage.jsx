@@ -25,6 +25,10 @@ import ProductCategories from "./inventory/ProductCategories";
 import StockMovements from "./inventory/StockMovements";
 import InventoryStatus from "./inventory/InventoryStatus";
 
+// pos
+import Customers from "./pos/Customers";
+import Sales from "./pos/Sales";
+
 // components
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -104,6 +108,10 @@ export default () => (
     <RouteWithSidebar exact path={Routes.ProductCategories.path} component={ProductCategories} />
     <RouteWithSidebar exact path={Routes.StockMovements.path} component={StockMovements} />
     <RouteWithSidebar exact path={Routes.InventoryStatus.path} component={InventoryStatus} />
+
+    {/* pos pages */}
+    <RouteWithSidebar exact path={Routes.Customers.path} component={Customers} />
+    <RouteWithSidebar exact path={Routes.Sales.path} component={Sales} />
 
     <Redirect to={Routes.NotFound.path} />
   </Switch>

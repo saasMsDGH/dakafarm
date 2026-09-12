@@ -44,7 +44,7 @@ async def create_customer(
 )
 async def list_customers(
     page: int = Query(default=1, ge=1),
-    limit: int = Query(default=20, ge=1, le=100),
+    limit: int = Query(default=20, ge=1, le=5000),
     search: Optional[str] = Query(default=None),
     sort_by: str = Query(default="created_at"),
     order: str = Query(default="desc"),
@@ -92,3 +92,4 @@ async def delete_customer(
     db: AsyncSession = Depends(get_db),
 ) -> None:
     await CustomerService.delete(db, customer_id)
+

@@ -23,4 +23,9 @@
     ProductCategories: { path: "/inventory/categories" },
     StockMovements: { path: "/inventory/stock-movements" },
     InventoryStatus: { path: "/inventory/status" },
+
+    // POS Subsystem
+    Customers: { path: "/pos/customers" },
+    Sales: { path: "/pos/sales" },
 };
+

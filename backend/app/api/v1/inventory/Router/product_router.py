@@ -42,7 +42,7 @@ async def create_product(
 )
 async def list_products(
     page: int = Query(default=1, ge=1),
-    limit: int = Query(default=20, ge=1, le=100),
+    limit: int = Query(default=20, ge=1, le=5000),
     search: Optional[str] = Query(default=None),
     sort_by: str = Query(default="created_at"),
     order: str = Query(default="desc"),
@@ -91,3 +91,4 @@ async def delete_product(
     db: AsyncSession = Depends(get_db),
 ) -> None:
     await ProductService.delete(db, product_id)
+
