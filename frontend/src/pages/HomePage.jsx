@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Route, Switch, Redirect } from "react-router-dom";
 import { Routes } from "../routes";
 
@@ -9,6 +9,7 @@ import Signin from "./examples/Signin";
 import NotFoundPage from "./examples/NotFound";
 import ServerError from "./examples/ServerError";
 
+// farm
 import Houses from "./farm/Houses";
 import Flocks from "./farm/Flocks";
 import MedicationRecords from "./farm/MedicationRecords";
@@ -17,6 +18,12 @@ import ProductionRecords from "./farm/ProductionRecords";
 import MortalityRecords from "./farm/MortalityRecords";
 import FeedRecords from "./farm/FeedRecords";
 import FarmReport from "./farm/FarmReport";
+
+// inventory
+import Products from "./inventory/Products";
+import ProductCategories from "./inventory/ProductCategories";
+import StockMovements from "./inventory/StockMovements";
+import InventoryStatus from "./inventory/InventoryStatus";
 
 // components
 import Sidebar from "../components/Sidebar";
@@ -81,6 +88,8 @@ export default () => (
     {/* pages */}
     <RouteWithSidebar exact path={Routes.DashboardOverview.path} component={DashboardOverview} />
     <RouteWithSidebar exact path={Routes.Settings.path} component={Settings} />
+    
+    {/* farm pages */}
     <RouteWithSidebar exact path={Routes.Houses.path} component={Houses} />
     <RouteWithSidebar exact path={Routes.Flocks.path} component={Flocks} />
     <RouteWithSidebar exact path={Routes.Medications.path} component={MedicationRecords} />
@@ -89,6 +98,12 @@ export default () => (
     <RouteWithSidebar exact path={Routes.Mortalities.path} component={MortalityRecords} />
     <RouteWithSidebar exact path={Routes.Feeds.path} component={FeedRecords} />
     <RouteWithSidebar exact path={Routes.FarmReport.path} component={FarmReport} />
+
+    {/* inventory pages */}
+    <RouteWithSidebar exact path={Routes.Products.path} component={Products} />
+    <RouteWithSidebar exact path={Routes.ProductCategories.path} component={ProductCategories} />
+    <RouteWithSidebar exact path={Routes.StockMovements.path} component={StockMovements} />
+    <RouteWithSidebar exact path={Routes.InventoryStatus.path} component={InventoryStatus} />
 
     <Redirect to={Routes.NotFound.path} />
   </Switch>
