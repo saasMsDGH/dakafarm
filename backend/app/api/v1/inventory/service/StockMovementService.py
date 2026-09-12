@@ -12,7 +12,7 @@ import datetime
 
 class StockMovementService:
     @staticmethod
-    async def create(db: AsyncSession, request: StockMovementCreate, current_user_id: int) -> StockMovement:
+    async def create(db: AsyncSession, request: StockMovementCreate, current_user_id: int, commit: bool = True) -> StockMovement:
         product = await ProductRepo.get_by_id(db, request.product_id)
         if not product:
             raise HTTPException(
@@ -47,8 +47,9 @@ class StockMovementService:
         
         # Commit both the movement and the product update simultaneously
         try:
-            await db.commit()
-            await db.refresh(created_movement)
+            if commit:
+                await db.commit()
+                await db.refresh(created_movement)
         except Exception as e:
             await db.rollback()
             raise HTTPException(status_code=500, detail="Database transaction failed")
@@ -80,3 +81,4 @@ class StockMovementService:
             limit=params.limit,
             pages=compute_pages(total, params.limit),
         )
+
