@@ -139,7 +139,7 @@ export default () => {
         </div>
         <div className="btn-toolbar mb-2 mb-md-0">
           <Button variant="primary" size="sm" onClick={handleShowAddModal}>
-            <FontAwesomeIcon icon={faPlus} className="me-2" /> Add Customer
+            <FontAwesomeIcon icon={faPlus} className="me-2" /> {t('add_customer')}
           </Button>
         </div>
       </div>
@@ -167,10 +167,10 @@ export default () => {
               <tr>
                 <th className="border-bottom">ID / Code</th>
                 <th className="border-bottom">Name</th>
-                <th className="border-bottom">Business Type</th>
+                <th className="border-bottom">{t('business_type')}</th>
                 <th className="border-bottom">Phone</th>
                 <th className="border-bottom">Address</th>
-                <th className="border-bottom">Credit Limit</th>
+                <th className="border-bottom">{t('credit_limit')}</th>
                 <th className="border-bottom">Actions</th>
               </tr>
             </thead>
@@ -221,7 +221,7 @@ export default () => {
       <Modal as={Modal.Dialog} centered show={showModal} onHide={handleCloseModal}>
         <Form onSubmit={handleSubmit}>
           <Modal.Header closeButton>
-            <Modal.Title>{isEdit ? 'Edit Customer' : 'Add Customer'}</Modal.Title>
+            <Modal.Title>{isEdit ? 'Edit Customer' : t('add_customer')}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form.Group className="mb-3">
@@ -229,7 +229,7 @@ export default () => {
               <Form.Control type="text" name="name" value={currentCustomer.name} onChange={handleChange} required />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Business Type</Form.Label>
+              <Form.Label>{t('business_type')}</Form.Label>
               <Form.Control type="text" name="business_type" value={currentCustomer.business_type || ''} onChange={handleChange} placeholder="e.g. Wholesale Egg Retailer" />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -245,7 +245,7 @@ export default () => {
               <Form.Control type="text" name="address" value={currentCustomer.address || ''} onChange={handleChange} />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Credit Limit</Form.Label>
+              <Form.Label>{t('credit_limit')}</Form.Label>
               <Form.Control type="number" step="0.01" name="credit_limit" value={currentCustomer.credit_limit} onChange={handleChange} required />
             </Form.Group>
           </Modal.Body>

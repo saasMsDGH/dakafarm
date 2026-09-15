@@ -1,4 +1,6 @@
 ﻿import React, { useState, useEffect } from "react";
+import Select from 'react-select';
+import { useAuth } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEye, faMoneyBillWave, faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination, Badge } from '@themesberg/react-bootstrap';
@@ -9,6 +11,7 @@ import Swal from 'sweetalert2';
 export default () => {
   const { t } = useTranslation();
   
+  const { user } = useAuth();
   const [sales, setSales] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [products, setProducts] = useState([]);
@@ -32,6 +35,7 @@ export default () => {
     payment_method: 'Cash'
   });
   const [cartItems, setCartItems] = useState([]);
+  const [productSearch, setProductSearch] = useState('');
   const [cartInput, setCartInput] = useState({
     product_id: '',
     quantity: 1,
@@ -80,6 +84,37 @@ export default () => {
   };
 
   // ----- NEW SALE LOGIC -----
+    const handleAddToCart = (product) => {
+    if (product.current_stock <= 0) {
+      Swal.fire('Error', 'Out of stock!', 'error');
+      return;
+    }
+    const existing = cartItems.find(item => item.product_id === product.id);
+    if (existing) {
+      if (existing.quantity + 1 > product.current_stock) {
+        Swal.fire('Warning', 'Cannot exceed current stock limit.', 'warning');
+        return;
+      }
+      setCartItems(cartItems.map(item => 
+        item.product_id === product.id ? {...item, quantity: item.quantity + 1} : item
+      ));
+    } else {
+      setCartItems([...cartItems, {
+        product_id: product.id,
+        name: product.name,
+        quantity: 1,
+        unit_price: parseFloat(product.selling_price)
+      }]);
+    }
+  };
+
+  const filteredProducts = products.filter(p => p.name.toLowerCase().includes(productSearch.toLowerCase()));
+
+  const customerOptions = customers.map(c => ({
+    value: c.id,
+    label: `${c.name} (${c.business_type || 'Retail'}) - Limit: ${parseFloat(c.credit_limit).toLocaleString()}`
+  }));
+
   const handleProductSelect = (e) => {
     const prodId = parseInt(e.target.value);
     const prod = products.find(p => p.id === prodId);
@@ -179,6 +214,178 @@ export default () => {
     setShowPaymentModal(true);
   };
 
+  const handlePrintInvoice = () => {
+    if (!currentSale) return;
+    
+    const printWindow = window.open('', '_blank', 'width=800,height=1000');
+    
+    const itemsHtml = currentSale.items.map(item => `
+      <tr>
+        <td style="padding: 10px; border: 1px solid #ddd;">${getProductName(item.product_id)}</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${item.quantity}</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${parseFloat(item.unit_price).toLocaleString()}</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${parseFloat(item.total_amount).toLocaleString()}</td>
+      </tr>
+    `).join('');
+
+    let paymentsHtml = '';
+    if (currentSale.payments && currentSale.payments.length > 0) {
+      const paymentRows = currentSale.payments.map(p => `
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #eee;">${p.receipt_number}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee;">${new Date(p.payment_date).toLocaleString()}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee;">${p.payment_method}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee; text-align: right; font-weight: bold;">${parseFloat(p.amount).toLocaleString()}</td>
+        </tr>
+      `).join('');
+      
+      paymentsHtml = `
+        <div style="margin-top: 30px;">
+          <h4 style="color: #333; border-bottom: 2px solid #333; padding-bottom: 5px;">Payment History</h4>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 10px;">
+            <thead>
+              <tr>
+                <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ddd; color: #666;">RECEIPT NO</th>
+                <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ddd; color: #666;">DATE</th>
+                <th style="text-align: left; padding: 8px; border-bottom: 2px solid #ddd; color: #666;">METHOD</th>
+                <th style="text-align: right; padding: 8px; border-bottom: 2px solid #ddd; color: #666;">AMOUNT</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${paymentRows}
+            </tbody>
+          </table>
+          <div style="text-align: right; margin-top: 15px; font-size: 16px; font-weight: bold; color: #28a745;">
+            Total Paid: ${parseFloat(currentSale.amount_paid).toLocaleString()}
+          </div>
+        </div>
+      `;
+    }
+
+    const docTitle = currentSale.invoice_number;
+    const titleType = currentSale.payment_status === 'PAID' ? 'SALES RECEIPT' : 'INVOICE';
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>${docTitle}</title>
+          <style>
+            @page {
+              margin: 0; /* This removes the about:blank browser footer */
+              size: A4 portrait;
+            }
+            body { 
+              font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+              font-size: 14px; 
+              color: #333; 
+              margin: 0; 
+              padding: 20mm; /* Added padding here instead of @page margin */
+            }
+            .invoice-box {
+              max-width: 800px;
+              margin: auto;
+              padding: 30px;
+              border: 1px solid #eee;
+              box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            }
+            @media print {
+              .invoice-box {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+              }
+            }
+            table { width: 100%; border-collapse: collapse; }
+            .header-table td { padding-bottom: 20px; }
+            .title { font-size: 45px; line-height: 45px; color: #333; font-weight: bold; }
+            .invoice-details { text-align: right; }
+            .invoice-details h2 { margin: 0; color: #555; }
+            .item-table th { background: #f8f9fa; padding: 10px; text-align: left; border: 1px solid #ddd; color: #333; }
+            .totals-box { width: 300px; float: right; margin-top: 20px; }
+            .totals-box table td { padding: 5px 10px; border: none; text-align: right; }
+            .totals-box table tr.total-row td { border-top: 2px solid #333; font-weight: bold; font-size: 18px; color: #d9534f; }
+            .clear { clear: both; }
+          </style>
+        </head>
+        <body>
+          <div class="invoice-box">
+            <table class="header-table">
+              <tr>
+                <td>
+                  <div class="title">AMAS FARM</div>
+                  <div style="color: #777; margin-top: 5px;">
+                    Dar es Salaam<br>
+                    Tel: 0712 345 678<br>
+                    info@amasfarm.com
+                  </div>
+                </td>
+                <td class="invoice-details">
+                  <h2>${titleType}</h2>
+                  <div style="margin-top: 10px; color: #555;">
+                    <b>Invoice #:</b> ${currentSale.invoice_number}<br>
+                    <b>Date:</b> ${new Date(currentSale.sale_date).toLocaleString()}<br>
+                    <b>Customer:</b> ${getCustomerName(currentSale.customer_id)}<br>
+                    <b>Status:</b> ${currentSale.payment_status}
+                  </div>
+                </td>
+              </tr>
+            </table>
+
+            <table class="item-table" style="margin-top: 20px;">
+              <thead>
+                <tr>
+                  <th>ITEM</th>
+                  <th style="text-align: center;">QTY</th>
+                  <th style="text-align: right;">PRICE</th>
+                  <th style="text-align: right;">TOTAL</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHtml}
+              </tbody>
+            </table>
+
+            <div class="totals-box">
+              <table>
+                <tr>
+                  <td>Subtotal:</td>
+                  <td>${parseFloat(currentSale.subtotal).toLocaleString()}</td>
+                </tr>
+                <tr>
+                  <td>Discount:</td>
+                  <td>${parseFloat(currentSale.discount).toLocaleString()}</td>
+                </tr>
+                <tr class="total-row">
+                  <td>TOTAL DUE:</td>
+                  <td>${parseFloat(currentSale.total_amount).toLocaleString()}</td>
+                </tr>
+              </table>
+            </div>
+            <div class="clear"></div>
+            
+            ${paymentsHtml}
+            
+            <div style="margin-top: 50px; text-align: center; color: #777; font-size: 12px; border-top: 1px solid #ddd; padding-top: 20px;">
+              Thank you for doing business with AMAS FARM.
+            </div>
+          </div>
+          <script>
+            window.onload = function() { 
+              setTimeout(function() {
+                window.print(); 
+                window.close(); 
+              }, 300);
+            }
+          </script>
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.write(html);
+    printWindow.document.close();
+  };
+
   const submitPayment = async (e) => {
     e.preventDefault();
     try {
@@ -220,11 +427,17 @@ export default () => {
       ? currentSale.payments[0].payment_method 
       : (currentSale.payment_status === 'PAID' ? 'Cash' : 'Credit');
 
+    const receiptNumber = currentSale.payments && currentSale.payments.length > 0 
+      ? currentSale.payments[currentSale.payments.length - 1].receipt_number 
+      : currentSale.invoice_number;
+
+    const cashierName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email.split('@')[0] : 'System';
+
     const html = `
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Receipt - ${currentSale.invoice_number}</title>
+          <title>Receipt - ${receiptNumber}</title>
           <style>
             @page {
               margin: 0;
@@ -272,9 +485,9 @@ export default () => {
             <div class="divider">----------------------------------------------------</div>
             
             <div>
-              <p>Receipt:<br/>${currentSale.invoice_number}</p>
+              <p>Receipt:<br/>${receiptNumber}</p>
               <p>Date: ${new Date(currentSale.sale_date).toLocaleString()}</p>
-              <p>Cashier: Admin</p>
+              <p>Cashier: ${cashierName}</p>
               <p>Customer: ${getCustomerName(currentSale.customer_id)}</p>
               <p>Payment: ${paymentMethod}</p>
             </div>
@@ -315,7 +528,7 @@ export default () => {
             <br/>
             <div class="text-center">
               <p style="font-weight: bold;">RECEIPT VERIFICATION CODE</p>
-              <p style="word-break: break-all;">${currentSale.invoice_number}</p>
+              <p style="word-break: break-all;">${receiptNumber}</p>
             </div>
             
             <br/>
@@ -362,16 +575,23 @@ export default () => {
       return p ? p.name : `Product ID: ${id}`;
   };
 
+
   return (
     <>
+      <style>{`
+        .modal-90w {
+          max-width: 90% !important;
+        }
+      `}</style>
+
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
           <h4>{t('sales', 'Sales & Invoices')}</h4>
-          <p className="mb-0">Manage point of sale transactions, credit limits, and receipts.</p>
+          <p className="mb-0">{t('profile_description')}</p>
         </div>
         <div className="btn-toolbar mb-2 mb-md-0">
           <Button variant="primary" size="sm" onClick={() => setShowNewSaleModal(true)}>
-            <FontAwesomeIcon icon={faPlus} className="me-2" /> New Sale
+            <FontAwesomeIcon icon={faPlus} className="me-2" /> {t('new_sale')}
           </Button>
         </div>
       </div>
@@ -381,11 +601,11 @@ export default () => {
           <Table hover className="user-table align-items-center">
             <thead>
               <tr>
-                <th className="border-bottom">Invoice No</th>
+                <th className="border-bottom">{t('invoice_no')}</th>
                 <th className="border-bottom">Customer</th>
                 <th className="border-bottom">Date</th>
                 <th className="border-bottom">Total Amount</th>
-                <th className="border-bottom">Amount Paid</th>
+                <th className="border-bottom">{t('amount_paid')}</th>
                 <th className="border-bottom">Status</th>
                 <th className="border-bottom">Actions</th>
               </tr>
@@ -406,7 +626,7 @@ export default () => {
                     <td>{getStatusBadge(s.payment_status)}</td>
                     <td>
                       <Button variant="info" size="sm" className="me-2" onClick={() => handleViewSale(s.id)}>
-                        <FontAwesomeIcon icon={faEye} /> View
+                        <FontAwesomeIcon icon={faEye} /> {t('view_sale')}
                       </Button>
                       {s.payment_status !== 'PAID' && (
                         <Button variant="success" size="sm" onClick={() => handleAddPaymentClick(s)}>
@@ -435,123 +655,161 @@ export default () => {
       </Card>
 
       {/* NEW SALE MODAL */}
-      <Modal as={Modal.Dialog} size="lg" centered show={showNewSaleModal} onHide={() => setShowNewSaleModal(false)}>
+      <Modal size="xl" dialogClassName="modal-90w" centered show={showNewSaleModal} onHide={() => setShowNewSaleModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Point of Sale Checkout</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
-          <Row>
-            <Col md={12} className="mb-3">
-              <Form.Group>
-                <Form.Label>Customer *</Form.Label>
-                <Form.Select 
-                  value={newSale.customer_id} 
-                  onChange={(e) => setNewSale({...newSale, customer_id: e.target.value})}
-                >
-                  <option value="">-- Select Customer --</option>
-                  {customers.map(c => (
-                    <option key={c.id} value={c.id}>{c.name} ({c.business_type || 'Retail'}) - Limit: {parseFloat(c.credit_limit).toLocaleString()}</option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-          </Row>
+        <Modal.Body style={{ backgroundColor: '#f8f9fa' }}>
+              <Row>
+                {/* LEFT SIDE: PRODUCT CARDS */}
+                <Col md={7}>
+                  <Card className="border-0 shadow-sm mb-3">
+                    <Card.Body>
+                      <InputGroup className="mb-3">
+                        <InputGroup.Text><FontAwesomeIcon icon={faSearch} /></InputGroup.Text>
+                        <Form.Control 
+                          placeholder="Search products..." 
+                          value={productSearch}
+                          onChange={(e) => setProductSearch(e.target.value)}
+                        />
+                      </InputGroup>
+                      
+                      <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '5px' }}>
+                        <Row>
+                          {filteredProducts.map(p => (
+                            <Col xs={6} lg={4} className="mb-3" key={p.id}>
+                              <Card 
+                                className={`h-100 product-card shadow-sm ${p.current_stock <= 0 ? 'opacity-50' : ''}`}
+                                style={{ cursor: p.current_stock > 0 ? 'pointer' : 'not-allowed', transition: 'transform 0.1s' }}
+                                onClick={() => handleAddToCart(p)}
+                                onMouseOver={(e) => { if (p.current_stock > 0) e.currentTarget.style.transform = 'scale(1.02)'; }}
+                                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                              >
+                                <Card.Body className="p-3 text-center">
+                                  <div className="fw-bold text-dark" style={{ fontSize: '15px' }}>{p.name}</div>
+                                  <div className="text-muted small mb-2">{p.category_name || 'Item'}</div>
+                                  <Badge bg={p.current_stock > 10 ? 'success' : (p.current_stock > 0 ? 'warning' : 'danger')} className="mb-2">
+                                    Stock: {p.current_stock}
+                                  </Badge>
+                                  <div className="fw-bolder text-primary" style={{ fontSize: '16px' }}>
+                                    TSh {parseFloat(p.selling_price).toLocaleString()}
+                                  </div>
+                                </Card.Body>
+                              </Card>
+                            </Col>
+                          ))}
+                          {filteredProducts.length === 0 && (
+                            <div className="text-center text-muted w-100 py-4">No products found.</div>
+                          )}
+                        </Row>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
 
-          <Card border="light" className="mb-3 p-3 bg-light">
-            <h6 className="mb-3">Add Items to Cart</h6>
-            <Row className="align-items-end">
-              <Col md={5}>
-                <Form.Group>
-                  <Form.Label>Product</Form.Label>
-                  <Form.Select value={cartInput.product_id} onChange={handleProductSelect}>
-                    <option value="">-- Select Product --</option>
-                    {products.filter(p => p.is_active).map(p => (
-                      <option key={p.id} value={p.id}>{p.name} (Stock: {p.current_stock})</option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-              <Col md={2}>
-                <Form.Group>
-                  <Form.Label>Qty</Form.Label>
-                  <Form.Control type="number" step="0.01" min="0.01" value={cartInput.quantity} onChange={(e) => setCartInput({...cartInput, quantity: e.target.value})} />
-                </Form.Group>
-              </Col>
-              <Col md={3}>
-                <Form.Group>
-                  <Form.Label>Unit Price</Form.Label>
-                  <Form.Control type="number" step="0.01" value={cartInput.unit_price} readOnly disabled />
-                </Form.Group>
-              </Col>
-              <Col md={2}>
-                <Button variant="secondary" className="w-100" onClick={addToCart}>Add</Button>
-              </Col>
-            </Row>
-          </Card>
+                {/* RIGHT SIDE: CART & CHECKOUT */}
+                <Col md={5}>
+                  <Card className="border-0 shadow-sm h-100">
+                    <Card.Body className="d-flex flex-column">
+                      <Form.Group className="mb-4" style={{ position: 'relative', zIndex: 50 }}>
+                        <Form.Label className="fw-bold">Customer</Form.Label>
+                        <Select
+                          options={customerOptions}
+                          placeholder={t('search_customers')}
+                          isClearable
+                          menuPortalTarget={document.body}
+                          styles={{ menuPortal: base => ({ ...base, zIndex: 9999 }) }}
+                          onChange={(selected) => setNewSale({...newSale, customer_id: selected ? selected.value : ''})}
+                          value={customerOptions.find(o => o.value === newSale.customer_id) || null}
+                        />
+                      </Form.Group>
 
-          <Table size="sm" bordered hover className="mb-3">
-            <thead className="thead-light">
-              <tr>
-                <th>Product</th>
-                <th>Qty</th>
-                <th>Unit Price</th>
-                <th>Total</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {cartItems.length === 0 ? (
-                <tr><td colSpan="5" className="text-center text-muted">Cart is empty</td></tr>
-              ) : (
-                cartItems.map((item, idx) => (
-                  <tr key={idx}>
-                    <td>{item.product_name}</td>
-                    <td>{item.quantity}</td>
-                    <td>{item.unit_price.toLocaleString()}</td>
-                    <td>{(item.quantity * item.unit_price).toLocaleString()}</td>
-                    <td>
-                      <Button variant="link" className="text-danger p-0" onClick={() => removeFromCart(idx)}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </Table>
+                      <div className="flex-grow-1" style={{ maxHeight: '35vh', overflowY: 'auto', border: '1px solid #eee', borderRadius: '5px' }}>
+                        <Table hover size="sm" className="mb-0">
+                          <thead className="bg-light sticky-top">
+                            <tr>
+                              <th>Item</th>
+                              <th className="text-center">Qty</th>
+                              <th className="text-right">Total</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {cartItems.map((item, idx) => (
+                              <tr key={idx}>
+                                <td className="align-middle fw-bold">{item.name}</td>
+                                <td className="align-middle text-center">
+                                  <div className="d-flex align-items-center justify-content-center">
+                                    <Button variant="light" size="sm" className="px-2 py-0" 
+                                      onClick={() => {
+                                        const newQty = Math.max(1, item.quantity - 1);
+                                        const newCart = [...cartItems];
+                                        newCart[idx].quantity = newQty;
+                                        setCartItems(newCart);
+                                      }}>-</Button>
+                                    <span className="mx-2">{item.quantity}</span>
+                                    <Button variant="light" size="sm" className="px-2 py-0"
+                                      onClick={() => {
+                                        const prod = products.find(p => p.id === item.product_id);
+                                        if (item.quantity + 1 > prod.current_stock) {
+                                          Swal.fire('Warning', 'Stock limit reached', 'warning');
+                                          return;
+                                        }
+                                        const newCart = [...cartItems];
+                                        newCart[idx].quantity = item.quantity + 1;
+                                        setCartItems(newCart);
+                                      }}>+</Button>
+                                  </div>
+                                </td>
+                                <td className="align-middle text-right">{(item.quantity * item.unit_price).toLocaleString()}</td>
+                                <td className="align-middle text-center">
+                                  <Button variant="link" className="text-danger p-0" onClick={() => removeCartItem(idx)}>
+                                    <FontAwesomeIcon icon={faTrash} />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
+                            {cartItems.length === 0 && (
+                              <tr><td colSpan="4" className="text-center text-muted py-4">Cart is empty</td></tr>
+                            )}
+                          </tbody>
+                        </Table>
+                      </div>
 
-          <Row>
-            <Col md={6}></Col>
-            <Col md={6}>
-              <Card border="light" className="p-3">
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Subtotal:</span>
-                  <span className="fw-bold">{cartSubtotal.toLocaleString()}</span>
-                </div>
-                <Form.Group className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="me-2">Discount:</span>
-                  <Form.Control type="number" step="0.01" size="sm" style={{ width: '120px' }} value={newSale.discount} onChange={(e) => setNewSale({...newSale, discount: e.target.value})} />
-                </Form.Group>
-                <div className="d-flex justify-content-between mb-3 border-bottom pb-2">
-                  <span className="fw-bold h5">Total Due:</span>
-                  <span className="fw-bold h5 text-danger">{cartTotal.toLocaleString()}</span>
-                </div>
-                <Form.Group className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="me-2">Amount Paid:</span>
-                  <Form.Control type="number" step="0.01" size="sm" style={{ width: '120px' }} value={newSale.amount_paid} onChange={(e) => setNewSale({...newSale, amount_paid: e.target.value})} />
-                </Form.Group>
-                <Form.Group className="d-flex justify-content-between align-items-center mb-2">
-                  <span className="me-2">Payment Method:</span>
-                  <Form.Select size="sm" style={{ width: '120px' }} value={newSale.payment_method} onChange={(e) => setNewSale({...newSale, payment_method: e.target.value})}>
-                    <option value="Cash">Cash</option>
-                    <option value="Mobile Money">Mobile Money</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
-                  </Form.Select>
-                </Form.Group>
-              </Card>
-            </Col>
-          </Row>
-        </Modal.Body>
+                      <div className="mt-3 pt-3 border-top">
+                        <div className="d-flex justify-content-between mb-2">
+                          <span className="text-muted">{t('subtotal')}:</span>
+                          <span className="fw-bold">{cartSubtotal.toLocaleString()}</span>
+                        </div>
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <span className="text-muted">{t('discount')}:</span>
+                          <Form.Control type="number" step="0.01" size="sm" style={{ width: '120px', textAlign: 'right' }} 
+                            value={newSale.discount} onChange={(e) => setNewSale({...newSale, discount: e.target.value})} />
+                        </div>
+                        <div className="d-flex justify-content-between mb-3 p-2 bg-light rounded">
+                          <span className="fw-bold h5 mb-0 text-dark">{t('total_due')}:</span>
+                          <span className="fw-bold h5 mb-0 text-danger">{cartTotal.toLocaleString()} TSh</span>
+                        </div>
+                        
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <span className="text-muted">{t('amount_paid')}:</span>
+                          <Form.Control type="number" step="0.01" size="sm" style={{ width: '120px', textAlign: 'right' }} 
+                            value={newSale.amount_paid} onChange={(e) => setNewSale({...newSale, amount_paid: e.target.value})} />
+                        </div>
+                        <Form.Group className="mb-3">
+                          <Form.Label className="text-muted small mb-1">{t('payment_method')}</Form.Label>
+                          <Form.Select size="sm" value={newSale.payment_method} onChange={(e) => setNewSale({...newSale, payment_method: e.target.value})}>
+                            <option value="Cash">{t('cash')}</option>
+                            <option value="Mobile Money">{t('mobile_money')}</option>
+                            <option value="Bank Transfer">{t('bank_transfer')}</option>
+                          </Form.Select>
+                        </Form.Group>
+                      </div>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowNewSaleModal(false)}>Cancel</Button>
           <Button variant="success" onClick={submitNewSale}>Confirm Sale</Button>
@@ -559,7 +817,7 @@ export default () => {
       </Modal>
 
       {/* VIEW INVOICE/RECEIPT MODAL */}
-      <Modal as={Modal.Dialog} size="lg" centered show={showViewModal} onHide={() => setShowViewModal(false)}>
+      <Modal size="lg" centered show={showViewModal} onHide={() => setShowViewModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Invoice Details</Modal.Title>
         </Modal.Header>
@@ -575,7 +833,7 @@ export default () => {
                 <Col>
                   <strong>Customer:</strong> {getCustomerName(currentSale.customer_id)}<br/>
                   <strong>Date:</strong> {new Date(currentSale.sale_date).toLocaleString()}<br/>
-                  <strong>Payment Status:</strong> {currentSale.payment_status}
+                  <strong>{t('payment_status')}:</strong> {currentSale.payment_status}
                 </Col>
               </Row>
               <Table bordered size="sm">
@@ -600,8 +858,8 @@ export default () => {
               </Table>
               <Row className="text-end mt-3">
                 <Col>
-                  <p className="mb-1">Subtotal: <strong>{parseFloat(currentSale.subtotal).toLocaleString()}</strong></p>
-                  <p className="mb-1">Discount: <strong>{parseFloat(currentSale.discount).toLocaleString()}</strong></p>
+                  <p className="mb-1">{t('subtotal')}: <strong>{parseFloat(currentSale.subtotal).toLocaleString()}</strong></p>
+                  <p className="mb-1">{t('discount')}: <strong>{parseFloat(currentSale.discount).toLocaleString()}</strong></p>
                   <h5 className="mt-2 text-danger">TOTAL DUE: {parseFloat(currentSale.total_amount).toLocaleString()}</h5>
                 </Col>
               </Row>
@@ -639,26 +897,26 @@ export default () => {
         <Modal.Footer>
           {currentSale && currentSale.payment_status !== 'PAID' && (
             <Button variant="success" onClick={() => handleAddPaymentClick(currentSale)}>
-              <FontAwesomeIcon icon={faMoneyBillWave} className="me-2" /> Add Payment
+              <FontAwesomeIcon icon={faMoneyBillWave} className="me-2" /> {t('add_payment')}
             </Button>
           )}
           <Button variant="secondary" onClick={() => setShowViewModal(false)}>Close</Button>
-          <Button variant="info" onClick={handlePrintReceipt}>Print Receipt (Small)</Button>
-          <Button variant="primary" onClick={() => window.print()}>Print Invoice (A4)</Button>
+          <Button variant="info" onClick={handlePrintReceipt}>{t('print_receipt_small')}</Button>
+          <Button variant="primary" onClick={handlePrintInvoice}>{t('print_invoice_a4')}</Button>
         </Modal.Footer>
       </Modal>
 
       {/* ADD PAYMENT MODAL */}
-      <Modal as={Modal.Dialog} centered show={showPaymentModal} onHide={() => setShowPaymentModal(false)}>
+      <Modal centered show={showPaymentModal} onHide={() => setShowPaymentModal(false)}>
         <Form onSubmit={submitPayment}>
           <Modal.Header closeButton>
-            <Modal.Title>Add Payment</Modal.Title>
+            <Modal.Title>{t('add_payment')}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             {currentSale && (
               <div className="mb-3 text-muted">
                 Invoice: <strong>{currentSale.invoice_number}</strong><br/>
-                Total Due: <strong>{parseFloat(currentSale.total_amount).toLocaleString()}</strong><br/>
+                {t('total_due')}: <strong>{parseFloat(currentSale.total_amount).toLocaleString()}</strong><br/>
                 Remaining Balance: <strong className="text-danger">
                   {(parseFloat(currentSale.total_amount) - parseFloat(currentSale.amount_paid)).toLocaleString()}
                 </strong>

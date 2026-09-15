@@ -3,6 +3,15 @@
 with open("frontend/src/pages/pos/Sales.jsx", "r") as f:
     code = f.read()
 
+# 1. Add useAuth import
+if "import { useAuth }" not in code:
+    code = code.replace("import React, { useState, useEffect } from 'react';", "import React, { useState, useEffect } from 'react';\nimport { useAuth } from '../../context/AuthContext';")
+
+# 2. Add const { user } = useAuth();
+if "const { user } = useAuth();" not in code:
+    code = code.replace("const [sales, setSales] = useState([]);", "const { user } = useAuth();\n  const [sales, setSales] = useState([]);")
+
+# 3. Modify handlePrintReceipt
 correct_function = """  const handlePrintReceipt = () => {
     if (!currentSale) return;
     
@@ -23,11 +32,17 @@ correct_function = """  const handlePrintReceipt = () => {
       ? currentSale.payments[0].payment_method 
       : (currentSale.payment_status === 'PAID' ? 'Cash' : 'Credit');
 
+    const receiptNumber = currentSale.payments && currentSale.payments.length > 0 
+      ? currentSale.payments[currentSale.payments.length - 1].receipt_number 
+      : currentSale.invoice_number;
+
+    const cashierName = user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email.split('@')[0] : 'System';
+
     const html = `
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Receipt - ${currentSale.invoice_number}</title>
+          <title>Receipt - ${receiptNumber}</title>
           <style>
             @page {
               margin: 0;
@@ -75,9 +90,9 @@ correct_function = """  const handlePrintReceipt = () => {
             <div class="divider">----------------------------------------------------</div>
             
             <div>
-              <p>Receipt:<br/>${currentSale.invoice_number}</p>
+              <p>Receipt:<br/>${receiptNumber}</p>
               <p>Date: ${new Date(currentSale.sale_date).toLocaleString()}</p>
-              <p>Cashier: Admin</p>
+              <p>Cashier: ${cashierName}</p>
               <p>Customer: ${getCustomerName(currentSale.customer_id)}</p>
               <p>Payment: ${paymentMethod}</p>
             </div>
@@ -118,7 +133,7 @@ correct_function = """  const handlePrintReceipt = () => {
             <br/>
             <div class="text-center">
               <p style="font-weight: bold;">RECEIPT VERIFICATION CODE</p>
-              <p style="word-break: break-all;">${currentSale.invoice_number}</p>
+              <p style="word-break: break-all;">${receiptNumber}</p>
             </div>
             
             <br/>
