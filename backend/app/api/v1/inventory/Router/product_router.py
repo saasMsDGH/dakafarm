@@ -15,6 +15,7 @@ from app.core.database import get_db
 from app.shared.pagination import PaginationParams
 
 manage_inventory = RoleChecker(["admin", "inventory_admin"])
+admin = RoleChecker(["admin"])
 
 router = APIRouter(
     prefix="/products",
@@ -75,10 +76,10 @@ async def get_product(
 async def update_product(
     product_id: int,
     request: ProductUpdate,
-    current_user: Users = Depends(manage_inventory),
+    current_user: Users = Depends(admin),
     db: AsyncSession = Depends(get_db),
 ) -> ProductResponse:
-    return await ProductService.update(db, product_id, request)
+    return await ProductService.update(db, product_id, request, current_user.id)
 
 @router.delete(
     "/{product_id}",
