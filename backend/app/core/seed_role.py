@@ -24,17 +24,19 @@ DEFAULT_ROLES = [
         "name": "Accountant",
        
     },{
-        "name":"Sales Officer"
+        "name":"Sales Officer",
     },{
-        "name": "Farm Worker"
+        "name": "Farm Worker",
     },{
-        "name": "inventory_admin"
+        "name": "inventory_admin",
     },{
-        "name":"sell_manager"
+        "name":"sell_manager",
     },{
-        "name":"sell_officer"
+        "name":"sell_officer",
+    },{
+        "name":"sell_manager",
     }
-], 
+] 
 
 @router.post("/db")
 async def seed_roles(
