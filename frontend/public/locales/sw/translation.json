@@ -187,5 +187,14 @@
   "deductions": "Makato",
   "net_salary": "Mshahara Halisi",
   "pay_period": "Muda wa Malipo",
-  "employee": "Mfanyakazi"
+  "employee": "Mfanyakazi",
+  "asset_management": "Usimamizi wa Mali",
+  "assets": "Mali",
+  "asset_code": "Namba ya Mali",
+  "serial_number": "Namba ya Usajili",
+  "purchase_date": "Tarehe ya Kununuliwa",
+  "cost_price": "Gharama",
+  "condition": "Hali",
+  "depreciation_rate": "Kiwango cha Uchakavu",
+  "manage_assets": "Simamia mali na vifaa vya shamba."
 }

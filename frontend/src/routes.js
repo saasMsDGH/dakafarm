@@ -34,5 +34,8 @@
     // HR Subsystem
     Employees: { path: "/hr/employees" },
     Payroll: { path: "/hr/payroll" },
+
+    // Assets Subsystem
+    AssetsList: { path: "/assets/list" },
 };
 

@@ -30,6 +30,10 @@ import InventoryStatus from "./inventory/InventoryStatus";
 import Employees from "./hr/Employees";
 import Payroll from "./hr/Payroll";
 
+
+// assets
+import AssetsList from "./assets/AssetsList";
+
 // pos
 import Customers from "./pos/Customers";
 import Sales from "./pos/Sales";
@@ -121,6 +125,10 @@ export default () => (
     {/* hr pages */}
     <RouteWithSidebar exact path={Routes.Employees.path} component={Employees} />
     <RouteWithSidebar exact path={Routes.Payroll.path} component={Payroll} />
+
+    
+    {/* assets pages */}
+    <RouteWithSidebar exact path={Routes.AssetsList.path} component={AssetsList} />
 
     {/* pos pages */}
     <RouteWithSidebar exact path={Routes.Customers.path} component={Customers} />

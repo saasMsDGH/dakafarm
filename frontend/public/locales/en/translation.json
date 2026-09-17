@@ -187,5 +187,14 @@
   "deductions": "Deductions",
   "net_salary": "Net Salary",
   "pay_period": "Pay Period",
-  "employee": "Employee"
+  "employee": "Employee",
+  "asset_management": "Asset Management",
+  "assets": "Assets",
+  "asset_code": "Asset Code",
+  "serial_number": "Serial Number",
+  "purchase_date": "Purchase Date",
+  "cost_price": "Cost Price",
+  "condition": "Condition",
+  "depreciation_rate": "Depreciation Rate",
+  "manage_assets": "Manage farm assets and equipment."
 }
