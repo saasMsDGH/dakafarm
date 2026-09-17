@@ -114,3 +114,13 @@ class FlockRepo:
         """Permanently delete a flock record."""
         await db.delete(flock)
         await db.commit()
+        
+    @staticmethod
+    async def count_active_by_house(db: AsyncSession, house_id: int) -> int:
+        """Return the number of active flocks in a specific house."""
+        query = select(func.count()).select_from(Flock).where(
+            Flock.house_id == house_id,
+            Flock.status == "Active"
+        )
+        result = await db.execute(query)
+        return result.scalar() or 0

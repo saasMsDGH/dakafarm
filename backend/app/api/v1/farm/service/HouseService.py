@@ -108,12 +108,13 @@ class HouseService:
                 detail=f"House with id {house_id} not found.",
             )
 
-        # TODO (Flock phase): Uncomment when FlockRepo is available.
-        # active_flocks = await FlockRepo.count_active_by_house(db, house_id)
-        # if active_flocks > 0:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_409_CONFLICT,
-        #         detail="Cannot delete a house that contains active flocks.",
-        #     )
+        from app.api.v1.farm.repository.FlockRepo import FlockRepo
+        
+        active_flocks = await FlockRepo.count_active_by_house(db, house_id)
+        if active_flocks > 0:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Cannot delete a house that contains active flocks.",
+            )
 
         await HouseRepo.delete_house(db, house)

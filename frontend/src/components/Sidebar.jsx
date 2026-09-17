@@ -3,7 +3,7 @@ import SimpleBar from 'simplebar-react';
 import { useLocation } from "react-router-dom";
 import { CSSTransition } from 'react-transition-group';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBoxOpen, faChartPie, faSignOutAlt, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faChartPie, faSignOutAlt, faTimes, faWarehouse, faCashRegister } from "@fortawesome/free-solid-svg-icons";
 import { Nav, Badge, Image, Button, Dropdown, Accordion, Navbar } from '@themesberg/react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -109,6 +109,7 @@ const Sidebar = (props) => {
             <Nav className="flex-column pt-3 pt-md-0">
               <NavItem title="AMAS FARM" link={Routes.DashboardOverview.path} image={ReactHero} />
               <Dropdown.Divider className="my-3 border-indigo" />
+              
               {user?.role_name === 'admin' ? (
                 <>
                   <NavItem title={t('dashboard')} link={Routes.DashboardOverview.path} icon={faChartPie} />
@@ -122,9 +123,42 @@ const Sidebar = (props) => {
                     <NavItem title={t('feeds')} link={Routes.Feeds?.path || '#'} />
                     <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
                   </CollapsableNavItem>
+                  <CollapsableNavItem eventKey="inventory/" title={t('inventory_management')} icon={faWarehouse}>
+                    <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
+                    <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
+                    <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
+                    <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
+                  </CollapsableNavItem>
                   <Dropdown.Divider className="my-3 border-indigo" />
-                </>
-              ) : (
+                  
+                  <CollapsableNavItem eventKey="pos/" title={t('pos_sales', 'POS / Sales')} icon={faCashRegister}>
+                    <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
+                    <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
+                  </CollapsableNavItem>
+                    <CollapsableNavItem eventKey="pos_purchases/" title={t('pos_purchases', 'Purchases & Expenses')} icon={faCashRegister}>
+                      <NavItem title={t('suppliers', 'Suppliers')} link={Routes.Suppliers?.path || '#'} />
+                      <NavItem title={t('purchases', 'Purchases')} link={Routes.Purchases?.path || '#'} />
+                      <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
+                    </CollapsableNavItem>
+                  <Dropdown.Divider className="my-3 border-indigo" />
+                </>                ) : user?.role_name === 'inventory_admin' ? (
+                  <>
+                    <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
+                    <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
+                    <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
+                    <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
+                  </>
+                ) : user?.role_name === 'sell_manager' || user?.role_name === 'sell_officer' ? (
+                  <>
+                    <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
+                    <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
+                    <CollapsableNavItem eventKey="pos_purchases/" title={t('pos_purchases', 'Purchases & Expenses')} icon={faCashRegister}>
+                      <NavItem title={t('suppliers', 'Suppliers')} link={Routes.Suppliers?.path || '#'} />
+                      <NavItem title={t('purchases', 'Purchases')} link={Routes.Purchases?.path || '#'} />
+                      <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
+                    </CollapsableNavItem>
+                  </>
+                ) : (
                 <>
                   <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
                   <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
@@ -145,3 +179,5 @@ const Sidebar = (props) => {
 };
 
 export default Sidebar;
+
+

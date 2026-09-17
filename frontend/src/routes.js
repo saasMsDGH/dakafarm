@@ -1,4 +1,4 @@
-export const Routes = {
+﻿export const Routes = {
     // Core
     DashboardOverview: { path: "/" },
     Signin: { path: "/examples/sign-in" },
@@ -17,4 +17,18 @@ export const Routes = {
     Mortalities: { path: "/farm/mortalities" },
     Feeds: { path: "/farm/feeds" },
     FarmReport: { path: "/farm/report" },
+
+    // Inventory Subsystem
+    Products: { path: "/inventory/products" },
+    ProductCategories: { path: "/inventory/categories" },
+    StockMovements: { path: "/inventory/stock-movements" },
+    InventoryStatus: { path: "/inventory/status" },
+
+    // POS Subsystem
+    Customers: { path: "/pos/customers" },
+    Sales: { path: "/pos/sales" },
+    Suppliers: { path: "/pos/suppliers" },
+    Purchases: { path: "/pos/purchases" },
+    Expenses: { path: "/pos/expenses" },
 };
+

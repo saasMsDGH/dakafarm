@@ -10,8 +10,8 @@ class FeedRecord(Base):
     id = Column(Integer, primary_key=True, index=True)
     flock_id = Column(Integer, ForeignKey("flocks.id", ondelete="CASCADE"), nullable=False)
     
-    # Loose reference to products (to be enforced via FK when the Business module is built)
-    product_id = Column(Integer, nullable=True) 
+    # Strict reference to products
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="SET NULL"), nullable=True) 
 
     record_date = Column(Date, nullable=False)
     
@@ -31,4 +31,5 @@ class FeedRecord(Base):
 
     # Relationships
     flock = relationship("Flock", back_populates="feed_records")
+    product = relationship("Product",back_populates="feed_record")
     user = relationship("Users")  # Recorded by user

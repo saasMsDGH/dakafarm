@@ -27,8 +27,14 @@ DEFAULT_ROLES = [
         "name":"Sales Officer"
     },{
         "name": "Farm Worker"
+    },{
+        "name": "inventory_admin"
+    },{
+        "name":"sell_manager"
+    },{
+        "name":"sell_officer"
     }
-]
+], 
 
 @router.post("/db")
 async def seed_roles(
@@ -52,4 +58,4 @@ async def seed_roles(
     if added_any:
         return {"message": "Roles seeded successfully"}
 
-    return {"message": "seed already planted"}
+    return {"message": "seed already planted"}

@@ -10,8 +10,8 @@ class MedicationRecord(Base):
     id = Column(Integer, primary_key=True, index=True)
     flock_id = Column(Integer, ForeignKey("flocks.id", ondelete="CASCADE"), nullable=False)
     
-    # Loose reference to products until Business module is built
-    product_id = Column(Integer, nullable=True)
+    # Strict reference to products
+    product_id = Column(Integer, ForeignKey("products.id", ondelete="SET NULL"), nullable=True)
     
     record_date = Column(Date, nullable=False)
     disease_suspected = Column(String(255), nullable=True)
@@ -30,4 +30,5 @@ class MedicationRecord(Base):
 
     # Relationships
     flock = relationship("Flock", back_populates="medication_records")
+    product = relationship("Product", back_populates="medication")
     user = relationship("Users")  # Recorded by user
