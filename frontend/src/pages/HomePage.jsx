@@ -25,6 +25,11 @@ import ProductCategories from "./inventory/ProductCategories";
 import StockMovements from "./inventory/StockMovements";
 import InventoryStatus from "./inventory/InventoryStatus";
 
+
+// hr
+import Employees from "./hr/Employees";
+import Payroll from "./hr/Payroll";
+
 // pos
 import Customers from "./pos/Customers";
 import Sales from "./pos/Sales";
@@ -111,6 +116,11 @@ export default () => (
     <RouteWithSidebar exact path={Routes.ProductCategories.path} component={ProductCategories} />
     <RouteWithSidebar exact path={Routes.StockMovements.path} component={StockMovements} />
     <RouteWithSidebar exact path={Routes.InventoryStatus.path} component={InventoryStatus} />
+
+    
+    {/* hr pages */}
+    <RouteWithSidebar exact path={Routes.Employees.path} component={Employees} />
+    <RouteWithSidebar exact path={Routes.Payroll.path} component={Payroll} />
 
     {/* pos pages */}
     <RouteWithSidebar exact path={Routes.Customers.path} component={Customers} />

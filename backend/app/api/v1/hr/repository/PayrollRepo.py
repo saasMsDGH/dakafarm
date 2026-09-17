@@ -17,7 +17,7 @@ class PayrollRepo:
             await db.commit()
             await db.refresh(payroll)
             # Load relationships
-            result = await db.execute(select(Payroll).options(selectinload(Payroll.employee)).where(Payroll.id == payroll.id))
+            result = await db.execute(select(Payroll).options(selectinload(Payroll.employee), selectinload(Payroll.user)).where(Payroll.id == payroll.id))
             return result.scalar_one()
         except IntegrityError:
             await db.rollback()
@@ -30,14 +30,14 @@ class PayrollRepo:
     async def get_by_id(db: AsyncSession, payroll_id: int) -> Optional[Payroll]:
         result = await db.execute(
             select(Payroll)
-            .options(selectinload(Payroll.employee))
+            .options(selectinload(Payroll.employee), selectinload(Payroll.user))
             .where(Payroll.id == payroll_id)
         )
         return result.scalar_one_or_none()
 
     @staticmethod
     async def list_payrolls(db: AsyncSession, params: PaginationParams) -> Tuple[List[Payroll], int]:
-        query = select(Payroll).join(Employee).options(selectinload(Payroll.employee))
+        query = select(Payroll).join(Employee).options(selectinload(Payroll.employee), selectinload(Payroll.user))
 
         if params.search:
             search_term = f"%{params.search}%"
@@ -88,7 +88,7 @@ class PayrollRepo:
             await db.commit()
             await db.refresh(payroll)
             # Re-load employee
-            result = await db.execute(select(Payroll).options(selectinload(Payroll.employee)).where(Payroll.id == payroll.id))
+            result = await db.execute(select(Payroll).options(selectinload(Payroll.employee), selectinload(Payroll.user)).where(Payroll.id == payroll.id))
             return result.scalar_one()
         except IntegrityError:
             await db.rollback()

@@ -24,6 +24,13 @@ class PayrollUpdate(BaseModel):
 
 # --- Response Schemas ---
 
+
+class UserBrief(BaseModel):
+    first_name: str
+    last_name: str
+
+    model_config = {"from_attributes": True}
+
 class EmployeeBrief(BaseModel):
     first_name: str
     last_name: str
@@ -43,6 +50,7 @@ class PayrollResponse(BaseModel):
     payment_status: str
     
     employee: Optional[EmployeeBrief] = None
+    user: Optional[UserBrief] = None
     
     created_by: Optional[int]
     created_at: datetime
