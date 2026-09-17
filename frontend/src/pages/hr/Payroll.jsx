@@ -332,7 +332,7 @@ export default () => {
           <Button variant="secondary" onClick={() => setShowPayslipModal(false)}>Close</Button>
           <Button variant="primary" onClick={() => {
             const printWindow = window.open('', '', 'width=900,height=800');
-            printWindow.document.write('<html><head><title>AMAS FARM Payslip</title>');
+            printWindow.document.write(`<html><head><title>Payslip-${currentPayroll.employee.first_name}-${currentPayroll.employee.last_name}</title>`);
             printWindow.document.write('<style>@media print { @page { margin: 0; } body { padding: 1.5cm; } }</style>');
             printWindow.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">');
             printWindow.document.write('</head><body>');
