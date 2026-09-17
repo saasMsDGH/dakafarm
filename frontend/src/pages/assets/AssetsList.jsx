@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faTrash, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTrash, faSearch, faShareAlt } from '@fortawesome/free-solid-svg-icons';
 import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination, Badge, Nav } from '@themesberg/react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { api } from "../../api/axios";
@@ -18,13 +18,17 @@ export default () => {
   
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  
+  const [showDistModal, setShowDistModal] = useState(false);
+  const [distAsset, setDistAsset] = useState(null);
+  const [distForm, setDistForm] = useState({ location: '', quantity: 1, notes: '' });
+
   const [currentAsset, setCurrentAsset] = useState({
     name: '',
     description: '',
-    serial_number: '',
     purchase_date: '',
     cost_price: '0.00',
-    location: '',
+    quantity: 1,
     condition: 'Good',
     depreciation_rate: '0.00',
     status: 'Active'
@@ -63,10 +67,9 @@ export default () => {
     setCurrentAsset({
       name: '',
       description: '',
-      serial_number: '',
       purchase_date: '',
       cost_price: '0.00',
-      location: '',
+    quantity: 1,
       condition: 'Good',
       depreciation_rate: '0.00',
       status: 'Active'
@@ -83,6 +86,31 @@ export default () => {
     setCurrentAsset({ ...asset });
     setIsEdit(true);
     setShowModal(true);
+  };
+
+  
+  const handleShowDistModal = (asset) => {
+    setDistAsset(asset);
+    setDistForm({ location: '', quantity: 1, notes: '' });
+    setShowDistModal(true);
+  };
+
+  const handleDistSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post(`/api/v1/assets/list/${distAsset.id}/distributions`, {
+        ...distForm,
+        quantity: parseInt(distForm.quantity, 10),
+        notes: distForm.notes || null
+      });
+      Swal.fire('Success', 'Asset distributed successfully', 'success');
+      setShowDistModal(false);
+      fetchAssets();
+    } catch (error) {
+      const detail = error.response?.data?.detail;
+      const errorMessage = Array.isArray(detail) ? detail.map(d => `${d.loc.join('.')}: ${d.msg}`).join(', ') : (detail || 'Distribution failed');
+      Swal.fire('Error', errorMessage, 'error');
+    }
   };
 
   const handleDelete = async (id) => {
@@ -112,13 +140,13 @@ export default () => {
     try {
       const payload = {
         ...currentAsset,
+        quantity: parseInt(currentAsset.quantity, 10) || 1,
         cost_price: parseFloat(currentAsset.cost_price) || 0,
         depreciation_rate: parseFloat(currentAsset.depreciation_rate) || 0
       };
 
-      if (!payload.purchase_date) {
-        payload.purchase_date = null;
-      }
+      if (!payload.purchase_date) payload.purchase_date = null;
+      if (!payload.description) payload.description = null;
 
       if (isEdit) {
         await api.put(`/api/v1/assets/list/${currentAsset.id}`, payload);
@@ -130,7 +158,9 @@ export default () => {
       handleCloseModal();
       fetchAssets();
     } catch (error) {
-      Swal.fire('Error', error.response?.data?.detail || 'Submission failed', 'error');
+      const detail = error.response?.data?.detail;
+      const errorMessage = Array.isArray(detail) ? detail.map(d => `${d.loc.join('.')}: ${d.msg}`).join(', ') : (detail || 'Submission failed');
+      Swal.fire('Error', errorMessage, 'error');
     }
   };
 
@@ -170,7 +200,7 @@ export default () => {
               <tr>
                 <th className="border-bottom">{t('asset_code', 'Code')}</th>
                 <th className="border-bottom">{t('name', 'Name')}</th>
-                <th className="border-bottom">{t('location', 'Location')}</th>
+                <th className="border-bottom">{t('quantity', 'Quantity')}</th>
                 <th className="border-bottom">{t('condition', 'Condition')}</th>
                 <th className="border-bottom">{t('cost_price', 'Cost')}</th>
                 <th className="border-bottom">{t('status', 'Status')}</th>
@@ -188,9 +218,13 @@ export default () => {
                     <td><span className="fw-bold text-primary">{asset.asset_code}</span></td>
                     <td>
                       <span className="fw-normal">{asset.name}</span>
-                      {asset.serial_number && <div className="small text-muted">SN: {asset.serial_number}</div>}
+                      </td>
+                    <td>
+                      <span className="fw-bold">{asset.quantity}</span>
+                      {asset.distributions && asset.distributions.length > 0 && (
+                        <div className="small text-muted">{asset.distributions.length} allocations</div>
+                      )}
                     </td>
-                    <td><span className="fw-normal">{asset.location || 'N/A'}</span></td>
                     <td><span className="fw-normal">{asset.condition}</span></td>
                     <td><span className="fw-bold">{formatCurrency(asset.cost_price)}</span></td>
                     <td>
@@ -199,6 +233,10 @@ export default () => {
                       </Badge>
                     </td>
                     <td>
+                      
+                      <Button variant="success" size="sm" className="me-2" onClick={() => handleShowDistModal(asset)} title="Distribute Asset">
+                        <FontAwesomeIcon icon={faShareAlt} />
+                      </Button>
                       <Button variant="info" size="sm" className="me-2" onClick={() => handleShowEditModal(asset)}>
                         <FontAwesomeIcon icon={faEdit} />
                       </Button>
@@ -234,19 +272,13 @@ export default () => {
           </Modal.Header>
           <Modal.Body>
             <Row>
-              <Col md={6} className="mb-3">
+              <Col md={12} className="mb-3">
                 <Form.Group>
                   <Form.Label>{t('name', 'Asset Name')}</Form.Label>
                   <Form.Control required type="text" value={currentAsset.name} onChange={(e) => setCurrentAsset({...currentAsset, name: e.target.value})} />
                 </Form.Group>
               </Col>
-              <Col md={6} className="mb-3">
-                <Form.Group>
-                  <Form.Label>{t('serial_number', 'Serial Number')}</Form.Label>
-                  <Form.Control type="text" value={currentAsset.serial_number || ''} onChange={(e) => setCurrentAsset({...currentAsset, serial_number: e.target.value})} />
-                </Form.Group>
-              </Col>
-            </Row>
+              </Row>
             <Row>
               <Col md={12} className="mb-3">
                 <Form.Group>
@@ -256,13 +288,7 @@ export default () => {
               </Col>
             </Row>
             <Row>
-              <Col md={6} className="mb-3">
-                <Form.Group>
-                  <Form.Label>{t('location', 'Location')}</Form.Label>
-                  <Form.Control type="text" value={currentAsset.location || ''} onChange={(e) => setCurrentAsset({...currentAsset, location: e.target.value})} />
-                </Form.Group>
-              </Col>
-              <Col md={6} className="mb-3">
+              <Col md={12} className="mb-3">
                 <Form.Group>
                   <Form.Label>{t('purchase_date', 'Purchase Date')}</Form.Label>
                   <Form.Control type="date" value={currentAsset.purchase_date || ''} onChange={(e) => setCurrentAsset({...currentAsset, purchase_date: e.target.value})} />
@@ -270,6 +296,13 @@ export default () => {
               </Col>
             </Row>
             <Row>
+              
+              <Col md={4} className="mb-3">
+                <Form.Group>
+                  <Form.Label>{t('quantity', 'Total Quantity')}</Form.Label>
+                  <Form.Control type="number" min="1" value={currentAsset.quantity} onChange={(e) => setCurrentAsset({...currentAsset, quantity: e.target.value})} />
+                </Form.Group>
+              </Col>
               <Col md={4} className="mb-3">
                 <Form.Group>
                   <Form.Label>{t('cost_price', 'Cost Price')}</Form.Label>
@@ -310,6 +343,71 @@ export default () => {
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseModal}>Cancel</Button>
             <Button variant="primary" type="submit">Save Asset</Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
+      <Modal as={Modal} show={showDistModal} onHide={() => setShowDistModal(false)} size="lg">
+        <Form onSubmit={handleDistSubmit}>
+          <Modal.Header>
+            <Modal.Title className="h6">Distribute Asset: {distAsset?.name}</Modal.Title>
+            <Button variant="close" aria-label="Close" onClick={() => setShowDistModal(false)} />
+          </Modal.Header>
+          <Modal.Body>
+            <div className="mb-4">
+              <strong>Total Quantity Available:</strong> {distAsset?.quantity}
+              <br />
+              <strong>Already Distributed:</strong> {distAsset?.distributions?.reduce((sum, d) => sum + d.quantity, 0) || 0}
+            </div>
+
+            {distAsset?.distributions && distAsset.distributions.length > 0 && (
+              <Table size="sm" bordered hover className="mb-4">
+                <thead className="bg-light">
+                  <tr>
+                    <th>Location</th>
+                    <th>Quantity</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {distAsset.distributions.map(d => (
+                    <tr key={d.id}>
+                      <td>{d.location}</td>
+                      <td>{d.quantity}</td>
+                      <td>{d.notes || '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
+
+            <h6 className="border-bottom pb-2 mb-3">New Distribution</h6>
+            <Row>
+              <Col md={6} className="mb-3">
+                <Form.Group>
+                  <Form.Label>Target Location / House</Form.Label>
+                  <Form.Control required type="text" placeholder="e.g. House A" value={distForm.location} onChange={e => setDistForm({...distForm, location: e.target.value})} />
+                </Form.Group>
+              </Col>
+              <Col md={6} className="mb-3">
+                <Form.Group>
+                  <Form.Label>Quantity to Allocate</Form.Label>
+                  <Form.Control required type="number" min="1" max={distAsset ? distAsset.quantity - (distAsset.distributions?.reduce((sum, d) => sum + d.quantity, 0) || 0) : 1} value={distForm.quantity} onChange={e => setDistForm({...distForm, quantity: e.target.value})} />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={12} className="mb-3">
+                <Form.Group>
+                  <Form.Label>Notes</Form.Label>
+                  <Form.Control as="textarea" rows={2} value={distForm.notes} onChange={e => setDistForm({...distForm, notes: e.target.value})} />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowDistModal(false)}>Cancel</Button>
+            <Button variant="primary" type="submit">Allocate</Button>
           </Modal.Footer>
         </Form>
       </Modal>

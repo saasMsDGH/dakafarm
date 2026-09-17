@@ -3,6 +3,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.assets.schemas.AssetSchema import (
+    AssetDistributionCreate, AssetDistributionResponse,
     AssetCreate,
     AssetListResponse,
     AssetResponse,
@@ -68,6 +69,21 @@ async def get_asset(
     db: AsyncSession = Depends(get_db),
 ) -> AssetResponse:
     return await AssetService.get_asset(db, asset_id)
+
+
+@router.post(
+    "/{asset_id}/distributions",
+    response_model=AssetDistributionResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Distribute asset quantity to a location"
+)
+async def create_asset_distribution(
+    asset_id: int,
+    request: AssetDistributionCreate,
+    current_user: Users = Depends(asset_manager),
+    db: AsyncSession = Depends(get_db),
+) -> AssetDistributionResponse:
+    return await AssetService.create_distribution(db, asset_id, request, current_user.id)
 
 @router.put(
     "/{asset_id}",

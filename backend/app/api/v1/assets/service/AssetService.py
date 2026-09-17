@@ -24,10 +24,9 @@ class AssetService:
             asset_code=asset_code,
             name=request.name,
             description=request.description,
-            serial_number=request.serial_number,
             purchase_date=request.purchase_date,
             cost_price=request.cost_price,
-            location=request.location,
+            quantity=request.quantity,
             condition=request.condition,
             depreciation_rate=request.depreciation_rate,
             status=request.status,
@@ -66,6 +65,25 @@ class AssetService:
             )
         update_data = request.model_dump(exclude_unset=True)
         return await AssetRepo.update(db, asset, update_data)
+
+
+    @staticmethod
+    async def create_distribution(db: AsyncSession, asset_id: int, request: "AssetDistributionCreate", current_user_id: int):
+        asset = await AssetRepo.get_by_id(db, asset_id)
+        if not asset:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Asset not found.")
+        
+        # Optionally validate if sum of distributions exceeds asset.quantity
+        from app.api.v1.assets.models.asset import AssetDistribution
+        new_dist = AssetDistribution(
+            asset_id=asset.id,
+            location=request.location,
+            quantity=request.quantity,
+            assigned_date=request.assigned_date,
+            notes=request.notes,
+            created_by=current_user_id
+        )
+        return await AssetRepo.create_distribution(db, new_dist)
 
     @staticmethod
     async def delete(db: AsyncSession, asset_id: int) -> None:

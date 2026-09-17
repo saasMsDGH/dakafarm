@@ -20,11 +20,12 @@ class AssetRepo:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="An asset with this code might already exist."
             )
-        return asset
+        return await AssetRepo.get_by_id(db, asset.id)
 
     @staticmethod
     async def get_by_id(db: AsyncSession, asset_id: int) -> Optional[Asset]:
-        result = await db.execute(select(Asset).where(Asset.id == asset_id))
+        from sqlalchemy.orm import selectinload
+        result = await db.execute(select(Asset).options(selectinload(Asset.distributions)).where(Asset.id == asset_id))
         return result.scalar_one_or_none()
 
     @staticmethod
@@ -36,9 +37,7 @@ class AssetRepo:
             query = query.where(
                 or_(
                     Asset.asset_code.ilike(search_term),
-                    Asset.name.ilike(search_term),
-                    Asset.serial_number.ilike(search_term),
-                    Asset.location.ilike(search_term)
+                    Asset.name.ilike(search_term)
                 )
             )
 
@@ -51,7 +50,8 @@ class AssetRepo:
         else:
             query = query.order_by(sort_column.desc())
 
-        query = query.offset(params.offset).limit(params.limit)
+        from sqlalchemy.orm import selectinload
+        query = query.options(selectinload(Asset.distributions)).offset(params.offset).limit(params.limit)
         result = await db.execute(query)
         assets = list(result.scalars().all())
 
@@ -71,13 +71,28 @@ class AssetRepo:
                 status_code=status.HTTP_409_CONFLICT,
                 detail="Integrity error updating asset."
             )
-        return asset
+        return await AssetRepo.get_by_id(db, asset.id)
+
+
+    @staticmethod
+    async def create_distribution(db: AsyncSession, distribution: "AssetDistribution") -> "AssetDistribution":
+        db.add(distribution)
+        await db.commit()
+        await db.refresh(distribution)
+        return distribution
+
+    @staticmethod
+    async def get_distributions(db: AsyncSession, asset_id: int):
+        from app.api.v1.assets.models.asset import AssetDistribution
+        result = await db.execute(select(AssetDistribution).where(AssetDistribution.asset_id == asset_id))
+        return result.scalars().all()
 
     @staticmethod
     async def delete(db: AsyncSession, asset: Asset) -> None:
         try:
             await db.delete(asset)
             await db.commit()
+            await db.refresh(asset)
         except IntegrityError:
             await db.rollback()
             raise HTTPException(
