@@ -30,5 +30,12 @@
     Suppliers: { path: "/pos/suppliers" },
     Purchases: { path: "/pos/purchases" },
     Expenses: { path: "/pos/expenses" },
+
+    // HR Subsystem
+    Employees: { path: "/hr/employees" },
+    Payroll: { path: "/hr/payroll" },
+
+    // Assets Subsystem
+    AssetsList: { path: "/assets/list" },
 };
 
