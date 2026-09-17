@@ -18,4 +18,5 @@ from app.api.v1.pos.models.supplier import Supplier
 from app.api.v1.pos.models.purchase import Purchase, PurchaseItem
 from app.api.v1.pos.models.purchase_payment import PurchasePayment
 from app.api.v1.pos.models.expense import Expense
-__all__ = ["Base","Users","Roles","UserRole","House","Flock","FeedRecord", "ProductionRecord", "MortalityRecord", "MedicationRecord", "VaccinationRecord", "ProductCategory", "Product", "StockMovement", "Customer", "Sale", "SaleItem", "Payment", "Supplier", "Purchase", "PurchaseItem", "PurchasePayment", "Expense"]
+from app.api.v1.hr.models.employee import Employee
+__all__ = ["Base","Users","Roles","UserRole","House","Flock","FeedRecord", "ProductionRecord", "MortalityRecord", "MedicationRecord", "VaccinationRecord", "ProductCategory", "Product", "StockMovement", "Customer", "Sale", "SaleItem", "Payment", "Supplier", "Purchase", "PurchaseItem", "PurchasePayment", "Expense", "Employee"]
