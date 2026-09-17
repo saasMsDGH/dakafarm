@@ -30,8 +30,7 @@ export default () => {
   // New Sale State
   const [newSale, setNewSale] = useState({
     customer_id: '',
-    discount: 0,
-    amount_paid: 0,
+    discount: '', amount_paid: '',
     payment_method: 'Cash'
   });
   const [cartItems, setCartItems] = useState([]);
@@ -96,7 +95,7 @@ export default () => {
         return;
       }
       setCartItems(cartItems.map(item => 
-        item.product_id === product.id ? {...item, quantity: item.quantity + 1} : item
+        item.product_id === product.id ? {...item, quantity: (parseFloat(item.quantity) || 0) + 1} : item
       ));
     } else {
       setCartItems([...cartItems, {
@@ -179,7 +178,7 @@ export default () => {
         payment_method: newSale.payment_method,
         items: cartItems.map(item => ({
           product_id: item.product_id,
-          quantity: item.quantity,
+          quantity: parseFloat(item.quantity) || 0,
           unit_price: item.unit_price
         }))
       };
@@ -188,7 +187,7 @@ export default () => {
       Swal.fire('Success', 'Sale created successfully!', 'success');
       setShowNewSaleModal(false);
       setCartItems([]);
-      setNewSale({ customer_id: '', discount: 0, amount_paid: 0, payment_method: 'Cash' });
+      setNewSale({ customer_id: '', discount: '', amount_paid: '', payment_method: 'Cash' });
       fetchSales();
     } catch (error) {
       Swal.fire('Error', error.response?.data?.detail || 'Failed to create sale', 'error');
@@ -739,31 +738,21 @@ export default () => {
                               <tr key={idx}>
                                 <td className="align-middle fw-bold">{item.name}</td>
                                 <td className="align-middle text-center">
-                                  <div className="d-flex align-items-center justify-content-center">
-                                    <Button variant="light" size="sm" className="px-2 py-0" 
-                                      onClick={() => {
-                                        const newQty = Math.max(1, item.quantity - 1);
-                                        const newCart = [...cartItems];
-                                        newCart[idx].quantity = newQty;
-                                        setCartItems(newCart);
-                                      }}>-</Button>
-                                    <span className="mx-2">{item.quantity}</span>
-                                    <Button variant="light" size="sm" className="px-2 py-0"
-                                      onClick={() => {
+                                    <Form.Control type="number" size="sm" value={item.quantity} onChange={(e) => {
+                                        let val = parseFloat(e.target.value);
                                         const prod = products.find(p => p.id === item.product_id);
-                                        if (item.quantity + 1 > prod.current_stock) {
-                                          Swal.fire('Warning', 'Stock limit reached', 'warning');
-                                          return;
+                                        if (val > prod.current_stock) {
+                                            Swal.fire('Warning', `Only ${prod.current_stock} in stock!`, 'warning');
+                                            val = prod.current_stock;
                                         }
                                         const newCart = [...cartItems];
-                                        newCart[idx].quantity = item.quantity + 1;
+                                        newCart[idx].quantity = isNaN(val) ? e.target.value : val;
                                         setCartItems(newCart);
-                                      }}>+</Button>
-                                  </div>
-                                </td>
+                                    }} style={{width: '60px', padding: '0.25rem', fontSize: '0.8rem', margin: '0 auto'}}/>
+                                  </td>
                                 <td className="align-middle text-right">{(item.quantity * item.unit_price).toLocaleString()}</td>
                                 <td className="align-middle text-center">
-                                  <Button variant="link" className="text-danger p-0" onClick={() => removeCartItem(idx)}>
+                                  <Button variant="link" className="text-danger p-0" onClick={() => removeFromCart(idx)}>
                                     <FontAwesomeIcon icon={faTrash} />
                                   </Button>
                                 </td>

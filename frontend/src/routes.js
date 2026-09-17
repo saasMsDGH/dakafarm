@@ -27,5 +27,8 @@
     // POS Subsystem
     Customers: { path: "/pos/customers" },
     Sales: { path: "/pos/sales" },
+    Suppliers: { path: "/pos/suppliers" },
+    Purchases: { path: "/pos/purchases" },
+    Expenses: { path: "/pos/expenses" },
 };
 

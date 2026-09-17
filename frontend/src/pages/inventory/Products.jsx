@@ -25,6 +25,7 @@ export default () => {
     unit_of_measure: '',
     unit_price: '0.00',
     selling_price: '0.00',
+    current_stock: '0.000',
     reorder_level: '0.000',
     description: '',
     is_active: true
@@ -68,6 +69,7 @@ export default () => {
         ...product,
         unit_price: product.unit_price || '0.00',
         selling_price: product.selling_price || '0.00',
+          current_stock: product.current_stock || '0.000',
         reorder_level: product.reorder_level || '0.000',
       });
       setIsEdit(true);
@@ -78,6 +80,7 @@ export default () => {
         unit_of_measure: '',
         unit_price: '0.00',
         selling_price: '0.00',
+    current_stock: '0.000',
         reorder_level: '0.000',
         description: '',
         is_active: true
@@ -105,6 +108,7 @@ export default () => {
         category_id: parseInt(currentProduct.category_id),
         unit_price: parseFloat(currentProduct.unit_price),
         selling_price: parseFloat(currentProduct.selling_price),
+          current_stock: currentProduct.current_stock !== '' ? parseFloat(currentProduct.current_stock) : null,
         reorder_level: parseFloat(currentProduct.reorder_level)
       };
 
@@ -190,6 +194,7 @@ export default () => {
                 <th className="border-bottom">{t('unit', 'Unit')}</th>
                 <th className="border-bottom">{t('unit_price', 'Cost')}</th>
                 <th className="border-bottom">{t('selling_price', 'Price')}</th>
+                  <th className="border-bottom">{t('current_stock', 'Stock')}</th>
                 <th className="border-bottom">{t('status', 'Status')}</th>
                 <th className="border-bottom">{t('actions', 'Actions')}</th>
               </tr>
@@ -207,6 +212,7 @@ export default () => {
                     <td><span className="fw-normal">{prod.unit_of_measure}</span></td>
                     <td><span className="fw-normal">{prod.unit_price}</span></td>
                     <td><span className="fw-normal">{prod.selling_price}</span></td>
+                      <td><span className="fw-normal">{prod.current_stock}</span></td>
                     <td>
                       <span className={`fw-bold text-${prod.is_active ? 'success' : 'danger'}`}>
                         {prod.is_active ? t('active', 'Active') : t('inactive', 'Inactive')}
@@ -283,6 +289,19 @@ export default () => {
                     name="unit_of_measure"
                     value={currentProduct.unit_of_measure} 
                     onChange={handleInputChange} 
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group id="current_stock" className="mb-3">
+                  <Form.Label>{t('current_stock', 'Current Stock')}</Form.Label>
+                  <Form.Control 
+                    type="number"
+                    step="0.001" 
+                    name="current_stock"
+                    value={currentProduct.current_stock} 
+                    onChange={handleInputChange} 
+                    placeholder="Optional"
                   />
                 </Form.Group>
               </Col>

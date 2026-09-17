@@ -135,6 +135,11 @@ const Sidebar = (props) => {
                     <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
                     <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
                   </CollapsableNavItem>
+                    <CollapsableNavItem eventKey="pos_purchases/" title={t('pos_purchases', 'Purchases & Expenses')} icon={faCashRegister}>
+                      <NavItem title={t('suppliers', 'Suppliers')} link={Routes.Suppliers?.path || '#'} />
+                      <NavItem title={t('purchases', 'Purchases')} link={Routes.Purchases?.path || '#'} />
+                      <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
+                    </CollapsableNavItem>
                   <Dropdown.Divider className="my-3 border-indigo" />
                 </>                ) : user?.role_name === 'inventory_admin' ? (
                   <>
@@ -147,6 +152,11 @@ const Sidebar = (props) => {
                   <>
                     <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
                     <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
+                    <CollapsableNavItem eventKey="pos_purchases/" title={t('pos_purchases', 'Purchases & Expenses')} icon={faCashRegister}>
+                      <NavItem title={t('suppliers', 'Suppliers')} link={Routes.Suppliers?.path || '#'} />
+                      <NavItem title={t('purchases', 'Purchases')} link={Routes.Purchases?.path || '#'} />
+                      <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
+                    </CollapsableNavItem>
                   </>
                 ) : (
                 <>

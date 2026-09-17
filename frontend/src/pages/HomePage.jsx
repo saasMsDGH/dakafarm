@@ -28,6 +28,9 @@ import InventoryStatus from "./inventory/InventoryStatus";
 // pos
 import Customers from "./pos/Customers";
 import Sales from "./pos/Sales";
+import Suppliers from "./pos/Suppliers";
+import Purchases from "./pos/Purchases";
+import Expenses from "./pos/Expenses";
 
 // components
 import Sidebar from "../components/Sidebar";
@@ -112,6 +115,9 @@ export default () => (
     {/* pos pages */}
     <RouteWithSidebar exact path={Routes.Customers.path} component={Customers} />
     <RouteWithSidebar exact path={Routes.Sales.path} component={Sales} />
+    <RouteWithSidebar exact path={Routes.Suppliers.path} component={Suppliers} />
+    <RouteWithSidebar exact path={Routes.Purchases.path} component={Purchases} />
+    <RouteWithSidebar exact path={Routes.Expenses.path} component={Expenses} />
 
     <Redirect to={Routes.NotFound.path} />
   </Switch>

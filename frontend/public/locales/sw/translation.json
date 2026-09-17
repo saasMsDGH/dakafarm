@@ -97,7 +97,7 @@
     "monthly_report": "Kila Mwezi",
     "yearly_report": "Kila Mwaka",
     "print_report": "Chapisha Ripoti",
-    "expenses": "Gharama",
+    "expenses": "Matumizi",
     "summary": "Muhtasari",
     "start_date": "Tarehe ya Kuanza",
     "end_date": "Tarehe ya Kumaliza",
@@ -156,7 +156,7 @@
     "print_invoice_a4": "Chapisha Ankara (A4)",
     "receipt_no": "Namba ya Risiti",
     "cash": "Taslimu",
-    "mobile_money": "Pesa Mtandao",
+    "mobile_money": "Tigo Pesa/M-Pesa/Airtel",
     "bank_transfer": "Benki",
     "unpaid": "Haijalipwa",
     "partial": "Nusu",
@@ -166,5 +166,14 @@
     "select_customer": "-- Chagua Mteja --",
     "retail": "Rejareja",
     "wholesale": "Jumla",
-    "view_sale": "Tazama Mauzo"
+    "view_sale": "Tazama Mauzo",
+    "suppliers": "Wauzaji (Suppliers)",
+    "purchases": "Manunuzi",
+    "pos_purchases": "Manunuzi & Matumizi",
+    "contact_person": "Mhusika",
+    "expense_number": "Namba ya Matumizi",
+    "expense_date": "Tarehe ya Matumizi",
+    "bank": "Benki",
+    "new_selling_price": "Bei Mpya ya Kuuzia",
+    "add_supplier": "Ongeza Muuzaji"
 }

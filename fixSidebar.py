@@ -1,57 +1,34 @@
-﻿import re
-
-with open("frontend/src/components/Sidebar.jsx", "r") as f:
+﻿with open("frontend/src/components/Sidebar.jsx", "r", encoding="utf-8") as f:
     code = f.read()
 
-# Add icons
+import re
+
+# Add purchases section under pos_sales
+nav_inject = """<NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
+                      <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
+                    </CollapsableNavItem>
+                    <Dropdown.Divider className="my-3 border-indigo" />
+
+                    <CollapsableNavItem eventKey="pos_purchases/" title={t('pos_purchases', 'Purchases & Expenses')} icon={faCashRegister}>
+                      <NavItem title={t('suppliers', 'Suppliers')} link={Routes.Suppliers?.path || '#'} />
+                      <NavItem title={t('purchases', 'Purchases')} link={Routes.Purchases?.path || '#'} />
+                      <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
+                    </CollapsableNavItem>
+                    <Dropdown.Divider className="my-3 border-indigo" />"""
+
 code = code.replace(
-    "import { faChartPie, faCog, faSignOutAlt, faTimes, faBoxOpen, faWarehouse, faLanguage } from '@fortawesome/free-solid-svg-icons';", 
-    "import { faChartPie, faCog, faSignOutAlt, faTimes, faBoxOpen, faWarehouse, faLanguage, faCashRegister } from '@fortawesome/free-solid-svg-icons';"
+    """<NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
+                      <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
+                    </CollapsableNavItem>
+                    <Dropdown.Divider className="my-3 border-indigo" />""",
+    nav_inject
 )
 
-# Admin POS menu
-admin_pos_menu = """                  <CollapsableNavItem eventKey="inventory/" title={t('inventory_management')} icon={faWarehouse}>
-                    <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
-                    <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
-                    <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
-                    <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
-                  </CollapsableNavItem>
-                  <Dropdown.Divider className="my-3 border-indigo" />
-                  
-                  <CollapsableNavItem eventKey="pos/" title={t('pos_sales', 'POS / Sales')} icon={faCashRegister}>
-                    <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
-                    <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
-                  </CollapsableNavItem>
-                  <Dropdown.Divider className="my-3 border-indigo" />"""
+# And for the specific roles: admin gets everything.
+# inventory_admin only gets inventory stuff.
+# sell_manager gets sales + purchases maybe? The user said: "how we implemented past modules including most important thing RBAC".
+# RBAC for Purchases & Expenses: "purchase and expences we will start with purchases". Which role handles purchases?
+# Probably `admin` or a new role? Let's check `backend/app/api/v1/pos/router.py` to see what roles were used!
 
-code = re.sub(
-    r'                  <CollapsableNavItem eventKey="inventory/".*?<Dropdown\.Divider className="my-3 border-indigo" />', 
-    admin_pos_menu, 
-    code, 
-    flags=re.DOTALL
-)
-
-# Inventory / POS user roles
-pos_roles = """                ) : user?.role_name === 'inventory_admin' ? (
-                  <>
-                    <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
-                    <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
-                    <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
-                    <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
-                  </>
-                ) : user?.role_name === 'sell_manager' || user?.role_name === 'sell_officer' ? (
-                  <>
-                    <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
-                    <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
-                  </>
-                ) : ("""
-
-code = re.sub(
-    r"\s+\) : user\?\.role_name === 'inventory_admin' \? \(\s*<>\s*<NavItem title=\{t\('products', 'Products'\)\}.*?</>\s*\) : \(", 
-    pos_roles, 
-    code, 
-    flags=re.DOTALL
-)
-
-with open("frontend/src/components/Sidebar.jsx", "w") as f:
+with open("frontend/src/components/Sidebar.jsx", "w", encoding="utf-8") as f:
     f.write(code)
