@@ -21,3 +21,4 @@ class Employee(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
     user = relationship("Users")
+    payrolls = relationship("Payroll", back_populates="employee", cascade="all, delete-orphan")
