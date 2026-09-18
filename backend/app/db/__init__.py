@@ -1,4 +1,4 @@
-﻿from app.core.database import Base
+from app.core.database import Base
 from app.api.v1.user.models import Users,Roles,UserRole
 from app.api.v1.farm.models.house import House
 from app.api.v1.farm.models.flock import Flock
@@ -22,4 +22,5 @@ from app.api.v1.hr.models.employee import Employee
 from app.api.v1.hr.models.payroll import Payroll
 from app.api.v1.assets.models.asset import Asset
 from app.api.v1.finance.models.account import FinancialAccount
-__all__ = ["Base","Users","Roles","UserRole","House","Flock","FeedRecord", "ProductionRecord", "MortalityRecord", "MedicationRecord", "VaccinationRecord", "ProductCategory", "Product", "StockMovement", "Customer", "Sale", "SaleItem", "Payment", "Supplier", "Purchase", "PurchaseItem", "PurchasePayment", "Expense", "Employee", "Payroll", "Asset", "FinancialAccount"]
+from app.api.v1.finance.models.transaction import FinancialTransaction
+__all__ = ["Base","Users","Roles","UserRole","House","Flock","FeedRecord", "ProductionRecord", "MortalityRecord", "MedicationRecord", "VaccinationRecord", "ProductCategory", "Product", "StockMovement", "Customer", "Sale", "SaleItem", "Payment", "Supplier", "Purchase", "PurchaseItem", "PurchasePayment", "Expense", "Employee", "Payroll", "Asset", "FinancialAccount", "FinancialTransaction"]

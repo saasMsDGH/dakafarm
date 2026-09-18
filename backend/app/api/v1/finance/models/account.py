@@ -20,3 +20,9 @@ class FinancialAccount(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
 
     user = relationship("Users")
+    transactions = relationship(
+        "FinancialTransaction",
+        back_populates="account",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
