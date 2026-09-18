@@ -7,6 +7,7 @@ from app.api.v1.hr import router as hr_router
 from app.api.v1.assets import router as assets_router
 from app.api.v1.finance.Router import account_router
 from app.api.v1.finance.Router import transaction_router
+from app.api.v1.finance.Router import books_router
 
 router = APIRouter(
     prefix="/v1"
@@ -20,3 +21,4 @@ router.include_router(hr_router.router)
 router.include_router(assets_router.router)
 router.include_router(account_router.router, prefix="/finance")
 router.include_router(transaction_router.router, prefix="/finance")
+router.include_router(books_router.router, prefix="/finance")

@@ -96,9 +96,9 @@ class ExpenseService:
             db.add(fin_txn)
 
         try:
+            expense_id = created_expense.id
             await db.commit()
-            await db.refresh(created_expense)
-            return created_expense
+            return await ExpenseRepo.get_by_id(db, expense_id)
         except Exception as e:
             await db.rollback()
             raise HTTPException(status_code=500, detail=f"Transaction failed: {str(e)}")
