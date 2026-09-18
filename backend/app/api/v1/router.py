@@ -23,9 +23,10 @@ router.include_router(account_router.router, prefix="/finance")
 router.include_router(transaction_router.router, prefix="/finance")
 router.include_router(books_router.router, prefix="/finance")
 from app.api.v1.finance.Router.receivables_payables_router import receivables_router, payables_router
-from app.api.v1.finance.Router import trial_balance_router, pnl_router, cash_flow_router
+from app.api.v1.finance.Router import trial_balance_router, pnl_router, cash_flow_router, balance_sheet_router
 router.include_router(receivables_router, prefix="/finance")
 router.include_router(payables_router, prefix="/finance")
 router.include_router(trial_balance_router.router, prefix="/finance")
 router.include_router(pnl_router.router, prefix="/finance")
 router.include_router(cash_flow_router.router, prefix="/finance")
+router.include_router(balance_sheet_router.router, prefix="/finance")
