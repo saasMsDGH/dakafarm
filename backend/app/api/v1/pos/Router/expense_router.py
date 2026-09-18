@@ -8,6 +8,7 @@ from app.api.v1.pos.schemas.ExpenseSchema import (
     ExpenseResponse,
     ExpenseUpdate,
 )
+from app.api.v1.pos.schemas.ExpensePaymentSchema import ExpensePaymentCreate, ExpensePaymentResponse
 from app.api.v1.pos.service.ExpenseService import ExpenseService
 from app.api.v1.user.models import Users
 from app.auth.RoleAuth import RoleChecker
@@ -92,3 +93,28 @@ async def delete_expense(
     db: AsyncSession = Depends(get_db),
 ) -> None:
     await ExpenseService.delete(db, expense_id)
+
+@router.post(
+    "/{expense_id}/payments/",
+    response_model=ExpensePaymentResponse,
+    summary="Add a payment to an expense"
+)
+async def add_payment(
+    expense_id: int,
+    request: ExpensePaymentCreate,
+    current_user: Users = Depends(pos_manager),
+    db: AsyncSession = Depends(get_db),
+) -> ExpensePaymentResponse:
+    return await ExpenseService.add_payment(db, expense_id, request, current_user.id)
+
+@router.get(
+    "/{expense_id}/payments/",
+    response_model=list[ExpensePaymentResponse],
+    summary="List payments for an expense"
+)
+async def get_payments(
+    expense_id: int,
+    current_user: Users = Depends(pos_officer),
+    db: AsyncSession = Depends(get_db),
+) -> list[ExpensePaymentResponse]:
+    return await ExpenseService.get_payments_for_expense(db, expense_id)

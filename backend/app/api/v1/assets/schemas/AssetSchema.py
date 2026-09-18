@@ -15,6 +15,10 @@ class AssetCreate(BaseModel):
     depreciation_rate: Optional[Decimal] = Field(Decimal('0.00'), ge=0)
     status: Optional[str] = Field("Active", max_length=50)
 
+    amount_paid: Optional[Decimal] = Field(Decimal('0.00'), ge=0)
+    payment_method: Optional[str] = Field(None, max_length=50)
+    account_id: Optional[int] = None
+
 class AssetUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=2, max_length=150)
     description: Optional[str] = None
@@ -24,6 +28,7 @@ class AssetUpdate(BaseModel):
     condition: Optional[str] = Field(None, max_length=50)
     depreciation_rate: Optional[Decimal] = Field(None, ge=0)
     status: Optional[str] = Field(None, max_length=50)
+    payment_status: Optional[str] = Field(None, max_length=50)
 
 class AssetDistributionCreate(BaseModel):
     location: str = Field(..., min_length=1, max_length=150)
@@ -56,6 +61,8 @@ class AssetResponse(BaseModel):
     condition: str
     depreciation_rate: Decimal
     status: str
+    amount_paid: Decimal
+    payment_status: str
     
     distributions: List[AssetDistributionResponse] = []
 

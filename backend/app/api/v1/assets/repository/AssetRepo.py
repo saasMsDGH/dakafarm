@@ -9,23 +9,32 @@ from app.shared.pagination import PaginationParams
 
 class AssetRepo:
     @staticmethod
-    async def create(db: AsyncSession, asset: Asset) -> Asset:
+    async def create(db: AsyncSession, asset: Asset, commit: bool = True) -> Asset:
         try:
             db.add(asset)
-            await db.commit()
-            await db.refresh(asset)
+            if commit:
+                await db.commit()
+                await db.refresh(asset)
+                return await AssetRepo.get_by_id(db, asset.id)
+            else:
+                await db.flush()
+                return asset
         except IntegrityError:
             await db.rollback()
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="An asset with this code might already exist."
             )
-        return await AssetRepo.get_by_id(db, asset.id)
 
     @staticmethod
     async def get_by_id(db: AsyncSession, asset_id: int) -> Optional[Asset]:
         from sqlalchemy.orm import selectinload
-        result = await db.execute(select(Asset).options(selectinload(Asset.distributions)).where(Asset.id == asset_id))
+        result = await db.execute(
+            select(Asset)
+            .options(selectinload(Asset.distributions))
+            .where(Asset.id == asset_id)
+            .execution_options(populate_existing=True)
+        )
         return result.scalar_one_or_none()
 
     @staticmethod
