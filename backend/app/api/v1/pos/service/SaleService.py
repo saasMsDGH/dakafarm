@@ -1,4 +1,4 @@
-﻿import uuid
+import uuid
 import datetime
 from decimal import Decimal
 from fastapi import HTTPException, status
@@ -15,6 +15,9 @@ from app.api.v1.inventory.schemas.StockMovementSchema import StockMovementCreate
 from app.api.v1.pos.schemas.SaleSchema import SaleCreate, SaleListResponse
 from app.api.v1.pos.schemas.PaymentSchema import PaymentCreate
 from app.shared.pagination import PaginationParams, compute_pages
+
+from app.api.v1.finance.models.transaction import FinancialTransaction
+from app.api.v1.finance.repository.AccountRepo import AccountRepo
 
 class SaleService:
     @staticmethod
@@ -43,8 +46,16 @@ class SaleService:
         if request.amount_paid > total_amount:
             raise HTTPException(status_code=400, detail="Amount paid cannot exceed total amount.")
 
-        if request.amount_paid > 0 and not request.payment_method:
-            raise HTTPException(status_code=400, detail="Payment method is required if amount is paid.")
+        if request.amount_paid > 0:
+            if not request.payment_method:
+                raise HTTPException(status_code=400, detail="Payment method is required if amount is paid.")
+            if not request.account_id:
+                raise HTTPException(status_code=400, detail="account_id is required if amount is paid.")
+            
+            # Verify account exists
+            account = await AccountRepo.get_by_id(db, request.account_id)
+            if not account:
+                raise HTTPException(status_code=404, detail="Financial account not found.")
 
         new_debt = total_amount - request.amount_paid
         
@@ -103,25 +114,36 @@ class SaleService:
 
         # 5. Create Payment if money was received
         if request.amount_paid > 0:
+            receipt_no = SaleService._generate_receipt_number()
             payment = Payment(
                 sale_id=created_sale.id,
-                receipt_number=SaleService._generate_receipt_number(),
+                receipt_number=receipt_no,
                 amount=request.amount_paid,
                 payment_method=request.payment_method,
                 received_by=current_user_id
             )
             await PaymentRepo.create(db, payment)
 
-        # 6. Commit the entire transaction
+            # 6. Create FinancialTransaction
+            fin_txn = FinancialTransaction(
+                account_id=request.account_id,
+                transaction_type="SALE",
+                direction="IN",
+                amount=request.amount_paid,
+                description=f"Payment for Sale {created_sale.invoice_number}",
+                reference_number=receipt_no,
+                created_by=current_user_id
+            )
+            db.add(fin_txn)
+
+        # 7. Commit the entire transaction
         try:
-            db.expunge(created_sale) # Detach so it doesn't cause expiration conflicts
+            sale_id = created_sale.id
             await db.commit()
-            # Fetch freshly
-            final_sale = await SaleRepo.get_by_id(db, created_sale.id)
-            return final_sale
+            return await SaleRepo.get_by_id(db, sale_id)
         except Exception as e:
             await db.rollback()
-            raise HTTPException(status_code=500, detail=f"Commit failed: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Transaction failed: {str(e)}")
 
     @staticmethod
     async def get_sale(db: AsyncSession, sale_id: int) -> Sale:
@@ -154,10 +176,17 @@ class SaleService:
         if request.amount > remaining:
             raise HTTPException(status_code=400, detail=f"Payment amount exceeds remaining balance of {remaining}.")
 
+        # Verify account
+        account = await AccountRepo.get_by_id(db, request.account_id)
+        if not account:
+            raise HTTPException(status_code=404, detail="Financial account not found.")
+
+        receipt_no = SaleService._generate_receipt_number()
+
         # Create Payment
         payment = Payment(
             sale_id=sale.id,
-            receipt_number=SaleService._generate_receipt_number(),
+            receipt_number=receipt_no,
             amount=request.amount,
             payment_method=request.payment_method,
             received_by=current_user_id
@@ -171,16 +200,29 @@ class SaleService:
         else:
             sale.payment_status = "PARTIAL"
 
+        # Create FinancialTransaction
+        fin_txn = FinancialTransaction(
+            account_id=request.account_id,
+            transaction_type="SALE",
+            direction="IN",
+            amount=request.amount,
+            description=f"Payment for Sale {sale.invoice_number}",
+            reference_number=receipt_no,
+            created_by=current_user_id
+        )
+        db.add(fin_txn)
+
         try:
-            db.expunge(created_payment)
+            await db.flush()
+            payment_id = created_payment.id
             await db.commit()
+            
             # Fetch freshly
-            from sqlalchemy.future import select
-            res = await db.execute(select(Payment).where(Payment.id == created_payment.id))
+            res = await db.execute(select(Payment).where(Payment.id == payment_id))
             return res.scalar_one()
         except Exception as e:
             await db.rollback()
-            raise HTTPException(status_code=500, detail="Transaction failed.")
+            raise HTTPException(status_code=500, detail=f"Transaction failed: {str(e)}")
 
     @staticmethod
     async def get_payments_for_sale(db: AsyncSession, sale_id: int) -> list[Payment]:

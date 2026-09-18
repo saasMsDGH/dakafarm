@@ -1,4 +1,4 @@
-﻿from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
@@ -6,6 +6,7 @@ from decimal import Decimal
 class PaymentCreate(BaseModel):
     amount: Decimal = Field(..., gt=0)
     payment_method: str = Field(..., min_length=1)
+    account_id: int = Field(..., description="Financial account to receive the payment")
 
 class PaymentResponse(BaseModel):
     id: int

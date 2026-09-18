@@ -1,4 +1,4 @@
-﻿from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 from decimal import Decimal
@@ -25,6 +25,7 @@ class SaleCreate(BaseModel):
     discount: Optional[Decimal] = Field(Decimal('0.00'), ge=0)
     amount_paid: Optional[Decimal] = Field(Decimal('0.00'), ge=0)
     payment_method: Optional[str] = Field(None, description="Required if amount_paid > 0")
+    account_id: Optional[int] = Field(None, description="Required if amount_paid > 0")
     items: List[SaleItemCreate] = Field(..., min_length=1)
 
 class SaleResponse(BaseModel):

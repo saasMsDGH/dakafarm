@@ -25,6 +25,7 @@ class PurchaseCreate(BaseModel):
     discount: Optional[Decimal] = Field(Decimal('0.00'), ge=0)
     amount_paid: Optional[Decimal] = Field(Decimal('0.00'), ge=0)
     payment_method: Optional[str] = Field(None, description="Required if amount_paid > 0")
+    account_id: Optional[int] = Field(None, description="Required if amount_paid > 0")
     notes: Optional[str] = None
     items: List[PurchaseItemCreate] = Field(..., min_length=1)
 
