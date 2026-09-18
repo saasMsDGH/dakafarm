@@ -21,4 +21,5 @@ from app.api.v1.pos.models.expense import Expense
 from app.api.v1.hr.models.employee import Employee
 from app.api.v1.hr.models.payroll import Payroll
 from app.api.v1.assets.models.asset import Asset
-__all__ = ["Base","Users","Roles","UserRole","House","Flock","FeedRecord", "ProductionRecord", "MortalityRecord", "MedicationRecord", "VaccinationRecord", "ProductCategory", "Product", "StockMovement", "Customer", "Sale", "SaleItem", "Payment", "Supplier", "Purchase", "PurchaseItem", "PurchasePayment", "Expense", "Employee", "Payroll", "Asset"]
+from app.api.v1.finance.models.account import FinancialAccount
+__all__ = ["Base","Users","Roles","UserRole","House","Flock","FeedRecord", "ProductionRecord", "MortalityRecord", "MedicationRecord", "VaccinationRecord", "ProductCategory", "Product", "StockMovement", "Customer", "Sale", "SaleItem", "Payment", "Supplier", "Purchase", "PurchaseItem", "PurchasePayment", "Expense", "Employee", "Payroll", "Asset", "FinancialAccount"]

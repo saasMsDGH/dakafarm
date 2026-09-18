@@ -3,7 +3,7 @@ import SimpleBar from 'simplebar-react';
 import { useLocation } from "react-router-dom";
 import { CSSTransition } from 'react-transition-group';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBoxOpen, faChartPie, faSignOutAlt, faTimes, faWarehouse, faCashRegister, faUsers, faDesktop } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faChartPie, faSignOutAlt, faTimes, faWarehouse, faCashRegister, faUsers, faDesktop, faLandmark } from "@fortawesome/free-solid-svg-icons";
 import { Nav, Badge, Image, Button, Dropdown, Accordion, Navbar } from '@themesberg/react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -150,6 +150,10 @@ const Sidebar = (props) => {
                     <CollapsableNavItem eventKey="assets/" title={t('asset_management', 'Asset Management')} icon={faDesktop}>
                       <NavItem title={t('assets', 'Assets')} link={Routes.AssetsList?.path || '#'} />
                     </CollapsableNavItem>
+                    <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
+                      <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
+                    </CollapsableNavItem>
+
                     <Dropdown.Divider className="my-3 border-indigo" />
 
                     <Dropdown.Divider className="my-3 border-indigo" />

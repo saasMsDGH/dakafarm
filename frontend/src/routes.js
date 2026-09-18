@@ -37,5 +37,8 @@
 
     // Assets Subsystem
     AssetsList: { path: "/assets/list" },
+
+    // Finance Subsystem
+    FinanceAccounts: { path: "/finance/accounts" },
 };
 
