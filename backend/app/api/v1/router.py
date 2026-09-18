@@ -22,3 +22,6 @@ router.include_router(assets_router.router)
 router.include_router(account_router.router, prefix="/finance")
 router.include_router(transaction_router.router, prefix="/finance")
 router.include_router(books_router.router, prefix="/finance")
+from app.api.v1.finance.Router.receivables_payables_router import receivables_router, payables_router
+router.include_router(receivables_router, prefix="/finance")
+router.include_router(payables_router, prefix="/finance")
