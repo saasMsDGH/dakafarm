@@ -4,6 +4,7 @@ import { faSearch, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { Col, Row, Card, Table, Form, InputGroup, Pagination, Badge, Button } from '@themesberg/react-bootstrap';
 import { api } from "../../api/axios";
 import Swal from 'sweetalert2';
+import moment from 'moment';
 
 export default () => {
   const [transactions, setTransactions] = useState([]);
@@ -16,8 +17,8 @@ export default () => {
   const [filters, setFilters] = useState({
     transaction_type: '',
     direction: '',
-    date_from: '',
-    date_to: ''
+    date_from: moment().format('YYYY-MM-DD'),
+    date_to: moment().format('YYYY-MM-DD')
   });
 
   const fetchTransactions = async () => {
@@ -63,8 +64,8 @@ export default () => {
     setFilters({
       transaction_type: '',
       direction: '',
-      date_from: '',
-      date_to: ''
+      date_from: moment().format('YYYY-MM-DD'),
+      date_to: moment().format('YYYY-MM-DD')
     });
     setPage(1);
     // Setting state is async, so we wait for the next render or call explicitly

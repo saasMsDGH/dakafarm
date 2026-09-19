@@ -4,14 +4,15 @@ import { faFileInvoiceDollar, faCheckCircle, faExclamationTriangle, faCalendarAl
 import { Col, Row, Card, Table, Form, InputGroup, Button, Tabs, Tab, Alert, Badge } from '@themesberg/react-bootstrap';
 import { api } from "../../api/axios";
 import Swal from 'sweetalert2';
+import moment from 'moment';
 
 export default () => {
   const [activeTab, setActiveTab] = useState('pnl');
   const [loading, setLoading] = useState(false);
   
   // Date Filters
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
+  const [dateFrom, setDateFrom] = useState(moment().format('YYYY-MM-DD'));
+  const [dateTo, setDateTo] = useState(moment().format('YYYY-MM-DD'));
 
   // Report Data
   const [trialBalance, setTrialBalance] = useState(null);
@@ -60,8 +61,8 @@ export default () => {
   };
 
   const handleClearFilter = () => {
-    setDateFrom('');
-    setDateTo('');
+    setDateFrom(moment().format('YYYY-MM-DD'));
+    setDateTo(moment().format('YYYY-MM-DD'));
     setTimeout(fetchReports, 100);
   };
 
