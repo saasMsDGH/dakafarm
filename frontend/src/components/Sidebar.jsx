@@ -113,6 +113,12 @@ const Sidebar = (props) => {
               {user?.role_name === 'admin' ? (
                 <>
                   <NavItem title={t('dashboard')} link={Routes.DashboardOverview.path} icon={faChartPie} />
+                  
+                  <CollapsableNavItem eventKey="admin/" title={t("system_administration", "System Administration")} icon={faUserShield}>
+                    <NavItem title={t("user_management", "User Management")} link={Routes.UsersManagement?.path || '#'} />
+                  </CollapsableNavItem>
+                  <Dropdown.Divider className="my-3 border-indigo" />
+
                   <CollapsableNavItem eventKey="farm/" title={t('farm_management')} icon={faBoxOpen}>
                     <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
                     <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
@@ -158,13 +164,6 @@ const Sidebar = (props) => {
                       <NavItem title={t("financial_reports", "Financial Reports")} link={Routes.FinanceReports?.path || '#'} />
                     </CollapsableNavItem>
 
-                    <Dropdown.Divider className="my-3 border-indigo" />
-
-                    <CollapsableNavItem eventKey="admin/" title={t("system_administration", "System Administration")} icon={faUserShield}>
-                      <NavItem title={t("user_management", "User Management")} link={Routes.UsersManagement?.path || '#'} />
-                    </CollapsableNavItem>
-
-                    <Dropdown.Divider className="my-3 border-indigo" />
                   </>                ) : user?.role_name === 'hr_manager' || user?.role_name === 'hr_officer' ? (
                     <>
                       <CollapsableNavItem eventKey="hr/" title={t('hr_management', 'HR Management')} icon={faUsers}>

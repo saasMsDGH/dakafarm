@@ -46,11 +46,11 @@ export default () => {
     }
   };
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (searchOverride = searchTerm, pageOverride = page) => {
     setLoading(true);
     try {
-      let query = `/api/v1/user/?page=${page}&limit=10`;
-      if (searchTerm) query += `&search=${searchTerm}`;
+      let query = `/api/v1/user/?page=${pageOverride}&limit=10`;
+      if (searchOverride) query += `&search=${searchOverride}`;
       const res = await api.get(query);
       setUsers(res.data.items || res.data);
       setTotalPages(res.data.pages || 1);
@@ -66,7 +66,7 @@ export default () => {
   }, []);
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(searchTerm, page);
   }, [page]);
 
   const handleSearch = (e) => {
@@ -75,7 +75,7 @@ export default () => {
 
   const applySearch = () => {
     setPage(1);
-    fetchUsers();
+    fetchUsers(searchTerm, 1);
   };
 
   const handleRoleFilter = (e) => {
@@ -190,7 +190,11 @@ export default () => {
               <Form.Control type="text" placeholder="Search name, email, or role..." value={searchTerm} onChange={handleSearch} />
               <Button variant="primary" onClick={applySearch}>Search</Button>
             </InputGroup>
-            <Form.Select style={{ maxWidth: '200px' }} onChange={(e) => { setSearchTerm(e.target.value); setTimeout(applySearch, 100); }}>
+            <Form.Select style={{ maxWidth: '200px' }} onChange={(e) => { 
+              setSearchTerm(e.target.value); 
+              setPage(1);
+              fetchUsers(e.target.value, 1); 
+            }}>
               <option value="">All Roles</option>
               {roles.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
             </Form.Select>

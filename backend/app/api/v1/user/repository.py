@@ -68,7 +68,26 @@ class UserRepo:
             .selectinload(models.UserRole.roleid)
         )
         
-        count_result = await db.execute(select(func.count()).select_from(query.subquery()))
+        # Search functionality
+        if params.search:
+            from sqlalchemy import or_
+            term = f"%{params.search}%"
+            # In order to filter by role name, we would need to join with UserRole and Roles
+            # But for simplicity, we will filter by user fields. To search roles, we can join them.
+            from app.api.v1.user.models import UserRole, Roles
+            
+            query = query.outerjoin(UserRole, models.Users.id == UserRole.user_id) \
+                         .outerjoin(Roles, UserRole.role_id == Roles.id) \
+                         .where(
+                             or_(
+                                 models.Users.first_name.ilike(term),
+                                 models.Users.last_name.ilike(term),
+                                 models.Users.email.ilike(term),
+                                 Roles.name.ilike(term)
+                             )
+                         )
+
+        count_result = await db.execute(select(func.count(models.Users.id.distinct())))
         total = count_result.scalar() or 0
 
         # Sort
@@ -81,7 +100,8 @@ class UserRepo:
         # Paginate
         query = query.offset(params.offset).limit(params.limit)
         result = await db.execute(query)
-        users = list(result.scalars().all())
+        # distinct is needed if we joined
+        users = list(result.scalars().unique().all())
 
         return users, total
 
