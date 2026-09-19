@@ -11,14 +11,18 @@ from app.shared.pagination import PaginationParams
 
 class PayrollRepo:
     @staticmethod
-    async def create(db: AsyncSession, payroll: Payroll) -> Payroll:
+    async def create(db: AsyncSession, payroll: Payroll, commit: bool = True) -> Payroll:
         try:
             db.add(payroll)
-            await db.commit()
-            await db.refresh(payroll)
-            # Load relationships
-            result = await db.execute(select(Payroll).options(selectinload(Payroll.employee), selectinload(Payroll.user)).where(Payroll.id == payroll.id))
-            return result.scalar_one()
+            if commit:
+                await db.commit()
+                await db.refresh(payroll)
+                # Load relationships
+                result = await db.execute(select(Payroll).options(selectinload(Payroll.employee), selectinload(Payroll.user)).where(Payroll.id == payroll.id))
+                return result.scalar_one()
+            else:
+                await db.flush()
+                return payroll
         except IntegrityError:
             await db.rollback()
             raise HTTPException(
@@ -32,6 +36,7 @@ class PayrollRepo:
             select(Payroll)
             .options(selectinload(Payroll.employee), selectinload(Payroll.user))
             .where(Payroll.id == payroll_id)
+            .execution_options(populate_existing=True)
         )
         return result.scalar_one_or_none()
 

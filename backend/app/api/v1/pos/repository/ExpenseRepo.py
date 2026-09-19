@@ -9,11 +9,14 @@ from app.shared.pagination import PaginationParams
 
 class ExpenseRepo:
     @staticmethod
-    async def create(db: AsyncSession, expense: Expense) -> Expense:
+    async def create(db: AsyncSession, expense: Expense, commit: bool = True) -> Expense:
         try:
             db.add(expense)
-            await db.commit()
-            await db.refresh(expense)
+            if commit:
+                await db.commit()
+                await db.refresh(expense)
+            else:
+                await db.flush()
         except IntegrityError:
             await db.rollback()
             raise HTTPException(
@@ -24,7 +27,11 @@ class ExpenseRepo:
 
     @staticmethod
     async def get_by_id(db: AsyncSession, expense_id: int) -> Optional[Expense]:
-        result = await db.execute(select(Expense).where(Expense.id == expense_id))
+        result = await db.execute(
+            select(Expense)
+            .where(Expense.id == expense_id)
+            .execution_options(populate_existing=True)
+        )
         return result.scalar_one_or_none()
 
     @staticmethod

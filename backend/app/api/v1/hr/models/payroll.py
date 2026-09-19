@@ -13,8 +13,9 @@ class Payroll(Base):
     allowances = Column(Numeric(15, 2), default=0.00)
     deductions = Column(Numeric(15, 2), default=0.00)
     net_salary = Column(Numeric(15, 2), nullable=False)
+    amount_paid = Column(Numeric(15, 2), nullable=False, default=0.00)
     payment_date = Column(Date, nullable=True)
-    payment_status = Column(String(50), default="Pending") # Pending, Paid
+    payment_status = Column(String(50), default="UNPAID") # UNPAID, PARTIAL, PAID
 
     created_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 
@@ -23,3 +24,4 @@ class Payroll(Base):
 
     employee = relationship("Employee", back_populates="payrolls")
     user = relationship("Users")
+    payments = relationship("PayrollPayment", back_populates="payroll", cascade="all, delete-orphan")

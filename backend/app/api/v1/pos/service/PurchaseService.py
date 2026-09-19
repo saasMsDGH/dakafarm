@@ -18,6 +18,9 @@ from app.api.v1.pos.schemas.PurchasePaymentSchema import PurchasePaymentCreate
 from app.shared.pagination import PaginationParams, compute_pages
 
 
+from app.api.v1.finance.models.transaction import FinancialTransaction
+from app.api.v1.finance.repository.AccountRepo import AccountRepo
+
 class PurchaseService:
     @staticmethod
     def _generate_purchase_number() -> str:
@@ -45,8 +48,16 @@ class PurchaseService:
         if request.amount_paid > total_amount:
             raise HTTPException(status_code=400, detail="Amount paid cannot exceed total amount.")
 
-        if request.amount_paid > 0 and not request.payment_method:
-            raise HTTPException(status_code=400, detail="Payment method is required if amount is paid.")
+        if request.amount_paid > 0:
+            if not request.payment_method:
+                raise HTTPException(status_code=400, detail="Payment method is required if amount is paid.")
+            if not request.account_id:
+                raise HTTPException(status_code=400, detail="account_id is required if amount is paid.")
+            
+            # Verify account exists
+            account = await AccountRepo.get_by_id(db, request.account_id)
+            if not account:
+                raise HTTPException(status_code=404, detail="Financial account not found.")
 
         # 3. Determine payment status
         if request.amount_paid == total_amount:
@@ -104,21 +115,33 @@ class PurchaseService:
 
         # 6. Create Payment if money was paid to supplier
         if request.amount_paid > 0:
+            payment_ref = PurchaseService._generate_payment_reference()
             payment = PurchasePayment(
                 purchase_id=created_purchase.id,
-                payment_reference=PurchaseService._generate_payment_reference(),
+                payment_reference=payment_ref,
                 amount=request.amount_paid,
                 payment_method=request.payment_method,
                 paid_by=current_user_id
             )
             await PurchasePaymentRepo.create(db, payment)
+            
+            # Create FinancialTransaction
+            fin_txn = FinancialTransaction(
+                account_id=request.account_id,
+                transaction_type="PURCHASE",
+                direction="OUT",
+                amount=request.amount_paid,
+                description=f"Payment for Purchase {created_purchase.purchase_number}",
+                reference_number=payment_ref,
+                created_by=current_user_id
+            )
+            db.add(fin_txn)
 
         # 7. Commit the entire transaction
         try:
-            db.expunge(created_purchase)
+            purchase_id = created_purchase.id
             await db.commit()
-            final_purchase = await PurchaseRepo.get_by_id(db, created_purchase.id)
-            return final_purchase
+            return await PurchaseRepo.get_by_id(db, purchase_id)
         except Exception as e:
             await db.rollback()
             raise HTTPException(status_code=500, detail=f"Commit failed: {str(e)}")
@@ -154,10 +177,17 @@ class PurchaseService:
         if request.amount > remaining:
             raise HTTPException(status_code=400, detail=f"Payment amount exceeds remaining balance of {remaining}.")
 
+        # Verify account
+        account = await AccountRepo.get_by_id(db, request.account_id)
+        if not account:
+            raise HTTPException(status_code=404, detail="Financial account not found.")
+
+        payment_ref = PurchaseService._generate_payment_reference()
+
         # Create Payment
         payment = PurchasePayment(
             purchase_id=purchase.id,
-            payment_reference=PurchaseService._generate_payment_reference(),
+            payment_reference=payment_ref,
             amount=request.amount,
             payment_method=request.payment_method,
             paid_by=current_user_id
@@ -171,14 +201,27 @@ class PurchaseService:
         else:
             purchase.payment_status = "PARTIAL"
 
+        # Create FinancialTransaction
+        fin_txn = FinancialTransaction(
+            account_id=request.account_id,
+            transaction_type="PURCHASE",
+            direction="OUT",
+            amount=request.amount,
+            description=f"Payment for Purchase {purchase.purchase_number}",
+            reference_number=payment_ref,
+            created_by=current_user_id
+        )
+        db.add(fin_txn)
+
         try:
-            db.expunge(created_payment)
+            await db.flush()
+            payment_id = created_payment.id
             await db.commit()
-            res = await db.execute(select(PurchasePayment).where(PurchasePayment.id == created_payment.id))
+            res = await db.execute(select(PurchasePayment).where(PurchasePayment.id == payment_id))
             return res.scalar_one()
         except Exception as e:
             await db.rollback()
-            raise HTTPException(status_code=500, detail="Transaction failed.")
+            raise HTTPException(status_code=500, detail=f"Transaction failed: {str(e)}")
 
     @staticmethod
     async def get_payments_for_purchase(db: AsyncSession, purchase_id: int) -> list[PurchasePayment]:

@@ -1,4 +1,4 @@
-﻿export const Routes = {
+export const Routes = {
     // Core
     DashboardOverview: { path: "/" },
     Signin: { path: "/examples/sign-in" },
@@ -37,5 +37,12 @@
 
     // Assets Subsystem
     AssetsList: { path: "/assets/list" },
+
+    // Finance Subsystem
+    FinanceDashboard: { path: "/finance/dashboard" },
+    FinanceAccounts: { path: "/finance/accounts" },
+    FinanceTransactions: { path: "/finance/transactions" },
+    FinanceDebts: { path: "/finance/debts" },
+    FinanceReports: { path: "/finance/reports" },
 };
 

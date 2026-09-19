@@ -17,6 +17,9 @@ class Asset(Base):
     depreciation_rate = Column(Numeric(5, 2), default=0.00) # percentage
     status = Column(String(50), default="Active") # e.g. Active, Maintenance, Disposed
 
+    amount_paid = Column(Numeric(15, 2), nullable=False, default=0.00)
+    payment_status = Column(String(50), default="UNPAID") # UNPAID, PARTIAL, PAID
+
     created_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -24,7 +27,7 @@ class Asset(Base):
 
     user = relationship("Users")
     distributions = relationship("AssetDistribution", back_populates="asset", cascade="all, delete-orphan")
-
+    payments = relationship("AssetPayment", back_populates="asset", cascade="all, delete-orphan")
 
 class AssetDistribution(Base):
     __tablename__ = "asset_distributions"

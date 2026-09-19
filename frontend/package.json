@@ -53,6 +53,7 @@
     "react-router-hash-link": "^2.3.1",
     "react-select": "^5.10.2",
     "react-transition-group": "^4.4.1",
+    "recharts": "^3.10.1",
     "sass": "^1.50.0",
     "simplebar-react": "^2.3.0",
     "sweetalert2": "^11.26.25"

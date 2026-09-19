@@ -9,6 +9,7 @@ from app.api.v1.assets.schemas.AssetSchema import (
     AssetResponse,
     AssetUpdate,
 )
+from app.api.v1.assets.schemas.AssetPaymentSchema import AssetPaymentCreate, AssetPaymentResponse
 from app.api.v1.assets.service.AssetService import AssetService
 from app.api.v1.user.models import Users
 from app.auth.RoleAuth import RoleChecker
@@ -109,3 +110,28 @@ async def delete_asset(
     db: AsyncSession = Depends(get_db),
 ) -> None:
     await AssetService.delete(db, asset_id)
+
+@router.post(
+    "/{asset_id}/payments/",
+    response_model=AssetPaymentResponse,
+    summary="Add a payment to an asset record"
+)
+async def add_payment(
+    asset_id: int,
+    request: AssetPaymentCreate,
+    current_user: Users = Depends(asset_manager),
+    db: AsyncSession = Depends(get_db),
+) -> AssetPaymentResponse:
+    return await AssetService.add_payment(db, asset_id, request, current_user.id)
+
+@router.get(
+    "/{asset_id}/payments/",
+    response_model=list[AssetPaymentResponse],
+    summary="List payments for an asset record"
+)
+async def get_payments(
+    asset_id: int,
+    current_user: Users = Depends(asset_viewer),
+    db: AsyncSession = Depends(get_db),
+) -> list[AssetPaymentResponse]:
+    return await AssetService.get_payments_for_asset(db, asset_id)

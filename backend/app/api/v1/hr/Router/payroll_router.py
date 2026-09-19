@@ -8,6 +8,7 @@ from app.api.v1.hr.schemas.PayrollSchema import (
     PayrollResponse,
     PayrollUpdate,
 )
+from app.api.v1.hr.schemas.PayrollPaymentSchema import PayrollPaymentCreate, PayrollPaymentResponse
 from app.api.v1.hr.service.PayrollService import PayrollService
 from app.api.v1.user.models import Users
 from app.auth.RoleAuth import RoleChecker
@@ -92,3 +93,28 @@ async def delete_payroll(
     db: AsyncSession = Depends(get_db),
 ) -> None:
     await PayrollService.delete(db, payroll_id)
+
+@router.post(
+    "/{payroll_id}/payments/",
+    response_model=PayrollPaymentResponse,
+    summary="Add a payment to a payroll record"
+)
+async def add_payment(
+    payroll_id: int,
+    request: PayrollPaymentCreate,
+    current_user: Users = Depends(hr_manager),
+    db: AsyncSession = Depends(get_db),
+) -> PayrollPaymentResponse:
+    return await PayrollService.add_payment(db, payroll_id, request, current_user.id)
+
+@router.get(
+    "/{payroll_id}/payments/",
+    response_model=list[PayrollPaymentResponse],
+    summary="List payments for a payroll record"
+)
+async def get_payments(
+    payroll_id: int,
+    current_user: Users = Depends(hr_officer),
+    db: AsyncSession = Depends(get_db),
+) -> list[PayrollPaymentResponse]:
+    return await PayrollService.get_payments_for_payroll(db, payroll_id)

@@ -12,7 +12,10 @@ class PayrollCreate(BaseModel):
     allowances: Optional[Decimal] = Field(Decimal('0.00'), ge=0)
     deductions: Optional[Decimal] = Field(Decimal('0.00'), ge=0)
     payment_date: Optional[date] = None
-    payment_status: Optional[str] = Field("Pending", max_length=50)
+    
+    amount_paid: Optional[Decimal] = Field(Decimal('0.00'), ge=0)
+    payment_method: Optional[str] = Field(None, max_length=50)
+    account_id: Optional[int] = None
 
 class PayrollUpdate(BaseModel):
     pay_period: Optional[str] = Field(None, max_length=50)
@@ -46,6 +49,7 @@ class PayrollResponse(BaseModel):
     allowances: Decimal
     deductions: Decimal
     net_salary: Decimal
+    amount_paid: Decimal
     payment_date: Optional[date]
     payment_status: str
     

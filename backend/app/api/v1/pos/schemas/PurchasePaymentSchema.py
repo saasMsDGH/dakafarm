@@ -6,6 +6,7 @@ from decimal import Decimal
 class PurchasePaymentCreate(BaseModel):
     amount: Decimal = Field(..., gt=0)
     payment_method: str = Field(..., min_length=1)
+    account_id: int = Field(..., description="Financial account from which payment is made")
 
 class PurchasePaymentResponse(BaseModel):
     id: int
