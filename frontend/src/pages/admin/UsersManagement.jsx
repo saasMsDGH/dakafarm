@@ -4,8 +4,10 @@ import { faPlus, faEdit, faSearch, faUserShield, faKey, faUserSlash, faUserCheck
 import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination, Badge } from '@themesberg/react-bootstrap';
 import { api } from "../../api/axios";
 import Swal from 'sweetalert2';
+import { useTranslation } from 'react-i18next';
 
 export default () => {
+  const { t } = useTranslation();
   const [users, setUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -170,7 +172,7 @@ export default () => {
     <>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
-          <h4>Users Management</h4>
+          <h4>{t("user_management", "Users Management")}</h4>
           <p className="mb-0">Manage system users, roles, and access.</p>
         </div>
         <div className="btn-toolbar mb-2 mb-md-0">
@@ -201,12 +203,12 @@ export default () => {
           <Table hover className="user-table align-items-center">
             <thead>
               <tr>
-                <th className="border-bottom">Name</th>
-                <th className="border-bottom">Email</th>
-                <th className="border-bottom">Phone</th>
-                <th className="border-bottom">Role</th>
-                <th className="border-bottom">Status</th>
-                <th className="border-bottom">Actions</th>
+                <th className="border-bottom">{t("name", "Name")}</th>
+                <th className="border-bottom">{t("email", "Email")}</th>
+                <th className="border-bottom">{t("phone", "Phone")}</th>
+                <th className="border-bottom">{t("role", "Role")}</th>
+                <th className="border-bottom">{t("status", "Status")}</th>
+                <th className="border-bottom">{t("actions", "Actions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -271,44 +273,44 @@ export default () => {
       <Modal as={Modal.Dialog} centered show={showAddModal} onHide={() => setShowAddModal(false)}>
         <Form onSubmit={handleAddUser}>
           <Modal.Header closeButton>
-            <Modal.Title>Add New User</Modal.Title>
+            <Modal.Title>{t("add_new_user", "Add New User")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>First Name</Form.Label>
+                  <Form.Label>{t("first_name", "First Name")}</Form.Label>
                   <Form.Control required type="text" value={newUser.first_name} onChange={(e) => setNewUser({...newUser, first_name: e.target.value})} />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Last Name</Form.Label>
+                  <Form.Label>{t("last_name", "Last Name")}</Form.Label>
                   <Form.Control required type="text" value={newUser.last_name} onChange={(e) => setNewUser({...newUser, last_name: e.target.value})} />
                 </Form.Group>
               </Col>
             </Row>
             <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
+              <Form.Label>{t("email", "Email")}</Form.Label>
               <Form.Control required type="email" value={newUser.email} onChange={(e) => setNewUser({...newUser, email: e.target.value})} />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Phone Number</Form.Label>
+              <Form.Label>{t("phone_number", "Phone Number")}</Form.Label>
               <Form.Control type="text" value={newUser.phone} onChange={(e) => setNewUser({...newUser, phone: e.target.value})} />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Role</Form.Label>
+              <Form.Label>{t("role", "Role")}</Form.Label>
               <Form.Select required value={newUser.role} onChange={(e) => setNewUser({...newUser, role: e.target.value})}>
                 {roles.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
               </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Initial Password</Form.Label>
+              <Form.Label>{t("initial_password", "Initial Password")}</Form.Label>
               <Form.Control required type="password" value={newUser.password_hash} onChange={(e) => setNewUser({...newUser, password_hash: e.target.value})} />
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowAddModal(false)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => setShowAddModal(false)}>{t("cancel", "Cancel")}</Button>
             <Button variant="primary" type="submit">Create User</Button>
           </Modal.Footer>
         </Form>
@@ -318,33 +320,33 @@ export default () => {
       <Modal as={Modal.Dialog} centered show={showEditModal} onHide={() => setShowEditModal(false)}>
         <Form onSubmit={handleEditUser}>
           <Modal.Header closeButton>
-            <Modal.Title>Edit User Profile</Modal.Title>
+            <Modal.Title>{t("edit_user_profile", "Edit User Profile")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>First Name</Form.Label>
+                  <Form.Label>{t("first_name", "First Name")}</Form.Label>
                   <Form.Control required type="text" value={editUser.first_name || ''} onChange={(e) => setEditUser({...editUser, first_name: e.target.value})} />
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Last Name</Form.Label>
+                  <Form.Label>{t("last_name", "Last Name")}</Form.Label>
                   <Form.Control required type="text" value={editUser.last_name || ''} onChange={(e) => setEditUser({...editUser, last_name: e.target.value})} />
                 </Form.Group>
               </Col>
             </Row>
             <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
+              <Form.Label>{t("email", "Email")}</Form.Label>
               <Form.Control required type="email" value={editUser.email || ''} onChange={(e) => setEditUser({...editUser, email: e.target.value})} />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Phone Number</Form.Label>
+              <Form.Label>{t("phone_number", "Phone Number")}</Form.Label>
               <Form.Control type="text" value={editUser.phone || ''} onChange={(e) => setEditUser({...editUser, phone: e.target.value})} />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Role</Form.Label>
+              <Form.Label>{t("role", "Role")}</Form.Label>
               <Form.Select required value={editUser.role_name || ''} onChange={(e) => setEditUser({...editUser, role_name: e.target.value})}>
                 {roles.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
               </Form.Select>
@@ -354,8 +356,8 @@ export default () => {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowEditModal(false)}>Cancel</Button>
-            <Button variant="primary" type="submit">Save Changes</Button>
+            <Button variant="secondary" onClick={() => setShowEditModal(false)}>{t("cancel", "Cancel")}</Button>
+            <Button variant="primary" type="submit">{t("save_all", "Save Changes")}</Button>
           </Modal.Footer>
         </Form>
       </Modal>
@@ -364,17 +366,17 @@ export default () => {
       <Modal as={Modal.Dialog} centered show={showPasswordModal} onHide={() => setShowPasswordModal(false)}>
         <Form onSubmit={handlePasswordChange}>
           <Modal.Header closeButton>
-            <Modal.Title>Change Password</Modal.Title>
+            <Modal.Title>{t("change_password", "Change Password")}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <p className="text-muted">Setting new password for <strong>{currentUser?.first_name} {currentUser?.last_name}</strong>.</p>
             <Form.Group className="mb-3">
-              <Form.Label>New Password</Form.Label>
+              <Form.Label>{t("new_password", "New Password")}</Form.Label>
               <Form.Control required type="password" placeholder="Min 6 characters" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowPasswordModal(false)}>Cancel</Button>
+            <Button variant="secondary" onClick={() => setShowPasswordModal(false)}>{t("cancel", "Cancel")}</Button>
             <Button variant="warning" type="submit">Update Password</Button>
           </Modal.Footer>
         </Form>

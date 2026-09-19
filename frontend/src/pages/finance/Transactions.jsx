@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faFilter } from '@fortawesome/free-solid-svg-icons';
@@ -7,6 +8,7 @@ import Swal from 'sweetalert2';
 import moment from 'moment';
 
 export default () => {
+  const { t } = useTranslation();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   
@@ -78,7 +80,7 @@ export default () => {
     <>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
-          <h4>General Ledger</h4>
+          <h4>{t("general_ledger", "General Ledger")}</h4>
           <p className="mb-0">A master list of all financial transactions across the farm.</p>
         </div>
       </div>
@@ -94,7 +96,7 @@ export default () => {
             </Col>
             <Col md={2}>
               <Form.Select name="transaction_type" value={filters.transaction_type} onChange={handleFilterChange}>
-                <option value="">All Types</option>
+                <option value="">{t("all_types", "All Types")}</option>
                 <option value="SALE">Sale</option>
                 <option value="PURCHASE">Purchase</option>
                 <option value="EXPENSE">Expense</option>

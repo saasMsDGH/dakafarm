@@ -269,7 +269,7 @@ export default () => {
       <Modal as={Modal.Dialog} centered show={showModal} onHide={() => setShowModal(false)}>
         <Form>
           <Modal.Header closeButton>
-            <Modal.Title>{isEdit ? 'Edit Financial Account' : 'Add Financial Account'}</Modal.Title>
+            <Modal.Title>{isEdit ? t('edit_account', 'Edit Financial Account') : t('add_account', 'Add Financial Account')}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Row>
@@ -405,7 +405,7 @@ export default () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowBookModal(false)}>Close</Button>
+          <Button variant="secondary" onClick={() => setShowBookModal(false)}>{t("cancel", "Close")}</Button>
         </Modal.Footer>
       </Modal>
     </>

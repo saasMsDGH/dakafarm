@@ -27,9 +27,11 @@ import {
   BarChart,
   Bar
 } from "recharts";
+import { useTranslation } from 'react-i18next';
 
 export default () => {
-  const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
   
   // Farm State
   const [farmData, setFarmData] = useState({
@@ -173,15 +175,15 @@ export default () => {
     <>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div>
-          <h4>Control Center</h4>
-          <p className="mb-0">Global overview of AMAS FARM operations.</p>
+          <h4>{t('dashboard') || 'Control Center'}</h4>
+          <p className="mb-0">{t('global_overview', 'Global overview of AMAS FARM operations.')}</p>
         </div>
       </div>
 
       {loading ? (
         <div className="text-center mt-5">
           <Spinner animation="border" variant="primary" />
-          <p className="mt-2">Loading system metrics...</p>
+          <p className="mt-2">{t('loading', 'Loading...')}</p>
         </div>
       ) : (
         <>
@@ -190,60 +192,60 @@ export default () => {
             {/* FARM KPIs */}
             <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
-                title="Total Live Birds" 
+                title={t('total_birds', 'Total Live Birds')} 
                 value={farmData.totalBirds.toLocaleString()} 
                 icon={faCrow} 
                 color="warning" 
-                subtitle="Across all active flocks"
+                subtitle={t('across_all_flocks', 'Across all active flocks')}
               />
             </Col>
             <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
-                title="Today's Eggs" 
+                title={t('todays_eggs', "Today's Eggs")} 
                 value={farmData.todayEggs.toLocaleString()} 
                 icon={faEgg} 
                 color="info"
-                subtitle={`Month total: ${farmData.monthEggs.toLocaleString()}`}
+                subtitle={`${t('month_total', 'Month total')}: ${farmData.monthEggs.toLocaleString()}`}
               />
             </Col>
             
             {/* POS KPIs */}
             <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
-                title="Today's Sales" 
+                title={t('todays_sales', "Today's Sales")} 
                 value={`${Math.round(financeData.todaySales).toLocaleString()} TZS`} 
                 icon={faShoppingCart} 
                 color="primary" 
-                subtitle="Total revenue generated today"
+                subtitle={t('total_revenue_today', 'Total revenue generated today')}
               />
             </Col>
 
             {/* FINANCE & HR KPIs */}
             <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
-                title="Cash on Hand" 
+                title={t('cash_on_hand', 'Cash on Hand')} 
                 value={`${Math.round(financeData.cash).toLocaleString()} TZS`} 
                 icon={faMoneyBillWave} 
                 color="success" 
-                subtitle="Total liquid assets available"
+                subtitle={t('total_liquid_assets', 'Total liquid assets available')}
               />
             </Col>
             <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
-                title="Monthly Net Profit" 
+                title={t('monthly_profit', 'Monthly Net Profit')} 
                 value={`${Math.round(financeData.profit).toLocaleString()} TZS`} 
                 icon={faChartLine} 
                 color="success" 
-                subtitle="Revenue minus expenses this month"
+                subtitle={t('revenue_minus_expenses', 'Revenue minus expenses this month')}
               />
             </Col>
             <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
-                title="Active Users" 
+                title={t('active_users', 'Active Users')} 
                 value={hrData.activeUsers.toLocaleString()} 
                 icon={faUsers} 
                 color="tertiary" 
-                subtitle="Total registered system users"
+                subtitle={t('total_registered_users', 'Total registered system users')}
               />
             </Col>
           </Row>
@@ -253,7 +255,7 @@ export default () => {
             <Col xs={12} xl={8} className="mb-4">
               <Card border="light" className="shadow-sm">
                 <Card.Header>
-                  <h5 className="mb-0">Farm Overview (Last 14 Days)</h5>
+                  <h5 className="mb-0">{t('farm_overview_14_days', 'Farm Overview (Last 14 Days)')}</h5>
                 </Card.Header>
                 <Card.Body>
                   <div style={{ width: "100%", height: 350 }}>
@@ -266,13 +268,13 @@ export default () => {
                           <YAxis yAxisId="right" orientation="right" stroke="#dc3545" />
                           <Tooltip />
                           <Legend />
-                          <Line yAxisId="left" type="monotone" dataKey="eggs" name="Good Eggs" stroke="#17a2b8" strokeWidth={3} activeDot={{ r: 8 }} />
-                          <Line yAxisId="right" type="monotone" dataKey="mortality" name="Mortality" stroke="#dc3545" strokeWidth={2} />
+                          <Line yAxisId="left" type="monotone" dataKey="eggs" name={t('good_eggs', 'Good Eggs')} stroke="#17a2b8" strokeWidth={3} activeDot={{ r: 8 }} />
+                          <Line yAxisId="right" type="monotone" dataKey="mortality" name={t('mortalities', 'Mortality')} stroke="#dc3545" strokeWidth={2} />
                         </LineChart>
                       </ResponsiveContainer>
                     ) : (
                       <div className="d-flex align-items-center justify-content-center h-100 bg-light text-muted rounded">
-                        No production data available for the last 14 days.
+                        {t('no_production_data', 'No production data available for the last 14 days.')}
                       </div>
                     )}
                   </div>
@@ -284,7 +286,7 @@ export default () => {
             <Col xs={12} xl={4} className="mb-4">
               <Card border="light" className="shadow-sm h-100">
                 <Card.Header>
-                  <h5 className="mb-0">System Alerts & Summaries</h5>
+                  <h5 className="mb-0">{t('system_alerts', 'System Alerts & Summaries')}</h5>
                 </Card.Header>
                 <Card.Body>
                   <ul className="list-unstyled mb-0">
@@ -293,14 +295,14 @@ export default () => {
                       <li className="mb-3">
                         <div className="d-flex align-items-center text-danger">
                           <FontAwesomeIcon icon={faExclamationTriangle} className="me-2" />
-                          <span className="fw-bold">Mortality Alert:</span> 
-                          <span className="ms-1">{farmData.todayMortality} birds died today.</span>
+                          <span className="fw-bold">{t('mortality_alert', 'Mortality Alert')}:</span> 
+                          <span className="ms-1">{farmData.todayMortality} {t('birds_died_today', 'birds died today.')}</span>
                         </div>
                       </li>
                     ) : (
                       <li className="mb-3 text-success">
                         <FontAwesomeIcon icon={faCheckCircle} className="me-2" />
-                        No mortalities reported today.
+                        {t('no_mortalities_today', 'No mortalities reported today.')}
                       </li>
                     )}
                     
@@ -309,7 +311,7 @@ export default () => {
                     {/* Debt Alerts */}
                     <li className="mb-2">
                       <div className="d-flex justify-content-between align-items-center">
-                        <span className="fw-bold">Customers Owe Us:</span>
+                        <span className="fw-bold">{t('customers_owe', 'Customers Owe Us')}:</span>
                         <Badge bg={financeData.receivables > 0 ? "warning" : "success"}>
                           {Math.round(financeData.receivables).toLocaleString()} TZS
                         </Badge>
@@ -317,7 +319,7 @@ export default () => {
                     </li>
                     <li className="mb-3">
                       <div className="d-flex justify-content-between align-items-center">
-                        <span className="fw-bold">We Owe Suppliers:</span>
+                        <span className="fw-bold">{t('we_owe', 'We Owe Suppliers')}:</span>
                         <Badge bg={financeData.payables > 0 ? "danger" : "success"}>
                           {Math.round(financeData.payables).toLocaleString()} TZS
                         </Badge>
@@ -327,7 +329,7 @@ export default () => {
                     <hr />
 
                     <li className="mb-3">
-                      <h6 className="fw-bold mb-2 mt-3 text-danger">Inventory Low Stock Alerts:</h6>
+                      <h6 className="fw-bold mb-2 mt-3 text-danger">{t('low_stock_alerts', 'Inventory Low Stock Alerts')}:</h6>
                       {inventoryAlerts.length > 0 ? (
                         <Table size="sm" className="mb-0">
                           <tbody>
@@ -342,7 +344,7 @@ export default () => {
                       ) : (
                         <div className="text-success small mt-2">
                           <FontAwesomeIcon icon={faCheckCircle} className="me-1" />
-                          All inventory levels are healthy.
+                          {t('inventory_healthy', 'All inventory levels are healthy.')}
                         </div>
                       )}
                     </li>

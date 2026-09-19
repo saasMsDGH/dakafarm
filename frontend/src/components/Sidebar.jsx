@@ -151,17 +151,17 @@ const Sidebar = (props) => {
                       <NavItem title={t('assets', 'Assets')} link={Routes.AssetsList?.path || '#'} />
                     </CollapsableNavItem>
                     <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
-                      <NavItem title="Dashboard" link={Routes.FinanceDashboard?.path || '#'} />
+                      <NavItem title={t("dashboard", "Dashboard")} link={Routes.FinanceDashboard?.path || '#'} />
                       <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
-                      <NavItem title="General Ledger" link={Routes.FinanceTransactions?.path || '#'} />
-                      <NavItem title="Debtors & Creditors" link={Routes.FinanceDebts?.path || '#'} />
-                      <NavItem title="Financial Reports" link={Routes.FinanceReports?.path || '#'} />
+                      <NavItem title={t("general_ledger", "General Ledger")} link={Routes.FinanceTransactions?.path || '#'} />
+                      <NavItem title={t("debtors_creditors", "Debtors & Creditors")} link={Routes.FinanceDebts?.path || '#'} />
+                      <NavItem title={t("financial_reports", "Financial Reports")} link={Routes.FinanceReports?.path || '#'} />
                     </CollapsableNavItem>
 
                     <Dropdown.Divider className="my-3 border-indigo" />
 
-                    <CollapsableNavItem eventKey="admin/" title="System Administration" icon={faUserShield}>
-                      <NavItem title="User Management" link={Routes.UsersManagement?.path || '#'} />
+                    <CollapsableNavItem eventKey="admin/" title={t("system_administration", "System Administration")} icon={faUserShield}>
+                      <NavItem title={t("user_management", "User Management")} link={Routes.UsersManagement?.path || '#'} />
                     </CollapsableNavItem>
 
                     <Dropdown.Divider className="my-3 border-indigo" />
@@ -198,11 +198,11 @@ const Sidebar = (props) => {
                 ) : user?.role_name === 'finance_manager' || user?.role_name === 'finance_officer' ? (
                   <>
                     <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
-                      <NavItem title="Dashboard" link={Routes.FinanceDashboard?.path || '#'} />
+                      <NavItem title={t("dashboard", "Dashboard")} link={Routes.FinanceDashboard?.path || '#'} />
                       <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
-                      <NavItem title="General Ledger" link={Routes.FinanceTransactions?.path || '#'} />
-                      <NavItem title="Debtors & Creditors" link={Routes.FinanceDebts?.path || '#'} />
-                      <NavItem title="Financial Reports" link={Routes.FinanceReports?.path || '#'} />
+                      <NavItem title={t("general_ledger", "General Ledger")} link={Routes.FinanceTransactions?.path || '#'} />
+                      <NavItem title={t("debtors_creditors", "Debtors & Creditors")} link={Routes.FinanceDebts?.path || '#'} />
+                      <NavItem title={t("financial_reports", "Financial Reports")} link={Routes.FinanceReports?.path || '#'} />
                     </CollapsableNavItem>
                   </>
                 ) : user?.role_name === 'farm_manager' || user?.role_name === 'farm_officer' ? (
