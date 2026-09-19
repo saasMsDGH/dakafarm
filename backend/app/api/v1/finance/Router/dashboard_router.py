@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from datetime import datetime
+from typing import Optional
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.finance.schemas.DashboardSchema import FinanceDashboardResponse
@@ -23,11 +25,13 @@ router = APIRouter(
     summary="Get High-Level Finance KPIs",
 )
 async def get_dashboard_metrics(
+    start_date: Optional[datetime] = Query(default=None),
+    end_date: Optional[datetime] = Query(default=None),
     current_user: Users = Depends(finance_manager),
     db: AsyncSession = Depends(get_db),
 ) -> FinanceDashboardResponse:
     """
     Returns the top-level KPIs required for the Finance Admin Dashboard cards.
-    Calculates lifetime balances for assets/liabilities and current-month performance for profit.
+    Calculates lifetime balances for assets/liabilities and custom-period performance for profit.
     """
-    return await DashboardService.get_dashboard_metrics(db)
+    return await DashboardService.get_dashboard_metrics(db, start_date, end_date)

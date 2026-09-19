@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.finance.repository.BalanceSheetRepo import BalanceSheetRepo
 from app.api.v1.finance.repository.PnLRepo import PnLRepo
@@ -6,20 +7,29 @@ from app.api.v1.finance.schemas.DashboardSchema import FinanceDashboardResponse
 
 class DashboardService:
     @staticmethod
-    async def get_dashboard_metrics(db: AsyncSession) -> FinanceDashboardResponse:
+    async def get_dashboard_metrics(db: AsyncSession, start_date: Optional[datetime] = None, end_date: Optional[datetime] = None) -> FinanceDashboardResponse:
         
         # 1. Get Lifetime Balances (No date filter)
         bs_data = await BalanceSheetRepo.generate_balance_sheet(db, as_of_date=None)
         
         cash_on_hand = bs_data["cash_and_bank"]
-        accounts_receivable = bs_data["accounts_receivable"]
-        accounts_payable = bs_data["accounts_payable"]
+        from sqlalchemy import select, func
+        from app.api.v1.pos.models.sale import Sale
+        from app.api.v1.pos.models.purchase import Purchase
+        from decimal import Decimal
+
+        ar_q = await db.execute(select(func.sum(Sale.total_amount - Sale.amount_paid)).where(Sale.payment_status.in_(['UNPAID', 'PARTIAL'])))
+        accounts_receivable = ar_q.scalar() or Decimal('0.00')
         
-        # 2. Get Current Month Performance
-        now = datetime.now(timezone.utc)
-        first_of_month = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
+        ap_q = await db.execute(select(func.sum(Purchase.total_amount - Purchase.amount_paid)).where(Purchase.payment_status.in_(['UNPAID', 'PARTIAL'])))
+        accounts_payable = ap_q.scalar() or Decimal('0.00')
         
-        pnl_data = await PnLRepo.generate_pnl(db, start_date=first_of_month, end_date=None)
+        # 2. Get Period Performance
+        if not start_date and not end_date:
+            now = datetime.now(timezone.utc)
+            start_date = datetime(now.year, now.month, 1, tzinfo=timezone.utc)
+        
+        pnl_data = await PnLRepo.generate_pnl(db, start_date=start_date, end_date=end_date)
         
         monthly_revenue = (
             pnl_data["sales"] + 

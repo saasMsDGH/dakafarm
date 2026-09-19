@@ -39,6 +39,7 @@ export const Routes = {
     AssetsList: { path: "/assets/list" },
 
     // Finance Subsystem
+    FinanceDashboard: { path: "/finance/dashboard" },
     FinanceAccounts: { path: "/finance/accounts" },
     FinanceTransactions: { path: "/finance/transactions" },
     FinanceDebts: { path: "/finance/debts" },

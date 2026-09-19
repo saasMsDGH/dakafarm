@@ -151,6 +151,7 @@ const Sidebar = (props) => {
                       <NavItem title={t('assets', 'Assets')} link={Routes.AssetsList?.path || '#'} />
                     </CollapsableNavItem>
                     <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
+                      <NavItem title="Dashboard" link={Routes.FinanceDashboard?.path || '#'} />
                       <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
                       <NavItem title="General Ledger" link={Routes.FinanceTransactions?.path || '#'} />
                       <NavItem title="Debtors & Creditors" link={Routes.FinanceDebts?.path || '#'} />

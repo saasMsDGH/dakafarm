@@ -35,6 +35,7 @@ import Payroll from "./hr/Payroll";
 import AssetsList from "./assets/AssetsList";
 
 // finance
+import FinanceDashboard from "./finance/FinanceDashboard";
 import AccountsList from "./finance/AccountsList";
 import Transactions from "./finance/Transactions";
 import Debts from "./finance/Debts";
@@ -135,6 +136,7 @@ export default () => (
     
     {/* assets pages */}
     <RouteWithSidebar exact path={Routes.AssetsList.path} component={AssetsList} />
+    <RouteWithSidebar exact path={Routes.FinanceDashboard.path} component={FinanceDashboard} />
     <RouteWithSidebar exact path={Routes.FinanceAccounts.path} component={AccountsList} />
     <RouteWithSidebar exact path={Routes.FinanceTransactions.path} component={Transactions} />
     <RouteWithSidebar exact path={Routes.FinanceDebts.path} component={Debts} />
