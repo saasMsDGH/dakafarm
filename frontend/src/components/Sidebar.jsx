@@ -191,7 +191,17 @@ const Sidebar = (props) => {
                       <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
                     </CollapsableNavItem>
                   </>
-                ) : (
+                ) : user?.role_name === 'finance_manager' || user?.role_name === 'finance_officer' ? (
+                  <>
+                    <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
+                      <NavItem title="Dashboard" link={Routes.FinanceDashboard?.path || '#'} />
+                      <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
+                      <NavItem title="General Ledger" link={Routes.FinanceTransactions?.path || '#'} />
+                      <NavItem title="Debtors & Creditors" link={Routes.FinanceDebts?.path || '#'} />
+                      <NavItem title="Financial Reports" link={Routes.FinanceReports?.path || '#'} />
+                    </CollapsableNavItem>
+                  </>
+                ) : user?.role_name === 'farm_manager' || user?.role_name === 'farm_officer' ? (
                 <>
                   <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
                   <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
@@ -202,7 +212,7 @@ const Sidebar = (props) => {
                   <NavItem title={t('feeds')} link={Routes.Feeds?.path || '#'} />
                   <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
                 </>
-              )}
+              ) : null}
             </Nav>
           </div>
         </SimpleBar>
