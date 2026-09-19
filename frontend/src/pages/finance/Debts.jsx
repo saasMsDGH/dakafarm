@@ -63,9 +63,12 @@ export default () => {
   };
 
   useEffect(() => {
-    if (key === 'receivables') fetchReceivables();
-    if (key === 'payables') fetchPayables();
-  }, [key, rPage, pPage]);
+    fetchReceivables();
+  }, [rPage]);
+
+  useEffect(() => {
+    fetchPayables();
+  }, [pPage]);
 
   const handleRSearch = (e) => { setRSearch(e.target.value); };
   const applyRSearch = () => { setRPage(1); fetchReceivables(); };
