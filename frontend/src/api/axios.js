@@ -3,6 +3,11 @@ import axios from 'axios';
 // Create a configured axios instance
 export const api = axios.create({
   baseURL: 'http://localhost:8000', // Our FastAPI backend URL
+  headers: {
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+  }
 });
 
 // Intercept requests to add the Authorization token automatically
