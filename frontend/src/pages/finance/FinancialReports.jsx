@@ -27,13 +27,13 @@ export default () => {
     try {
       // PNL & CashFlow use start_date, end_date
       let rangeQuery = '';
-      if (dateFrom) rangeQuery += `start_date=${dateFrom}T00:00:00&`;
-      if (dateTo) rangeQuery += `end_date=${dateTo}T23:59:59&`;
+      if (dateFrom) rangeQuery += `start_date=${moment(dateFrom).startOf('day').toISOString()}&`;
+      if (dateTo) rangeQuery += `end_date=${moment(dateTo).endOf('day').toISOString()}&`;
       if (rangeQuery.endsWith('&')) rangeQuery = rangeQuery.slice(0, -1);
       const rangeStr = rangeQuery ? `?${rangeQuery}` : '';
       
       // {t("trial_balance", "Trial Balance")} & {t("balance_sheet", "Balance Sheet")} use as_of_date
-      const asOfQuery = dateTo ? `?as_of_date=${dateTo}T23:59:59` : '';
+      const asOfQuery = dateTo ? `?as_of_date=${moment(dateTo).endOf('day').toISOString()}` : '';
 
       const [tbRes, pnlRes, cfRes, bsRes] = await Promise.all([
         api.get(`/api/v1/finance/trial-balance/${asOfQuery}`),

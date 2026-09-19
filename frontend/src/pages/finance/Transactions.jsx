@@ -30,8 +30,8 @@ export default () => {
       if (searchTerm) query += `&search=${searchTerm}`;
       if (filters.transaction_type) query += `&transaction_type=${filters.transaction_type}`;
       if (filters.direction) query += `&direction=${filters.direction}`;
-      if (filters.date_from) query += `&date_from=${filters.date_from}T00:00:00`;
-      if (filters.date_to) query += `&date_to=${filters.date_to}T23:59:59`;
+      if (filters.date_from) query += `&date_from=${moment(filters.date_from).startOf('day').toISOString()}`;
+      if (filters.date_to) query += `&date_to=${moment(filters.date_to).endOf('day').toISOString()}`;
 
       const res = await api.get(query);
       setTransactions(res.data.items || res.data);
