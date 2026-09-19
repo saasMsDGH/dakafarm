@@ -67,7 +67,8 @@ class TransactionRepo:
         date_from: Optional[datetime] = None,
         date_to: Optional[datetime] = None,
     ) -> Tuple[List[FinancialTransaction], int]:
-        query = select(FinancialTransaction)
+        from sqlalchemy.orm import joinedload
+        query = select(FinancialTransaction).options(joinedload(FinancialTransaction.account))
 
         # --- Filters ---
         if account_id is not None:

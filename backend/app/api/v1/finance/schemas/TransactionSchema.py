@@ -20,7 +20,7 @@ from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
-
+from app.api.v1.finance.schemas.AccountSchema import FinancialAccountResponse
 
 # ---------------------------------------------------------------------------
 # Controlled vocabularies
@@ -81,6 +81,7 @@ class FinancialTransactionResponse(BaseModel):
     created_by: Optional[int]
     created_at: datetime
     updated_at: datetime
+    account: Optional[FinancialAccountResponse] = None
 
     model_config = {"from_attributes": True}
 

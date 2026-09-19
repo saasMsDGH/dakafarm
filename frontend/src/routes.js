@@ -42,5 +42,6 @@ export const Routes = {
     FinanceAccounts: { path: "/finance/accounts" },
     FinanceTransactions: { path: "/finance/transactions" },
     FinanceDebts: { path: "/finance/debts" },
+    FinanceReports: { path: "/finance/reports" },
 };
 

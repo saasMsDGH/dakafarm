@@ -154,6 +154,7 @@ const Sidebar = (props) => {
                       <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
                       <NavItem title="General Ledger" link={Routes.FinanceTransactions?.path || '#'} />
                       <NavItem title="Debtors & Creditors" link={Routes.FinanceDebts?.path || '#'} />
+                      <NavItem title="Financial Reports" link={Routes.FinanceReports?.path || '#'} />
                     </CollapsableNavItem>
 
                     <Dropdown.Divider className="my-3 border-indigo" />

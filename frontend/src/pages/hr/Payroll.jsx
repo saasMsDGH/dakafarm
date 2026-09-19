@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faTrash, faSearch, faEye } from '@fortawesome/free-solid-svg-icons';
-import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination, Badge, Nav } from '@themesberg/react-bootstrap';
+import { faPlus, faEdit, faTrash, faSearch, faEye, faEllipsisV, faMoneyBillWave, faFileInvoiceDollar } from '@fortawesome/free-solid-svg-icons';
+import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination, Badge, Nav, Dropdown } from '@themesberg/react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { api } from "../../api/axios";
 import Swal from 'sweetalert2';
@@ -18,6 +18,10 @@ export default () => {
   const [searchTerm, setSearchTerm] = useState("");
   
   const [showModal, setShowModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentData, setPaymentData] = useState({ amount: '', payment_method: 'CASH', account_id: '' });
+  const [payrollPayments, setPayrollPayments] = useState([]);
+  const [accounts, setAccounts] = useState([]);
   const [showPayslipModal, setShowPayslipModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   
@@ -56,9 +60,19 @@ export default () => {
     }
   };
 
+  const fetchAccounts = async () => {
+    try {
+      const res = await api.get('/api/v1/finance/accounts');
+      if (res.data && res.data.items) setAccounts(res.data.items);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchPayrolls();
     fetchEmployees();
+    fetchAccounts();
   }, []);
 
   const handleSearch = (e) => {
@@ -68,6 +82,37 @@ export default () => {
 
   const handlePageChange = (newPage) => {
     fetchPayrolls(newPage, searchTerm);
+  };
+
+  const handleOpenPayment = async (payroll) => {
+    setCurrentPayroll(payroll);
+    try {
+      const res = await api.get(`/api/v1/hr/payrolls/${payroll.id}/payments/`);
+      setPayrollPayments(res.data || []);
+    } catch (err) {
+      console.error(err);
+      setPayrollPayments([]);
+    }
+    const balance = payroll.net_salary - (payroll.amount_paid || 0);
+    setPaymentData({ amount: balance > 0 ? balance : '', payment_method: 'CASH', account_id: '' });
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentSubmit = async (e) => {
+    e.preventDefault();
+    if (!paymentData.account_id) return alert("Please select a financial account");
+    try {
+      await api.post(`/api/v1/hr/payrolls/${currentPayroll.id}/payments/`, {
+        amount: parseFloat(paymentData.amount),
+        payment_method: paymentData.payment_method,
+        account_id: parseInt(paymentData.account_id)
+      });
+      setShowPaymentModal(false);
+      fetchPayrolls();
+    } catch (error) {
+      console.error("Payment failed", error);
+      alert(error.response?.data?.detail || "Payment failed");
+    }
   };
 
   const handleCloseModal = () => {
@@ -207,18 +252,29 @@ export default () => {
                     <td><span className="fw-normal">{formatCurrency(pay.basic_salary)}</span></td>
                     <td><span className="fw-bold">{formatCurrency(pay.net_salary)}</span></td>
                     <td>
-                      <Badge bg={pay.payment_status === 'Paid' ? 'success' : 'warning'}>{pay.payment_status}</Badge>
+                      {pay.payment_status} <br/>
+                      <small className="text-muted">({formatCurrency(pay.amount_paid)} / {formatCurrency(pay.net_salary)})</small>
                     </td>
                     <td>
-                      <Button variant="success" size="sm" className="me-2" onClick={() => handleShowPayslip(pay)}>
-                        <FontAwesomeIcon icon={faEye} />
-                      </Button>
-                      <Button variant="info" size="sm" className="me-2" onClick={() => handleShowEditModal(pay)}>
-                        <FontAwesomeIcon icon={faEdit} />
-                      </Button>
-                      <Button variant="danger" size="sm" onClick={() => handleDelete(pay.id)}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
+                      <Dropdown>
+                        <Dropdown.Toggle variant="light" size="sm" id="dropdown-basic">
+                          <FontAwesomeIcon icon={faEllipsisV} />
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                          <Dropdown.Item onClick={() => handleOpenPayment(pay)}>
+                            <FontAwesomeIcon icon={faMoneyBillWave} className="me-2 text-success" /> {t('add_payment', 'Add Payment')}
+                          </Dropdown.Item>
+                          <Dropdown.Item onClick={() => handleShowPayslip(pay)}>
+                            <FontAwesomeIcon icon={faFileInvoiceDollar} className="me-2 text-primary" /> {t('payslip', 'View Payslip')}
+                          </Dropdown.Item>
+                          <Dropdown.Item onClick={() => handleShowEditModal(pay)}>
+                            <FontAwesomeIcon icon={faEdit} className="me-2 text-info" /> {t('edit', 'Edit')}
+                          </Dropdown.Item>
+                          <Dropdown.Item className="text-danger" onClick={() => handleDelete(pay.id)}>
+                            <FontAwesomeIcon icon={faTrash} className="me-2" /> {t('delete', 'Delete')}
+                          </Dropdown.Item>
+                        </Dropdown.Menu>
+                      </Dropdown>
                     </td>
                   </tr>
                 ))
@@ -347,6 +403,66 @@ export default () => {
         </Modal.Footer>
       </Modal>
 
+      <Modal show={showPaymentModal} onHide={() => setShowPaymentModal(false)} size="lg">
+        <Form onSubmit={handlePaymentSubmit}>
+          <Modal.Header closeButton>
+            <Modal.Title className="h6">Add Payment for {currentPayroll?.employee?.first_name} {currentPayroll?.employee?.last_name} ({currentPayroll?.pay_period})</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Row>
+              <Col md={4} className="mb-3">
+                <Form.Group>
+                  <Form.Label>Amount to Pay</Form.Label>
+                  <Form.Control type="number" step="0.01" required value={paymentData.amount} onChange={(e) => setPaymentData({...paymentData, amount: e.target.value})} />
+                </Form.Group>
+              </Col>
+              <Col md={4} className="mb-3">
+                <Form.Group>
+                  <Form.Label>Payment Method</Form.Label>
+                  <Form.Select required value={paymentData.payment_method} onChange={(e) => setPaymentData({...paymentData, payment_method: e.target.value})}>
+                    <option value="CASH">Cash</option>
+                    <option value="BANK TRANSFER">Bank Transfer</option>
+                    <option value="MOBILE MONEY">Mobile Money</option>
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+              <Col md={4} className="mb-3">
+                <Form.Group>
+                  <Form.Label>Financial Account</Form.Label>
+                  <Form.Select required value={paymentData.account_id} onChange={(e) => setPaymentData({...paymentData, account_id: e.target.value})}>
+                    <option value="">Select Account</option>
+                    {accounts.filter(acc => paymentData.payment_method === 'CASH' ? acc.account_type === 'CASH' : true).map(acc => (
+                      <option key={acc.id} value={acc.id}>{acc.name} ({acc.account_type})</option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
+            {payrollPayments.length > 0 && (
+              <div className="mt-4">
+                <h6 className="text-muted">Previous Payments</h6>
+                <Table size="sm" bordered hover>
+                  <thead className="bg-light"><tr><th>Date</th><th>Amount</th><th>Method</th></tr></thead>
+                  <tbody>
+                    {payrollPayments.map(p => (
+                      <tr key={p.id}>
+                        <td>{new Date(p.payment_date).toLocaleDateString()}</td>
+                        <td>{formatCurrency(p.amount)}</td>
+                        <td>{p.payment_method}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowPaymentModal(false)}>Cancel</Button>
+            <Button variant="success" type="submit">Submit Payment</Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+
       {/* Edit/Add Modal */}
       <Modal as={Modal} show={showModal} onHide={handleCloseModal}>
         <Form onSubmit={handleSubmit}>
@@ -373,15 +489,6 @@ export default () => {
                 <Form.Group>
                   <Form.Label>{t('pay_period', 'Pay Period')}</Form.Label>
                   <Form.Control required type="text" placeholder="e.g. September 2026" value={currentPayroll.pay_period} onChange={(e) => setCurrentPayroll({...currentPayroll, pay_period: e.target.value})} />
-                </Form.Group>
-              </Col>
-              <Col md={6} className="mb-3">
-                <Form.Group>
-                  <Form.Label>{t('payment_status', 'Status')}</Form.Label>
-                  <Form.Select required value={currentPayroll.payment_status} onChange={(e) => setCurrentPayroll({...currentPayroll, payment_status: e.target.value})}>
-                    <option value="Pending">Pending</option>
-                    <option value="Paid">Paid</option>
-                  </Form.Select>
                 </Form.Group>
               </Col>
             </Row>
