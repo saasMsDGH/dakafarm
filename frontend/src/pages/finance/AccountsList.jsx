@@ -1,6 +1,6 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faTrash, faSearch, faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTrash, faSearch, faCheckCircle, faTimesCircle, faBook } from '@fortawesome/free-solid-svg-icons';
 import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination, Badge } from '@themesberg/react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { api } from "../../api/axios";
@@ -19,6 +19,10 @@ export default () => {
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   
+  const [showBookModal, setShowBookModal] = useState(false);
+  const [bookData, setBookData] = useState(null);
+  const [bookLoading, setBookLoading] = useState(false);
+
   const [currentAccount, setCurrentAccount] = useState({
     name: '',
     account_type: 'CASH',
@@ -67,6 +71,27 @@ export default () => {
       is_active: true
     });
     setShowModal(true);
+  };
+
+  const handleViewBook = async (account) => {
+    setBookLoading(true);
+    setShowBookModal(true);
+    setBookData(null);
+    try {
+      let endpoint = '';
+      if (account.account_type === 'CASH') endpoint = `/api/v1/finance/books/cash?account_id=${account.id}`;
+      else if (account.account_type === 'BANK') endpoint = `/api/v1/finance/books/bank?account_id=${account.id}`;
+      else if (account.account_type === 'MOBILE_MONEY') endpoint = `/api/v1/finance/books/mobile-money?account_id=${account.id}`;
+      
+      const res = await api.get(endpoint);
+      setBookData(res.data);
+    } catch (error) {
+      console.error(error);
+      Swal.fire('Error', 'Failed to fetch book data.', 'error');
+      setShowBookModal(false);
+    } finally {
+      setBookLoading(false);
+    }
   };
 
   const handleShowEditModal = (account) => {
@@ -209,7 +234,10 @@ export default () => {
                       </Badge>
                     </td>
                     <td>
-                      <Button variant="link" className="text-dark me-2 p-0" onClick={() => handleShowEditModal(acc)}>
+                      <Button variant="link" className="text-info me-2 p-0" title="View Cash Book" onClick={() => handleViewBook(acc)}>
+                        <FontAwesomeIcon icon={faBook} />
+                      </Button>
+                      <Button variant="link" className="text-dark me-2 p-0" title="Edit" onClick={() => handleShowEditModal(acc)}>
                         <FontAwesomeIcon icon={faEdit} className="text-secondary" />
                       </Button>
                       <Button variant="link" className="text-dark p-0" onClick={() => toggleStatus(acc)}>
@@ -299,6 +327,86 @@ export default () => {
             </Button>
           </Modal.Footer>
         </Form>
+      </Modal>
+
+      {/* Cash Book Modal */}
+      <Modal as={Modal.Dialog} centered show={showBookModal} onHide={() => setShowBookModal(false)} size="xl">
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <FontAwesomeIcon icon={faBook} className="me-2" />
+            {bookData ? `${bookData.account.name} - Ledger` : 'Loading Ledger...'}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="p-0">
+          {bookLoading ? (
+            <div className="text-center p-5">Loading...</div>
+          ) : bookData ? (
+            <div>
+              {/* Summary Cards */}
+              <div className="bg-light p-3 border-bottom d-flex justify-content-between align-items-center">
+                <div>
+                  <small className="text-muted d-block">Opening Balance</small>
+                  <span className="fw-bold">{bookData.opening_balance.toLocaleString()}</span>
+                </div>
+                <div>
+                  <small className="text-muted d-block">Total Money IN</small>
+                  <span className="fw-bold text-success">+{bookData.total_money_in.toLocaleString()}</span>
+                </div>
+                <div>
+                  <small className="text-muted d-block">Total Money OUT</small>
+                  <span className="fw-bold text-danger">-{bookData.total_money_out.toLocaleString()}</span>
+                </div>
+                <div>
+                  <small className="text-muted d-block">Closing Balance</small>
+                  <span className="fw-bold fs-5">{bookData.closing_balance.toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* Transactions Table */}
+              <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+                <Table responsive hover className="align-items-center table-flush mb-0">
+                  <thead className="thead-light sticky-top" style={{ zIndex: 1 }}>
+                    <tr>
+                      <th>Date</th>
+                      <th>Ref Number</th>
+                      <th>Type</th>
+                      <th>Description</th>
+                      <th className="text-end">Money IN</th>
+                      <th className="text-end">Money OUT</th>
+                      <th className="text-end">Balance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bookData.items.length === 0 ? (
+                      <tr><td colSpan="7" className="text-center p-4">No transactions recorded for this account.</td></tr>
+                    ) : (
+                      bookData.items.map((txn, index) => (
+                        <tr key={txn.id}>
+                          <td>{new Date(txn.transaction_date).toLocaleDateString()}</td>
+                          <td><Badge bg="secondary">{txn.reference_number || '-'}</Badge></td>
+                          <td><Badge bg={txn.transaction_type === 'SALE' ? 'success' : txn.transaction_type === 'EXPENSE' ? 'danger' : txn.transaction_type === 'PURCHASE' ? 'danger' : 'info'}>{txn.transaction_type}</Badge></td>
+                          <td>
+                            <div style={{ maxWidth: '250px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={txn.description}>
+                              {txn.description}
+                            </div>
+                          </td>
+                          <td className="text-end text-success fw-bold">{parseFloat(txn.money_in) > 0 ? txn.money_in.toLocaleString() : '-'}</td>
+                          <td className="text-end text-danger fw-bold">{parseFloat(txn.money_out) > 0 ? txn.money_out.toLocaleString() : '-'}</td>
+                          <td className="text-end fw-bold">{txn.balance.toLocaleString()}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </Table>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center p-5 text-danger">Failed to load ledger data.</div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowBookModal(false)}>Close</Button>
+        </Modal.Footer>
       </Modal>
     </>
   );
