@@ -143,6 +143,13 @@ class ExpenseService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Expense with id {expense_id} not found."
             )
+            
+        if expense.amount_paid > 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot delete an expense that has payments recorded. This breaks the financial audit trail."
+            )
+            
         await ExpenseRepo.delete(db, expense)
 
     @staticmethod

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Select from 'react-select';
 import { useAuth } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -64,7 +64,8 @@ export default () => {
   const [newPurchase, setNewPurchase] = useState({
     supplier_id: '',
     discount: '', amount_paid: '',
-    payment_method: 'Cash'
+    payment_method: 'Cash',
+    account_id: ''
   });
   const [cartItems, setCartItems] = useState([]);
   const [productSearch, setProductSearch] = useState('');
@@ -77,8 +78,11 @@ export default () => {
   // Payment State
   const [paymentInput, setPaymentInput] = useState({
     amount: 0,
-    payment_method: 'Cash'
+    payment_method: 'Cash',
+    account_id: ''
   });
+
+  const [accounts, setAccounts] = useState([]);
 
   const fetchPurchases = async (currentPage = page) => {
     setLoading(true);
@@ -95,16 +99,18 @@ export default () => {
     }
   };
 
-      const fetchDependencies = async () => {
-      try {
-        const custRes = await api.get(`/api/v1/pos/suppliers/?limit=1000`);
-        setSuppliers(custRes.data.items);
-        const prodRes = await api.get(`/api/v1/inventory/products/?limit=1000`);
-        setProducts(prodRes.data.items);
-        const catRes = await api.get(`/api/v1/inventory/product-categories/?limit=100`);
-        setCategories(catRes.data.items);
-      } catch (error) {
-      console.error("Failed to load suppliers or products", error);
+  const fetchDependencies = async () => {
+    try {
+      const suppRes = await api.get(`/api/v1/pos/suppliers/?limit=1000`);
+      setSuppliers(suppRes.data.items);
+      const prodRes = await api.get(`/api/v1/inventory/products/?limit=1000`);
+      setProducts(prodRes.data.items);
+      const catRes = await api.get('/api/v1/inventory/product-categories/?limit=100');
+      setCategories(catRes.data.items || catRes.data);
+      const accRes = await api.get(`/api/v1/finance/accounts/?limit=1000`);
+      setAccounts(accRes.data.items || accRes.data);
+    } catch (error) {
+      console.error("Failed to load dependencies", error);
     }
   };
 
@@ -196,12 +202,19 @@ export default () => {
       return;
     }
 
+    const amountPaid = parseFloat(newPurchase.amount_paid) || 0;
+    if (amountPaid > 0 && !newPurchase.account_id) {
+      Swal.fire('Error', 'Please select a Payment Account for the amount paid.', 'error');
+      return;
+    }
+
     try {
       const payload = {
         supplier_id: parseInt(newPurchase.supplier_id),
         discount: parseFloat(newPurchase.discount) || 0,
-        amount_paid: parseFloat(newPurchase.amount_paid) || 0,
+        amount_paid: amountPaid,
         payment_method: newPurchase.payment_method,
+        account_id: amountPaid > 0 ? parseInt(newPurchase.account_id) : null,
         items: cartItems.map(item => ({
           product_id: item.product_id,
           quantity: parseFloat(item.quantity) || 0,
@@ -414,11 +427,16 @@ export default () => {
 
   const submitPayment = async (e) => {
     e.preventDefault();
+    if (!paymentInput.account_id) {
+      Swal.fire('Error', 'Please select a Payment Account.', 'error');
+      return;
+    }
     try {
       const payload = {
         purchase_id: currentPurchase.id,
         amount: parseFloat(paymentInput.amount),
-        payment_method: paymentInput.payment_method
+        payment_method: paymentInput.payment_method,
+        account_id: parseInt(paymentInput.account_id)
       };
       await api.post(`/api/v1/pos/purchases/${currentPurchase.id}/payments`, payload);
       Swal.fire('Success', 'Payment recorded successfully!', 'success');
@@ -836,6 +854,15 @@ export default () => {
                             <option value="Bank Transfer">{t('bank_transfer')}</option>
                           </Form.Select>
                         </Form.Group>
+                        <Form.Group className="mb-3">
+                          <Form.Label className="text-muted small mb-1">Payment Account {parseFloat(newPurchase.amount_paid) > 0 && '*'}</Form.Label>
+                          <Form.Select size="sm" value={newPurchase.account_id} onChange={(e) => setNewPurchase({...newPurchase, account_id: e.target.value})}>
+                            <option value="">-- Select Account --</option>
+                            {accounts.map(acc => (
+                              <option key={acc.id} value={acc.id}>{acc.name} ({acc.account_type})</option>
+                            ))}
+                          </Form.Select>
+                        </Form.Group>
                       </div>
                     </Card.Body>
                   </Card>
@@ -964,6 +991,15 @@ export default () => {
                 <option value="Cash">Cash</option>
                 <option value="Mobile Money">Mobile Money</option>
                 <option value="Bank Transfer">Bank Transfer</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Payment Account *</Form.Label>
+              <Form.Select value={paymentInput.account_id} onChange={(e) => setPaymentInput({...paymentInput, account_id: e.target.value})} required>
+                <option value="">-- Select Account --</option>
+                {accounts.map(acc => (
+                  <option key={acc.id} value={acc.id}>{acc.name} ({acc.account_type})</option>
+                ))}
               </Form.Select>
             </Form.Group>
           </Modal.Body>

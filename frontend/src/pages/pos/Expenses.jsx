@@ -1,6 +1,6 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faTrash, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faTrash, faSearch, faEye, faMoneyBillWave } from '@fortawesome/free-solid-svg-icons';
 import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination } from '@themesberg/react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { api } from "../../api/axios";
@@ -18,12 +18,23 @@ export default () => {
   
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [accounts, setAccounts] = useState([]);
   const [currentExpense, setCurrentExpense] = useState({
-        category: '',
+    category: '',
     description: '',
     amount: '0.00',
     expense_date: new Date().toISOString().split('T')[0],
-    payment_method: 'CASH'
+    payment_method: 'Cash',
+    account_id: ''
+  });
+
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [expenseDetails, setExpenseDetails] = useState(null);
+  const [paymentInput, setPaymentInput] = useState({
+    amount: 0,
+    payment_method: 'Cash',
+    account_id: ''
   });
 
   const fetchExpenses = async (currentPage = page, search = searchTerm) => {
@@ -43,6 +54,15 @@ export default () => {
 
   useEffect(() => {
     fetchExpenses();
+    const fetchAccounts = async () => {
+      try {
+        const accRes = await api.get('/api/v1/finance/accounts/?limit=1000');
+        setAccounts(accRes.data.items || accRes.data);
+      } catch (error) {
+        console.error("Failed to load accounts", error);
+      }
+    };
+    fetchAccounts();
   }, []);
 
   const handleSearch = (e) => {
@@ -61,7 +81,8 @@ export default () => {
     description: '',
     amount: '0.00',
     expense_date: new Date().toISOString().split('T')[0],
-    payment_method: 'CASH'
+    payment_method: 'CASH',
+    account_id: ''
     });
     setIsEdit(false);
   };
@@ -73,7 +94,8 @@ export default () => {
 
   const handleShowEditModal = (expense) => {
     setCurrentExpense({
-      ...expense
+      ...expense,
+      account_id: expense.account_id || ''
     });
     setIsEdit(true);
     setShowModal(true);
@@ -103,10 +125,15 @@ export default () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!currentExpense.account_id) {
+      Swal.fire('Error', 'Please select a Payment Account.', 'error');
+      return;
+    }
     try {
       const payload = {
         ...currentExpense,
-        credit_limit: parseFloat(currentExpense.credit_limit) || 0
+        amount: parseFloat(currentExpense.amount),
+        account_id: parseInt(currentExpense.account_id)
       };
 
       if (isEdit) {
@@ -126,6 +153,52 @@ export default () => {
 
   const handleChange = (e) => {
     setCurrentExpense({ ...currentExpense, [e.target.name]: e.target.value });
+  };
+
+  const handleViewExpense = async (id) => {
+    try {
+      const res = await api.get(`/api/v1/pos/expenses/${id}`);
+      const payRes = await api.get(`/api/v1/pos/expenses/${id}/payments/`);
+      setExpenseDetails({ ...res.data, payments: payRes.data || [] });
+      setShowViewModal(true);
+    } catch (error) {
+      Swal.fire('Error', 'Failed to fetch expense details', 'error');
+    }
+  };
+
+  const handleShowPaymentModal = (expense) => {
+    setExpenseDetails(expense); // Just keeping context of which expense we are paying
+    setPaymentInput({
+      amount: parseFloat(expense.amount) - parseFloat(expense.amount_paid),
+      payment_method: 'Cash',
+      account_id: ''
+    });
+    setShowPaymentModal(true);
+  };
+
+  const submitPayment = async (e) => {
+    e.preventDefault();
+    if (!paymentInput.account_id) {
+      Swal.fire('Error', 'Please select a Payment Account.', 'error');
+      return;
+    }
+    try {
+      const payload = {
+        expense_id: expenseDetails.id,
+        amount: parseFloat(paymentInput.amount),
+        payment_method: paymentInput.payment_method,
+        account_id: parseInt(paymentInput.account_id)
+      };
+      await api.post(`/api/v1/pos/expenses/${expenseDetails.id}/payments/`, payload);
+      Swal.fire('Success', 'Payment recorded successfully!', 'success');
+      setShowPaymentModal(false);
+      fetchExpenses();
+      if (showViewModal) {
+          handleViewExpense(expenseDetails.id);
+      }
+    } catch (error) {
+      Swal.fire('Error', error.response?.data?.detail || 'Failed to add payment', 'error');
+    }
   };
 
   return (
@@ -163,36 +236,49 @@ export default () => {
           <Table hover className="user-table align-items-center">
             <thead>
               <tr>
-                <th className="border-bottom">ID / Code</th>
-                <th className="border-bottom">Name</th>
-                <th className="border-bottom">{t('business_type')}</th>
-                <th className="border-bottom">Phone</th>
-                <th className="border-bottom">Address</th>
-                <th className="border-bottom">{t('credit_limit')}</th>
+                <th className="border-bottom">Expense #</th>
+                <th className="border-bottom">Date</th>
+                <th className="border-bottom">Category</th>
+                <th className="border-bottom">Description</th>
+                <th className="border-bottom">Total Amount</th>
+                <th className="border-bottom">Amount Paid</th>
+                <th className="border-bottom">Status</th>
                 <th className="border-bottom">Actions</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="7" className="text-center">Loading...</td></tr>
+                <tr><td colSpan="8" className="text-center">Loading...</td></tr>
               ) : expenses.length === 0 ? (
-                <tr><td colSpan="7" className="text-center">No expenses found.</td></tr>
+                <tr><td colSpan="8" className="text-center">No expenses found.</td></tr>
               ) : (
                 expenses.map(c => (
                   <tr key={c.id}>
                     <td><span className="fw-bold">{c.expense_number}</span></td>
-                      <td><span className="fw-normal">{c.expense_date}</span></td>
-                      <td><span className="fw-normal">{c.category}</span></td>
-                      <td><span className="fw-normal">{c.description}</span></td>
-                      <td><span className="fw-bold text-danger">{parseFloat(c.amount).toLocaleString()}</span></td>
-                      <td><span className="fw-normal">{c.payment_method}</span></td>
+                    <td><span className="fw-normal">{new Date(c.expense_date).toLocaleDateString()}</span></td>
+                    <td><span className="fw-normal">{c.category}</span></td>
+                    <td><span className="fw-normal">{c.description || '-'}</span></td>
+                    <td><span className="fw-bold text-danger">{parseFloat(c.amount).toLocaleString()}</span></td>
+                    <td><span className="fw-bold text-success">{parseFloat(c.amount_paid).toLocaleString()}</span></td>
                     <td>
-                      <Button variant="info" size="sm" className="me-2" onClick={() => handleShowEditModal(c)}>
-                        <FontAwesomeIcon icon={faEdit} />
+                      <span className={`badge ${c.payment_status === 'PAID' ? 'bg-success' : c.payment_status === 'PARTIAL' ? 'bg-warning' : 'bg-danger'}`}>
+                        {c.payment_status}
+                      </span>
+                    </td>
+                    <td>
+                      <Button variant="primary" size="sm" className="me-2" onClick={() => handleViewExpense(c.id)}>
+                        <FontAwesomeIcon icon={faEye} />
                       </Button>
-                      <Button variant="danger" size="sm" onClick={() => handleDelete(c.id)}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </Button>
+                      {c.payment_status !== 'PAID' && (
+                        <Button variant="success" size="sm" className="me-2" onClick={() => handleShowPaymentModal(c)}>
+                          <FontAwesomeIcon icon={faMoneyBillWave} />
+                        </Button>
+                      )}
+                        {c.payment_status === 'UNPAID' && (
+                          <Button variant="danger" size="sm" onClick={() => handleDelete(c.id)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </Button>
+                        )}
                     </td>
                   </tr>
                 ))
@@ -241,6 +327,15 @@ export default () => {
               </Form.Select>
             </Form.Group>
             <Form.Group className="mb-3">
+              <Form.Label>Payment Account *</Form.Label>
+              <Form.Select name="account_id" value={currentExpense.account_id} onChange={handleChange} required>
+                <option value="">-- Select Account --</option>
+                {accounts.map(acc => (
+                  <option key={acc.id} value={acc.id}>{acc.name} ({acc.account_type})</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label>{t('description')}</Form.Label>
               <Form.Control as="textarea" rows={3} name="description" value={currentExpense.description || ''} onChange={handleChange} />
             </Form.Group>
@@ -248,6 +343,108 @@ export default () => {
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseModal}>Cancel</Button>
             <Button variant="primary" type="submit">Save</Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+      <Modal as={Modal.Dialog} centered show={showViewModal} onHide={() => setShowViewModal(false)} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Expense Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {expenseDetails && (
+            <div>
+              <div className="mb-4">
+                <Row>
+                  <Col md={6}>
+                    <p><strong>Expense #:</strong> {expenseDetails.expense_number}</p>
+                    <p><strong>Date:</strong> {new Date(expenseDetails.expense_date).toLocaleDateString()}</p>
+                    <p><strong>Category:</strong> {expenseDetails.category}</p>
+                  </Col>
+                  <Col md={6}>
+                    <p><strong>Total Amount:</strong> {parseFloat(expenseDetails.amount).toLocaleString()}</p>
+                    <p><strong>Amount Paid:</strong> {parseFloat(expenseDetails.amount_paid).toLocaleString()}</p>
+                    <p><strong>Status:</strong> <span className={`badge ${expenseDetails.payment_status === 'PAID' ? 'bg-success' : expenseDetails.payment_status === 'PARTIAL' ? 'bg-warning' : 'bg-danger'}`}>{expenseDetails.payment_status}</span></p>
+                  </Col>
+                </Row>
+                <p><strong>Description:</strong> {expenseDetails.description}</p>
+              </div>
+              
+              <h5 className="mt-4 border-bottom pb-2">Payment History</h5>
+              {expenseDetails.payments && expenseDetails.payments.length > 0 ? (
+                <Table size="sm" bordered hover>
+                  <thead className="bg-light">
+                    <tr>
+                      <th>Date</th>
+                      <th>Method</th>
+                      <th>Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {expenseDetails.payments.map((pay, i) => (
+                      <tr key={i}>
+                        <td>{new Date(pay.payment_date).toLocaleDateString()}</td>
+                        <td>{pay.payment_method}</td>
+                        <td className="text-success fw-bold">{parseFloat(pay.amount).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              ) : (
+                <p className="text-muted">No payments recorded yet.</p>
+              )}
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowViewModal(false)}>Close</Button>
+          {expenseDetails && expenseDetails.payment_status !== 'PAID' && (
+            <Button variant="success" onClick={() => { setShowViewModal(false); handleShowPaymentModal(expenseDetails); }}>
+              Add Payment
+            </Button>
+          )}
+        </Modal.Footer>
+      </Modal>
+
+      <Modal as={Modal.Dialog} centered show={showPaymentModal} onHide={() => setShowPaymentModal(false)}>
+        <Form onSubmit={submitPayment}>
+          <Modal.Header closeButton>
+            <Modal.Title>Add Payment</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {expenseDetails && (
+              <div className="mb-3 text-muted">
+                Expense: <strong>{expenseDetails.expense_number}</strong><br/>
+                Total Due: <strong>{parseFloat(expenseDetails.amount).toLocaleString()}</strong><br/>
+                Remaining Balance: <strong className="text-danger">
+                  {(parseFloat(expenseDetails.amount) - parseFloat(expenseDetails.amount_paid)).toLocaleString()}
+                </strong>
+              </div>
+            )}
+            <Form.Group className="mb-3">
+              <Form.Label>Payment Amount *</Form.Label>
+              <Form.Control type="number" step="0.01" value={paymentInput.amount} onChange={(e) => setPaymentInput({...paymentInput, amount: e.target.value})} required />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Payment Method *</Form.Label>
+              <Form.Select value={paymentInput.payment_method} onChange={(e) => setPaymentInput({...paymentInput, payment_method: e.target.value})} required>
+                <option value="Cash">Cash</option>
+                <option value="Mobile Money">Mobile Money</option>
+                <option value="Bank Transfer">Bank</option>
+              </Form.Select>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Payment Account *</Form.Label>
+              <Form.Select value={paymentInput.account_id} onChange={(e) => setPaymentInput({...paymentInput, account_id: e.target.value})} required>
+                <option value="">-- Select Account --</option>
+                {accounts.map(acc => (
+                  <option key={acc.id} value={acc.id}>{acc.name} ({acc.account_type})</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowPaymentModal(false)}>Cancel</Button>
+            <Button variant="success" type="submit">Submit Payment</Button>
           </Modal.Footer>
         </Form>
       </Modal>

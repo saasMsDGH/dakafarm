@@ -16,6 +16,7 @@ from app.core.database import get_db
 from app.shared.pagination import PaginationParams
 
 finance_manager = RoleChecker(["admin", "finance_manager"])
+finance_viewer = RoleChecker(["admin", "finance_manager", "sell_manager", "sell_officer"])
 
 router = APIRouter(
     prefix="/accounts",
@@ -48,7 +49,7 @@ async def list_accounts(
     account_type: Optional[str] = Query(default=None),
     sort_by: str = Query(default="created_at"),
     order: str = Query(default="desc"),
-    current_user: Users = Depends(finance_manager),
+    current_user: Users = Depends(finance_viewer),
     db: AsyncSession = Depends(get_db),
 ) -> FinancialAccountListResponse:
     params = PaginationParams(
