@@ -49,6 +49,8 @@ export default () => {
   });
 
   const [hrData, setHrData] = useState({ activeUsers: 0 });
+  const [inventoryAlerts, setInventoryAlerts] = useState([]);
+  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -82,12 +84,9 @@ export default () => {
       });
 
       // === 2. FETCH FINANCE & POS DATA (Step 3) ===
-      
-      // A) Lifetime Balances (Cash, Receivables, Payables) & Monthly Profit
       const financeRes = await api.get('/api/v1/finance/dashboard');
       const globalFinance = financeRes.data;
 
-      // B) Today's Revenue (Sales)
       const todayFinanceRes = await api.get(`/api/v1/finance/dashboard?start_date=${todayStart}&end_date=${todayEnd}`);
       const todayFinance = todayFinanceRes.data;
 
@@ -98,6 +97,48 @@ export default () => {
         receivables: globalFinance.accounts_receivable,
         payables: globalFinance.accounts_payable
       });
+
+      // === 3. FETCH HR & INVENTORY DATA (Step 4) ===
+      const usersRes = await api.get('/api/v1/user/?limit=1');
+      const totalUsers = usersRes.data.total || 0;
+      setHrData({ activeUsers: totalUsers });
+
+      const lowStockRes = await api.get('/api/v1/inventory/stock/?status_filter=Low%20Stock&limit=5');
+      const lowStockItems = lowStockRes.data.items || [];
+      setInventoryAlerts(lowStockItems);
+
+      // === 4. FETCH CHART DATA (Farm Overview) ===
+      const prodRes = await api.get('/api/v1/farm/production-records/?limit=100&sort_by=record_date&order=desc');
+      const mortRes = await api.get('/api/v1/farm/mortality-records/?limit=100&sort_by=record_date&order=desc');
+      
+      const prodRecords = prodRes.data.items || [];
+      const mortRecords = mortRes.data.items || [];
+
+      // Generate last 14 days skeleton
+      const chartMap = {};
+      for (let i = 13; i >= 0; i--) {
+        const d = moment().subtract(i, 'days').format('MMM DD');
+        const exactDate = moment().subtract(i, 'days').format('YYYY-MM-DD');
+        chartMap[exactDate] = { date: d, eggs: 0, mortality: 0 };
+      }
+
+      // Populate production data
+      prodRecords.forEach(r => {
+        const rDate = moment(r.record_date).format('YYYY-MM-DD');
+        if (chartMap[rDate]) {
+          chartMap[rDate].eggs += (r.good_eggs || 0);
+        }
+      });
+
+      // Populate mortality data
+      mortRecords.forEach(r => {
+        const rDate = moment(r.record_date).format('YYYY-MM-DD');
+        if (chartMap[rDate]) {
+          chartMap[rDate].mortality += (r.quantity || 0);
+        }
+      });
+
+      setChartData(Object.values(chartMap));
       
     } catch (error) {
       console.error("Error fetching dashboard data:", error);
@@ -147,7 +188,7 @@ export default () => {
           {/* TOP ROW: KPIs */}
           <Row>
             {/* FARM KPIs */}
-            <Col xs={12} sm={6} xl={3}>
+            <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
                 title="Total Live Birds" 
                 value={farmData.totalBirds.toLocaleString()} 
@@ -156,7 +197,7 @@ export default () => {
                 subtitle="Across all active flocks"
               />
             </Col>
-            <Col xs={12} sm={6} xl={3}>
+            <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
                 title="Today's Eggs" 
                 value={farmData.todayEggs.toLocaleString()} 
@@ -166,17 +207,8 @@ export default () => {
               />
             </Col>
             
-            {/* FINANCE & POS KPIs (Step 3) */}
-            <Col xs={12} sm={6} xl={3}>
-              <SummaryCard 
-                title="Cash on Hand" 
-                value={`${Math.round(financeData.cash).toLocaleString()} TZS`} 
-                icon={faMoneyBillWave} 
-                color="success" 
-                subtitle={`Month Profit: ${Math.round(financeData.profit).toLocaleString()} TZS`}
-              />
-            </Col>
-            <Col xs={12} sm={6} xl={3}>
+            {/* POS KPIs */}
+            <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
                 title="Today's Sales" 
                 value={`${Math.round(financeData.todaySales).toLocaleString()} TZS`} 
@@ -185,20 +217,64 @@ export default () => {
                 subtitle="Total revenue generated today"
               />
             </Col>
+
+            {/* FINANCE & HR KPIs */}
+            <Col xs={12} sm={6} xl={4}>
+              <SummaryCard 
+                title="Cash on Hand" 
+                value={`${Math.round(financeData.cash).toLocaleString()} TZS`} 
+                icon={faMoneyBillWave} 
+                color="success" 
+                subtitle="Total liquid assets available"
+              />
+            </Col>
+            <Col xs={12} sm={6} xl={4}>
+              <SummaryCard 
+                title="Monthly Net Profit" 
+                value={`${Math.round(financeData.profit).toLocaleString()} TZS`} 
+                icon={faChartLine} 
+                color="success" 
+                subtitle="Revenue minus expenses this month"
+              />
+            </Col>
+            <Col xs={12} sm={6} xl={4}>
+              <SummaryCard 
+                title="Active Users" 
+                value={hrData.activeUsers.toLocaleString()} 
+                icon={faUsers} 
+                color="tertiary" 
+                subtitle="Total registered system users"
+              />
+            </Col>
           </Row>
 
           <Row>
-            {/* MAIN CHART - FARM PRODUCTION (Placeholder static data until Step 2 is fully charted) */}
+            {/* MAIN CHART - FARM PRODUCTION */}
             <Col xs={12} xl={8} className="mb-4">
               <Card border="light" className="shadow-sm">
                 <Card.Header>
-                  <h5 className="mb-0">Farm Overview (Placeholder Chart)</h5>
+                  <h5 className="mb-0">Farm Overview (Last 14 Days)</h5>
                 </Card.Header>
                 <Card.Body>
-                  <div style={{ width: "100%", height: 300 }}>
-                    <div className="d-flex align-items-center justify-content-center h-100 bg-light text-muted rounded">
-                      Detailed farm production & mortality charts will be wired here in upcoming steps.
-                    </div>
+                  <div style={{ width: "100%", height: 350 }}>
+                    {chartData.length > 0 ? (
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                          <XAxis dataKey="date" />
+                          <YAxis yAxisId="left" orientation="left" stroke="#17a2b8" />
+                          <YAxis yAxisId="right" orientation="right" stroke="#dc3545" />
+                          <Tooltip />
+                          <Legend />
+                          <Line yAxisId="left" type="monotone" dataKey="eggs" name="Good Eggs" stroke="#17a2b8" strokeWidth={3} activeDot={{ r: 8 }} />
+                          <Line yAxisId="right" type="monotone" dataKey="mortality" name="Mortality" stroke="#dc3545" strokeWidth={2} />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    ) : (
+                      <div className="d-flex align-items-center justify-content-center h-100 bg-light text-muted rounded">
+                        No production data available for the last 14 days.
+                      </div>
+                    )}
                   </div>
                 </Card.Body>
               </Card>
@@ -250,8 +326,25 @@ export default () => {
 
                     <hr />
 
-                    <li className="mb-3 text-muted small">
-                      <em>More alerts (Low Stock) will appear here in Step 4.</em>
+                    <li className="mb-3">
+                      <h6 className="fw-bold mb-2 mt-3 text-danger">Inventory Low Stock Alerts:</h6>
+                      {inventoryAlerts.length > 0 ? (
+                        <Table size="sm" className="mb-0">
+                          <tbody>
+                            {inventoryAlerts.map(item => (
+                              <tr key={item.id}>
+                                <td>{item.name}</td>
+                                <td className="text-end text-danger fw-bold">{item.current_stock_level} {item.unit_of_measure}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </Table>
+                      ) : (
+                        <div className="text-success small mt-2">
+                          <FontAwesomeIcon icon={faCheckCircle} className="me-1" />
+                          All inventory levels are healthy.
+                        </div>
+                      )}
                     </li>
                   </ul>
                 </Card.Body>
