@@ -44,5 +44,8 @@ export const Routes = {
     FinanceTransactions: { path: "/finance/transactions" },
     FinanceDebts: { path: "/finance/debts" },
     FinanceReports: { path: "/finance/reports" },
+
+    // Admin Subsystem
+    UsersManagement: { path: "/admin/users" },
 };
 

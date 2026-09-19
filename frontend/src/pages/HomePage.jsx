@@ -41,6 +41,9 @@ import Transactions from "./finance/Transactions";
 import Debts from "./finance/Debts";
 import FinancialReports from "./finance/FinancialReports";
 
+// admin
+import UsersManagement from "./admin/UsersManagement";
+
 // pos
 import Customers from "./pos/Customers";
 import Sales from "./pos/Sales";
@@ -141,6 +144,9 @@ export default () => (
     <RouteWithSidebar exact path={Routes.FinanceTransactions.path} component={Transactions} />
     <RouteWithSidebar exact path={Routes.FinanceDebts.path} component={Debts} />
     <RouteWithSidebar exact path={Routes.FinanceReports.path} component={FinancialReports} />
+
+    {/* admin pages */}
+    <RouteWithSidebar exact path={Routes.UsersManagement.path} component={UsersManagement} />
 
     {/* pos pages */}
     <RouteWithSidebar exact path={Routes.Customers.path} component={Customers} />

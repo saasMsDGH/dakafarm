@@ -31,6 +31,11 @@ class UserRepo:
         return results.scalar_one_or_none()
 
     @staticmethod
+    async def get_all_roles(db: AsyncSession):
+        results = await db.execute(select(models.Roles))
+        return results.scalars().all()
+
+    @staticmethod
     async def create_role(db: AsyncSession, user_role: models.UserRole):
         db.add(user_role)
         await db.commit()
