@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Switch, Redirect } from "react-router-dom";
 import { Routes } from "../routes";
 
@@ -33,7 +33,11 @@ import Payroll from "./hr/Payroll";
 
 // assets
 import AssetsList from "./assets/AssetsList";
+
+// finance
 import AccountsList from "./finance/AccountsList";
+import Transactions from "./finance/Transactions";
+import Debts from "./finance/Debts";
 
 // pos
 import Customers from "./pos/Customers";
@@ -131,6 +135,8 @@ export default () => (
     {/* assets pages */}
     <RouteWithSidebar exact path={Routes.AssetsList.path} component={AssetsList} />
     <RouteWithSidebar exact path={Routes.FinanceAccounts.path} component={AccountsList} />
+    <RouteWithSidebar exact path={Routes.FinanceTransactions.path} component={Transactions} />
+    <RouteWithSidebar exact path={Routes.FinanceDebts.path} component={Debts} />
 
     {/* pos pages */}
     <RouteWithSidebar exact path={Routes.Customers.path} component={Customers} />

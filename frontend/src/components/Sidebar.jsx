@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import SimpleBar from 'simplebar-react';
 import { useLocation } from "react-router-dom";
 import { CSSTransition } from 'react-transition-group';
@@ -152,6 +152,8 @@ const Sidebar = (props) => {
                     </CollapsableNavItem>
                     <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
                       <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
+                      <NavItem title="General Ledger" link={Routes.FinanceTransactions?.path || '#'} />
+                      <NavItem title="Debtors & Creditors" link={Routes.FinanceDebts?.path || '#'} />
                     </CollapsableNavItem>
 
                     <Dropdown.Divider className="my-3 border-indigo" />
