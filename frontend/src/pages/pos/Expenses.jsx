@@ -23,6 +23,7 @@ export default () => {
     category: '',
     description: '',
     amount: '0.00',
+    amount_paid: '0.00',
     expense_date: new Date().toISOString().split('T')[0],
     payment_method: 'Cash',
     account_id: ''
@@ -125,16 +126,23 @@ export default () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!currentExpense.account_id) {
-      Swal.fire('Error', 'Please select a Payment Account.', 'error');
-      return;
-    }
     try {
       const payload = {
         ...currentExpense,
         amount: parseFloat(currentExpense.amount),
-        account_id: parseInt(currentExpense.account_id)
+        amount_paid: parseFloat(currentExpense.amount_paid) || 0.0
       };
+
+      if (payload.amount_paid > 0) {
+        if (!currentExpense.account_id) {
+          Swal.fire('Error', 'Please select a Payment Account for the amount paid.', 'error');
+          return;
+        }
+        payload.account_id = parseInt(currentExpense.account_id);
+      } else {
+        delete payload.account_id;
+        delete payload.payment_method;
+      }
 
       if (isEdit) {
         await api.put(`/api/v1/pos/expenses/${currentExpense.id}`, payload);
@@ -187,10 +195,11 @@ export default () => {
         expense_id: expenseDetails.id,
         amount: parseFloat(paymentInput.amount),
         payment_method: paymentInput.payment_method,
-        account_id: parseInt(paymentInput.account_id)
+        account_id: paymentInput.account_id ? parseInt(paymentInput.account_id) : null,
+        payment_date: new Date().toISOString()
       };
-      await api.post(`/api/v1/pos/expenses/${expenseDetails.id}/payments/`, payload);
-      Swal.fire('Success', 'Payment recorded successfully!', 'success');
+      await api.post(`/api/v1/pos/expenses/${expenseDetails.id}/payments`, payload);
+      Swal.fire('Success', 'Payment recorded successfully', 'success');
       setShowPaymentModal(false);
       fetchExpenses();
       if (showViewModal) {
@@ -314,6 +323,10 @@ export default () => {
               <Form.Label>{t('amount')}</Form.Label>
               <Form.Control type="number" step="0.01" name="amount" value={currentExpense.amount} onChange={handleChange} required />
             </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>{t('amount_paid', 'Amount Paid')}</Form.Label>
+                <Form.Control type="number" step="0.01" name="amount_paid" value={currentExpense.amount_paid || '0.00'} onChange={handleChange} />
+              </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>{t('expense_date')}</Form.Label>
               <Form.Control type="date" name="expense_date" value={currentExpense.expense_date} onChange={handleChange} required />
@@ -328,9 +341,10 @@ export default () => {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Payment Account *</Form.Label>
-              <Form.Select name="account_id" value={currentExpense.account_id} onChange={handleChange} required>
+              <Form.Select name="account_id" value={currentExpense.account_id} onChange={handleChange}>
                 <option value="">-- Select Account --</option>
-                {accounts.map(acc => (
+                <option value="">{t("pay_later", "Pay Later (Unpaid)")}</option>
+                  {accounts.map(acc => (
                   <option key={acc.id} value={acc.id}>{acc.name} ({acc.account_type})</option>
                 ))}
               </Form.Select>
@@ -436,7 +450,8 @@ export default () => {
               <Form.Label>Payment Account *</Form.Label>
               <Form.Select value={paymentInput.account_id} onChange={(e) => setPaymentInput({...paymentInput, account_id: e.target.value})} required>
                 <option value="">-- Select Account --</option>
-                {accounts.map(acc => (
+                <option value="">{t("pay_later", "Pay Later (Unpaid)")}</option>
+                  {accounts.map(acc => (
                   <option key={acc.id} value={acc.id}>{acc.name} ({acc.account_type})</option>
                 ))}
               </Form.Select>
