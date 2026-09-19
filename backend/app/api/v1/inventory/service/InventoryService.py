@@ -1,4 +1,4 @@
-﻿from fastapi import HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.inventory.repository.ProductRepo import ProductRepo
 from app.api.v1.inventory.schemas.InventorySchema import InventoryResponse, InventoryListResponse
@@ -35,15 +35,12 @@ class InventoryService:
 
     @staticmethod
     async def list_inventory(db: AsyncSession, params: PaginationParams, category_id: int = None, status_filter: str = None) -> InventoryListResponse:
-        products, total = await ProductRepo.list_products(db, params, category_id)
+        products, total = await ProductRepo.list_products(db, params, category_id, status_filter)
         
         items = []
         for p in products:
             inv_status = InventoryService._calculate_status(p.current_stock, p.reorder_level)
             
-            if status_filter and inv_status.lower() != status_filter.lower():
-                continue
-                
             items.append(InventoryResponse(
                 product_id=p.id,
                 product_name=p.name,

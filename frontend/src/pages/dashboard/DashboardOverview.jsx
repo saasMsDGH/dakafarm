@@ -104,8 +104,8 @@ export default () => {
       const usersRes = await api.get('/api/v1/user/?limit=1');
       const totalUsers = usersRes.data.total || 0;
       setHrData({ activeUsers: totalUsers });
-
-      const lowStockRes = await api.get('/api/v1/inventory/stock/?status_filter=Low%20Stock&limit=5');
+      // === 3. FETCH INVENTORY & ALERTS ===
+      const lowStockRes = await api.get('/api/v1/inventory/stock/?status_filter=Low%20Stock,Out%20of%20Stock&limit=5');
       const lowStockItems = lowStockRes.data.items || [];
       setInventoryAlerts(lowStockItems);
 
@@ -334,9 +334,9 @@ export default () => {
                         <Table size="sm" className="mb-0">
                           <tbody>
                             {inventoryAlerts.map(item => (
-                              <tr key={item.id}>
-                                <td>{item.name}</td>
-                                <td className="text-end text-danger fw-bold">{item.current_stock_level} {item.unit_of_measure}</td>
+                              <tr key={item.product_id}>
+                                <td>{item.product_name}</td>
+                                <td className="text-end text-danger fw-bold">{item.quantity} {item.unit_of_measure}</td>
                               </tr>
                             ))}
                           </tbody>

@@ -1,4 +1,4 @@
-﻿from typing import Optional
+from typing import Optional
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.inventory.schemas.ProductSchema import (
@@ -48,13 +48,14 @@ async def list_products(
     sort_by: str = Query(default="created_at"),
     order: str = Query(default="desc"),
     category_id: Optional[int] = Query(default=None, description="Filter by category"),
+    status_filter: Optional[str] = Query(default=None, description="Filter by stock status"),
     current_user: Users = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ProductListResponse:
     params = PaginationParams(
         page=page, limit=limit, search=search, sort_by=sort_by, order=order
     )
-    return await ProductService.list_products(db, params, category_id)
+    return await ProductService.list_products(db, params, category_id, status_filter)
 
 @router.get(
     "/{product_id}",
