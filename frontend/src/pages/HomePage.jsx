@@ -51,6 +51,9 @@ import Suppliers from "./pos/Suppliers";
 import Purchases from "./pos/Purchases";
 import Expenses from "./pos/Expenses";
 
+// reports
+import FarmOperationsReport from "./reports/FarmOperationsReport";
+
 // components
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
@@ -155,6 +158,10 @@ export default () => (
     <RouteWithSidebar exact path={Routes.Purchases.path} component={Purchases} />
     <RouteWithSidebar exact path={Routes.Expenses.path} component={Expenses} />
 
+    {/* reports pages */}
+    <RouteWithSidebar exact path={Routes.ReportsOverview.path} component={FarmOperationsReport} />
+
     <Redirect to={Routes.NotFound.path} />
   </Switch>
 );
+

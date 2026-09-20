@@ -47,5 +47,7 @@ export const Routes = {
 
     // Admin Subsystem
     UsersManagement: { path: "/admin/users" },
-};
 
+    // Reports Subsystem - The Master Dashboard
+    ReportsOverview: { path: "/reports" },
+};

@@ -3,7 +3,7 @@ import SimpleBar from 'simplebar-react';
 import { useLocation } from "react-router-dom";
 import { CSSTransition } from 'react-transition-group';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBoxOpen, faChartPie, faSignOutAlt, faTimes, faWarehouse, faCashRegister, faUsers, faDesktop, faLandmark, faUserShield } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faChartPie, faSignOutAlt, faTimes, faWarehouse, faCashRegister, faUsers, faDesktop, faLandmark, faUserShield, faChartBar } from "@fortawesome/free-solid-svg-icons";
 import { Nav, Badge, Image, Button, Dropdown, Accordion, Navbar } from '@themesberg/react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -146,6 +146,12 @@ const Sidebar = (props) => {
                       <NavItem title={t('purchases', 'Purchases')} link={Routes.Purchases?.path || '#'} />
                       <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
                     </CollapsableNavItem>
+                  <Dropdown.Divider className="my-3 border-indigo" />
+
+                  <CollapsableNavItem eventKey="reports/" title={t('reports', 'Reports')} icon={faChartBar}>
+                    <NavItem title={t('reports_overview', 'Overview')} link={Routes.ReportsOverview?.path || '#'} />
+                    {/* Additional specific report links can be added here if needed, but overview handles most */}
+                  </CollapsableNavItem>
                   <Dropdown.Divider className="my-3 border-indigo" />
                 
                     <CollapsableNavItem eventKey="hr/" title={t('hr_management', 'HR Management')} icon={faUsers}>
