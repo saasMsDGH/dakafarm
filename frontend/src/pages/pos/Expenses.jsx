@@ -22,8 +22,8 @@ export default () => {
   const [currentExpense, setCurrentExpense] = useState({
     category: '',
     description: '',
-    amount: '0.00',
-    amount_paid: '0.00',
+    amount: '',
+    amount_paid: '',
     expense_date: new Date().toISOString().split('T')[0],
     payment_method: 'Cash',
     account_id: ''
@@ -325,7 +325,7 @@ export default () => {
             </Form.Group>
               <Form.Group className="mb-3">
                 <Form.Label>{t('amount_paid', 'Amount Paid')}</Form.Label>
-                <Form.Control type="number" step="0.01" name="amount_paid" value={currentExpense.amount_paid || '0.00'} onChange={handleChange} />
+                <Form.Control type="number" step="0.01" name="amount_paid" value={currentExpense.amount_paid} onChange={handleChange} />
               </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>{t('expense_date')}</Form.Label>

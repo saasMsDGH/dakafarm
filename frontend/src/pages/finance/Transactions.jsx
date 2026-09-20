@@ -19,8 +19,8 @@ export default () => {
   const [filters, setFilters] = useState({
     transaction_type: '',
     direction: '',
-    date_from: moment().format('YYYY-MM-DD'),
-    date_to: moment().format('YYYY-MM-DD')
+    date_from: '',
+    date_to: ''
   });
 
   const fetchTransactions = async () => {
@@ -66,8 +66,8 @@ export default () => {
     setFilters({
       transaction_type: '',
       direction: '',
-      date_from: moment().format('YYYY-MM-DD'),
-      date_to: moment().format('YYYY-MM-DD')
+      date_from: '',
+      date_to: ''
     });
     setPage(1);
     // Setting state is async, so we wait for the next render or call explicitly
