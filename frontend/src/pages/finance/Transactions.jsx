@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faFilter } from '@fortawesome/free-solid-svg-icons';
@@ -7,6 +8,7 @@ import Swal from 'sweetalert2';
 import moment from 'moment';
 
 export default () => {
+  const { t } = useTranslation();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   
@@ -17,8 +19,8 @@ export default () => {
   const [filters, setFilters] = useState({
     transaction_type: '',
     direction: '',
-    date_from: moment().format('YYYY-MM-DD'),
-    date_to: moment().format('YYYY-MM-DD')
+    date_from: '',
+    date_to: ''
   });
 
   const fetchTransactions = async () => {
@@ -28,8 +30,8 @@ export default () => {
       if (searchTerm) query += `&search=${searchTerm}`;
       if (filters.transaction_type) query += `&transaction_type=${filters.transaction_type}`;
       if (filters.direction) query += `&direction=${filters.direction}`;
-      if (filters.date_from) query += `&date_from=${filters.date_from}T00:00:00`;
-      if (filters.date_to) query += `&date_to=${filters.date_to}T23:59:59`;
+      if (filters.date_from) query += `&date_from=${moment(filters.date_from).startOf('day').toISOString()}`;
+      if (filters.date_to) query += `&date_to=${moment(filters.date_to).endOf('day').toISOString()}`;
 
       const res = await api.get(query);
       setTransactions(res.data.items || res.data);
@@ -64,8 +66,8 @@ export default () => {
     setFilters({
       transaction_type: '',
       direction: '',
-      date_from: moment().format('YYYY-MM-DD'),
-      date_to: moment().format('YYYY-MM-DD')
+      date_from: '',
+      date_to: ''
     });
     setPage(1);
     // Setting state is async, so we wait for the next render or call explicitly
@@ -78,7 +80,7 @@ export default () => {
     <>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
-          <h4>General Ledger</h4>
+          <h4>{t("general_ledger", "General Ledger")}</h4>
           <p className="mb-0">A master list of all financial transactions across the farm.</p>
         </div>
       </div>
@@ -94,7 +96,7 @@ export default () => {
             </Col>
             <Col md={2}>
               <Form.Select name="transaction_type" value={filters.transaction_type} onChange={handleFilterChange}>
-                <option value="">All Types</option>
+                <option value="">{t("all_types", "All Types")}</option>
                 <option value="SALE">Sale</option>
                 <option value="PURCHASE">Purchase</option>
                 <option value="EXPENSE">Expense</option>

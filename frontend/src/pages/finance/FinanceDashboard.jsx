@@ -79,7 +79,7 @@ export default () => {
     <>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
-          <h4 className="mb-0">Finance Dashboard</h4>
+          <h4 className="mb-0">{t("finance_dashboard", "Finance Dashboard")}</h4>
           <p className="mb-0 text-muted">A simple overview of your farm's financial health.</p>
         </div>
         <div className="btn-toolbar mb-2 mb-md-0">
@@ -112,7 +112,7 @@ export default () => {
                 </Col>
                 <Col xl={7} className="px-xl-0">
                   <div className="d-none d-sm-block">
-                    <h6 className="fw-extrabold mb-1">Cash Available</h6>
+                    <h6 className="fw-extrabold mb-1">{t("cash_available", "Cash Available")}</h6>
                   </div>
                   <div className="small d-flex mt-1">
                     <h4 className="fw-bolder mb-0">{formatCurrency(metrics.cash_on_hand)}</h4>
@@ -136,7 +136,7 @@ export default () => {
                 </Col>
                 <Col xl={7} className="px-xl-0">
                   <div className="d-none d-sm-block">
-                    <h6 className="fw-extrabold mb-1">Customers Owe Us</h6>
+                    <h6 className="fw-extrabold mb-1">{t("customers_owe", "Customers Owe Us")}</h6>
                   </div>
                   <div className="small d-flex mt-1">
                     <h4 className="fw-bolder mb-0 text-info">{formatCurrency(metrics.accounts_receivable)}</h4>
@@ -160,7 +160,7 @@ export default () => {
                 </Col>
                 <Col xl={7} className="px-xl-0">
                   <div className="d-none d-sm-block">
-                    <h6 className="fw-extrabold mb-1">We Owe Suppliers</h6>
+                    <h6 className="fw-extrabold mb-1">{t("we_owe", "We Owe Suppliers")}</h6>
                   </div>
                   <div className="small d-flex mt-1">
                     <h4 className="fw-bolder mb-0 text-danger">{formatCurrency(metrics.accounts_payable)}</h4>
@@ -184,7 +184,7 @@ export default () => {
                 </Col>
                 <Col xl={7} className="px-xl-0">
                   <div className="d-none d-sm-block">
-                    <h6 className="fw-extrabold mb-1">Profit (Selected Period)</h6>
+                    <h6 className="fw-extrabold mb-1">{t("profit_selected_period", "Profit")}</h6>
                   </div>
                   <div className="small d-flex mt-1">
                     <h4 className={`fw-bolder mb-0 text-${metrics.monthly_net_profit >= 0 ? 'success' : 'danger'}`}>
@@ -205,7 +205,7 @@ export default () => {
         <Col xs={12} xl={6} className="mb-4">
           <Card border="light" className="shadow-sm h-100">
             <Card.Header>
-              <h5 className="mb-0">Income vs Expenses (Selected Period)</h5>
+              <h5 className="mb-0">{t("income_vs_expenses", "Income vs Expenses")}</h5>
             </Card.Header>
             <Card.Body>
               <div style={{ width: '100%', height: 350 }}>
@@ -229,7 +229,7 @@ export default () => {
         <Col xs={12} xl={6} className="mb-4">
           <Card border="light" className="shadow-sm h-100">
             <Card.Header>
-              <h5 className="mb-0">Where Our Money Goes (Expenses)</h5>
+              <h5 className="mb-0">{t("where_money_goes", "Where Our Money Goes")}</h5>
             </Card.Header>
             <Card.Body className="d-flex flex-column justify-content-center align-items-center">
               {expenseBreakdownData.length > 0 ? (

@@ -133,7 +133,7 @@ export default () => {
                 type="text" 
                 placeholder={t('search', 'Search...')} 
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
               />
             </InputGroup>
           </Col>

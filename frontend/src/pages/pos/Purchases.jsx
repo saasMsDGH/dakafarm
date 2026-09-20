@@ -295,14 +295,14 @@ export default () => {
             </tbody>
           </table>
           <div style="text-align: right; margin-top: 15px; font-size: 16px; font-weight: bold; color: #28a745;">
-            Total Paid: ${parseFloat(currentPurchase.amount_paid).toLocaleString()}
+            {t("total_paid", "Total Paid:")} ${parseFloat(currentPurchase.amount_paid).toLocaleString()}
           </div>
         </div>
       `;
     }
 
     const docTitle = currentPurchase.invoice_number;
-    const titleType = currentPurchase.payment_status === 'PAID' ? 'PURCHASES RECEIPT' : 'INVOICE';
+    const titleType = currentPurchase.payment_status === 'PAID' ? '{t("purchases_receipt", "PURCHASES RECEIPT")}' : '{t("invoice", "INVOICE")}';
 
     const html = `
       <!DOCTYPE html>
@@ -374,7 +374,7 @@ export default () => {
             <table class="item-table" style="margin-top: 20px;">
               <thead>
                 <tr>
-                  <th>ITEM</th>
+                  <th>{t("item", "ITEM")}</th>
                   <th style="text-align: center;">QTY</th>
                   <th style="text-align: right;">PRICE</th>
                   <th style="text-align: right;">TOTAL</th>
@@ -396,7 +396,7 @@ export default () => {
                   <td>${parseFloat(currentPurchase.discount).toLocaleString()}</td>
                 </tr>
                 <tr class="total-row">
-                  <td>TOTAL DUE:</td>
+                  <td>{t("total_due", "TOTAL DUE:")}</td>
                   <td>${parseFloat(currentPurchase.total_amount).toLocaleString()}</td>
                 </tr>
               </table>
@@ -516,7 +516,7 @@ export default () => {
         <body>
           <div class="receipt-container">
             <div class="text-center header-text" style="margin-top: 10px;">
-              *** START OF PURCHASES RECEIPT ***
+              *** START OF {t("purchases_receipt", "PURCHASES RECEIPT")} ***
             </div>
             
             <div class="text-center">
@@ -583,7 +583,7 @@ export default () => {
             </div>
             
             <div class="text-center header-text" style="margin-top: 15px;">
-              *** END OF PURCHASES RECEIPT ***
+              *** END OF {t("purchases_receipt", "PURCHASES RECEIPT")} ***
             </div>
           </div>
           
@@ -701,7 +701,7 @@ export default () => {
       {/* NEW PURCHASE MODAL */}
       <Modal size="xl" dialogClassName="modal-90w" centered show={showNewPurchaseModal} onHide={() => setShowNewPurchaseModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Point of Purchase Checkout</Modal.Title>
+          <Modal.Title>{t("pop_checkout", "Point of Purchase Checkout")}</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: '#f8f9fa' }}>
               <Row>
@@ -778,7 +778,7 @@ export default () => {
                         <Table hover size="sm" className="mb-0">
                           <thead className="bg-light sticky-top">
                             <tr>
-                              <th>Item</th>
+                              <th>{t("item", "Item")}</th>
                               <th className="text-center">Cost</th>
                               <th className="text-center">Price (New)</th>
                               <th className="text-center">Qty</th>
@@ -875,17 +875,17 @@ export default () => {
         </Modal.Footer>
       </Modal>
 
-      {/* VIEW INVOICE/RECEIPT MODAL */}
+      {/* VIEW {t("invoice", "INVOICE")}/RECEIPT MODAL */}
       <Modal size="lg" centered show={showViewModal} onHide={() => setShowViewModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Invoice Details</Modal.Title>
+          <Modal.Title>{t("invoice_details", "Invoice Details")}</Modal.Title>
         </Modal.Header>
         <Modal.Body className="bg-light p-4" style={{ fontFamily: 'monospace' }}>
           {currentPurchase && (
             <div className="bg-white p-4 border shadow-sm">
               <div className="text-center mb-4">
                 <h4 className="mb-0">AMAS FARM</h4>
-                {currentPurchase.payment_status === 'PAID' ? <h5>PURCHASES RECEIPT</h5> : <h5>INVOICE</h5>}
+                {currentPurchase.payment_status === 'PAID' ? <h5>{t("purchases_receipt", "PURCHASES RECEIPT")}</h5> : <h5>{t("invoice", "INVOICE")}</h5>}
                 <small>Receipt/Invoice #: {currentPurchase.invoice_number}</small>
               </div>
               <Row className="mb-4">
@@ -898,10 +898,10 @@ export default () => {
               <Table bordered size="sm">
                 <thead>
                   <tr>
-                    <th>Item</th>
-                    <th>Qty</th>
-                    <th>Price</th>
-                    <th>Total</th>
+                    <th>{t("item", "Item")}</th>
+                    <th>{t("qty", "Qty")}</th>
+                    <th>{t("price", "Price")}</th>
+                    <th>{t("total", "Total")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -919,21 +919,21 @@ export default () => {
                 <Col>
                   <p className="mb-1">{t('subtotal')}: <strong>{parseFloat(currentPurchase.subtotal).toLocaleString()}</strong></p>
                   <p className="mb-1">{t('discount')}: <strong>{parseFloat(currentPurchase.discount).toLocaleString()}</strong></p>
-                  <h5 className="mt-2 text-danger">TOTAL DUE: {parseFloat(currentPurchase.total_amount).toLocaleString()}</h5>
+                  <h5 className="mt-2 text-danger">{t("total_due", "TOTAL DUE:")} {parseFloat(currentPurchase.total_amount).toLocaleString()}</h5>
                 </Col>
               </Row>
 
               {/* Payments Section */}
               {currentPurchase.payments && currentPurchase.payments.length > 0 && (
                 <div className="mt-4 border-top pt-3">
-                  <h6>Payment History</h6>
+                  <h6>{t("payment_history", "Payment History")}</h6>
                   <Table size="sm" className="text-muted">
                     <thead>
                       <tr>
-                        <th>Receipt No</th>
+                        <th>{t("receipt_no", "Receipt No")}</th>
                         <th>Date</th>
-                        <th>Method</th>
-                        <th>Amount</th>
+                        <th>{t("method", "Method")}</th>
+                        <th>{t("amount", "Amount")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -947,7 +947,7 @@ export default () => {
                       ))}
                     </tbody>
                   </Table>
-                  <h6 className="text-end text-success mt-2">Total Paid: {parseFloat(currentPurchase.amount_paid).toLocaleString()}</h6>
+                  <h6 className="text-end text-success mt-2">{t("total_paid", "Total Paid:")} {parseFloat(currentPurchase.amount_paid).toLocaleString()}</h6>
                 </div>
               )}
             </div>
@@ -1011,7 +1011,7 @@ export default () => {
       </Modal>
       <Modal show={showProductModal} onHide={() => setShowProductModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Create New Product</Modal.Title>
+          <Modal.Title>{t("create_new_product", "Create New Product")}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>

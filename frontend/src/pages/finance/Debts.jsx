@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faEye } from '@fortawesome/free-solid-svg-icons';
@@ -6,6 +7,7 @@ import { api } from "../../api/axios";
 import Swal from 'sweetalert2';
 
 export default () => {
+  const { t } = useTranslation();
   const [key, setKey] = useState('receivables');
   
   // Receivables State
@@ -121,7 +123,7 @@ export default () => {
         <Card.Body>
           <Tabs activeKey={key} onSelect={(k) => setKey(k)} className="mb-4">
             {/* RECEIVABLES TAB */}
-            <Tab eventKey="receivables" title={<span>Receivables (Customers) <Badge bg="success" className="ms-2">{receivables.length}</Badge></span>}>
+            <Tab eventKey="receivables" title={<span>{t("receivables_customers", "Receivables (Customers)")} <Badge bg="success" className="ms-2">{receivables.length}</Badge></span>}>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="mb-0 text-success">Total Expected: {rTotal ? parseFloat(rTotal).toLocaleString() : '0.00'}</h5>
                 <InputGroup style={{ maxWidth: '300px' }}>
@@ -175,7 +177,7 @@ export default () => {
             </Tab>
 
             {/* PAYABLES TAB */}
-            <Tab eventKey="payables" title={<span>Payables (Suppliers) <Badge bg="danger" className="ms-2">{payables.length}</Badge></span>}>
+            <Tab eventKey="payables" title={<span>{t("payables_suppliers", "Payables (Suppliers)")} <Badge bg="danger" className="ms-2">{payables.length}</Badge></span>}>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="mb-0 text-danger">Total Owed: {pTotal ? parseFloat(pTotal).toLocaleString() : '0.00'}</h5>
                 <InputGroup style={{ maxWidth: '300px' }}>
@@ -280,7 +282,7 @@ export default () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDetailModal(false)}>Close</Button>
+          <Button variant="secondary" onClick={() => setShowDetailModal(false)}>{t("cancel", "Close")}</Button>
         </Modal.Footer>
       </Modal>
     </>

@@ -31,6 +31,9 @@ export default () => {
     basic_salary: '0.00',
     allowances: '0.00',
     deductions: '0.00',
+    amount_paid: '',
+    payment_method: 'CASH',
+    account_id: '',
     payment_status: 'Pending',
     payment_date: ''
   });
@@ -123,6 +126,9 @@ export default () => {
       basic_salary: '0.00',
       allowances: '0.00',
       deductions: '0.00',
+      amount_paid: '',
+      payment_method: 'CASH',
+      account_id: '',
       payment_status: 'Pending',
       payment_date: ''
     });
@@ -179,7 +185,19 @@ export default () => {
         basic_salary: parseFloat(currentPayroll.basic_salary) || 0,
         allowances: parseFloat(currentPayroll.allowances) || 0,
         deductions: parseFloat(currentPayroll.deductions) || 0,
+        amount_paid: parseFloat(currentPayroll.amount_paid) || 0,
       };
+
+      if (payload.amount_paid > 0) {
+        if (!currentPayroll.account_id) {
+          Swal.fire('Error', 'Please select a Payment Account for the amount paid.', 'error');
+          return;
+        }
+        payload.account_id = parseInt(currentPayroll.account_id);
+      } else {
+        delete payload.account_id;
+        delete payload.payment_method;
+      }
 
       payload.payment_date = payload.payment_date || null;
 
@@ -512,6 +530,37 @@ export default () => {
                 </Form.Group>
               </Col>
             </Row>
+            {!isEdit && (
+              <Row>
+                <Col md={4} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>{t('amount_paid', 'Amount Paid')}</Form.Label>
+                    <Form.Control type="number" step="0.01" value={currentPayroll.amount_paid} onChange={(e) => setCurrentPayroll({...currentPayroll, amount_paid: e.target.value})} />
+                  </Form.Group>
+                </Col>
+                <Col md={4} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>{t('payment_method', 'Payment Method')}</Form.Label>
+                    <Form.Select value={currentPayroll.payment_method} onChange={(e) => setCurrentPayroll({...currentPayroll, payment_method: e.target.value})}>
+                      <option value="CASH">Cash</option>
+                      <option value="BANK TRANSFER">Bank Transfer</option>
+                      <option value="MOBILE MONEY">Mobile Money</option>
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                <Col md={4} className="mb-3">
+                  <Form.Group>
+                    <Form.Label>{t('payment_account', 'Payment Account')} {parseFloat(currentPayroll.amount_paid) > 0 && '*'}</Form.Label>
+                    <Form.Select value={currentPayroll.account_id} onChange={(e) => setCurrentPayroll({...currentPayroll, account_id: e.target.value})}>
+                      <option value="">{t("pay_later", "Pay Later (Unpaid)")}</option>
+                      {accounts.filter(acc => currentPayroll.payment_method === 'CASH' ? acc.account_type === 'CASH' : true).map(acc => (
+                        <option key={acc.id} value={acc.id}>{acc.name} ({acc.account_type})</option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+              </Row>
+            )}
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleCloseModal}>Cancel</Button>

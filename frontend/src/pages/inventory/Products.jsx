@@ -1,7 +1,7 @@
 ﻿import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faEdit, faTrash, faSearch } from '@fortawesome/free-solid-svg-icons';
-import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination } from '@themesberg/react-bootstrap';
+import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination, Tabs, Tab } from '@themesberg/react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import { api } from "../../api/axios";
 import Swal from 'sweetalert2';
@@ -16,6 +16,7 @@ export default () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
   
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
@@ -43,9 +44,11 @@ export default () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const response = await api.get('/api/v1/inventory/products/', {
-        params: { page, limit: 10, search: searchTerm }
-      });
+      const params = { page, limit: 10, search: searchTerm };
+      if (activeTab === 'low_stock') params.status_filter = 'Low Stock';
+      if (activeTab === 'out_of_stock') params.status_filter = 'Out of Stock';
+      
+      const response = await api.get('/api/v1/inventory/products/', { params });
       setProducts(response.data.items);
       setTotalPages(response.data.pages || 1);
     } catch (error) {
@@ -61,7 +64,7 @@ export default () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [page, searchTerm]);
+  }, [page, searchTerm, activeTab]);
 
   const handleShowModal = (product = null) => {
     if (product) {
@@ -177,12 +180,19 @@ export default () => {
                 type="text" 
                 placeholder={t('search', 'Search...')} 
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
               />
             </InputGroup>
           </Col>
         </Row>
       </div>
+
+      
+      <Tabs activeKey={activeTab} onSelect={(k) => { setActiveTab(k); setPage(1); }} className="mb-3">
+        <Tab eventKey="all" title={t('all_products', 'All Products')} />
+        <Tab eventKey="low_stock" title={<span className="text-warning">{t('low_stock', 'Low Stock')}</span>} />
+        <Tab eventKey="out_of_stock" title={<span className="text-danger">{t('out_of_stock', 'Out of Stock')}</span>} />
+      </Tabs>
 
       <Card border="light" className="table-wrapper table-responsive shadow-sm">
         <Card.Body className="pt-0">

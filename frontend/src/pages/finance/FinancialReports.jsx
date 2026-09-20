@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileInvoiceDollar, faCheckCircle, faExclamationTriangle, faCalendarAlt, faChartLine, faBalanceScale, faMoneyBillWave } from '@fortawesome/free-solid-svg-icons';
@@ -7,6 +8,7 @@ import Swal from 'sweetalert2';
 import moment from 'moment';
 
 export default () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('pnl');
   const [loading, setLoading] = useState(false);
   
@@ -25,13 +27,13 @@ export default () => {
     try {
       // PNL & CashFlow use start_date, end_date
       let rangeQuery = '';
-      if (dateFrom) rangeQuery += `start_date=${dateFrom}T00:00:00&`;
-      if (dateTo) rangeQuery += `end_date=${dateTo}T23:59:59&`;
+      if (dateFrom) rangeQuery += `start_date=${moment(dateFrom).startOf('day').toISOString()}&`;
+      if (dateTo) rangeQuery += `end_date=${moment(dateTo).endOf('day').toISOString()}&`;
       if (rangeQuery.endsWith('&')) rangeQuery = rangeQuery.slice(0, -1);
       const rangeStr = rangeQuery ? `?${rangeQuery}` : '';
       
-      // Trial Balance & Balance Sheet use as_of_date
-      const asOfQuery = dateTo ? `?as_of_date=${dateTo}T23:59:59` : '';
+      // {t("trial_balance", "Trial Balance")} & {t("balance_sheet", "Balance Sheet")} use as_of_date
+      const asOfQuery = dateTo ? `?as_of_date=${moment(dateTo).endOf('day').toISOString()}` : '';
 
       const [tbRes, pnlRes, cfRes, bsRes] = await Promise.all([
         api.get(`/api/v1/finance/trial-balance/${asOfQuery}`),
@@ -73,7 +75,7 @@ export default () => {
     <>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
-          <h4>Financial Reports</h4>
+          <h4>{t("financial_reports", "Financial Reports")}</h4>
           <p className="mb-0">Real-time accounting insights and statements for AMAS Farm.</p>
         </div>
         <div className="btn-toolbar mb-2 mb-md-0 d-flex gap-2">
@@ -95,7 +97,7 @@ export default () => {
           <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-4">
             
             {/* ---------------- PROFIT & LOSS ---------------- */}
-            <Tab eventKey="pnl" title={<span><FontAwesomeIcon icon={faChartLine} className="me-2" /> Profit & Loss</span>}>
+            <Tab eventKey="pnl" title={<span><FontAwesomeIcon icon={faChartLine} className="me-2" /> {t("profit_loss", "Profit & Loss")}</span>}>
               {loading ? <div className="text-center p-5">Generating Report...</div> : pnl && (
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                   <h4 className="text-center mb-4">INCOME STATEMENT</h4>
@@ -260,7 +262,7 @@ export default () => {
             </Tab>
 
             {/* ---------------- BALANCE SHEET ---------------- */}
-            <Tab eventKey="balancesheet" title={<span><FontAwesomeIcon icon={faBalanceScale} className="me-2" /> Balance Sheet</span>}>
+            <Tab eventKey="balancesheet" title={<span><FontAwesomeIcon icon={faBalanceScale} className="me-2" /> {t("balance_sheet", "Balance Sheet")}</span>}>
               {loading ? <div className="text-center p-5">Generating Report...</div> : balanceSheet && (
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                   <div className="d-flex justify-content-between align-items-center mb-4">
@@ -352,7 +354,7 @@ export default () => {
             </Tab>
 
             {/* ---------------- TRIAL BALANCE ---------------- */}
-            <Tab eventKey="trialbalance" title={<span><FontAwesomeIcon icon={faFileInvoiceDollar} className="me-2" /> Trial Balance</span>}>
+            <Tab eventKey="trialbalance" title={<span><FontAwesomeIcon icon={faFileInvoiceDollar} className="me-2" /> {t("trial_balance", "Trial Balance")}</span>}>
               {loading ? <div className="text-center p-5">Generating Report...</div> : trialBalance && (
                 <div>
                   <div className="d-flex justify-content-between align-items-center mb-3">

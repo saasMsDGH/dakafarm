@@ -19,6 +19,7 @@ class UserResponse(BaseModel):
     email: EmailStr
     phone: str
     role_name: Optional[str] = None
+    is_active: bool = True
     created_at: datetime
 
     model_config = {
@@ -40,6 +41,7 @@ class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     role: Optional[str] = None
+    is_active: Optional[bool] = None
 
 
 class UserPasswordReset(BaseModel):

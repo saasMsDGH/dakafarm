@@ -1,4 +1,4 @@
-﻿from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List
 from fastapi import HTTPException, status
 from sqlalchemy import func, or_
 from sqlalchemy.exc import IntegrityError
@@ -33,7 +33,7 @@ class ProductRepo:
 
 
     @staticmethod
-    async def list_products(db: AsyncSession, params: PaginationParams, category_id: Optional[int] = None) -> Tuple[List[Product], int]:
+    async def list_products(db: AsyncSession, params: PaginationParams, category_id: Optional[int] = None, status_filter: Optional[str] = None) -> Tuple[List[Product], int]:
         query = select(Product)
 
         if category_id:
@@ -47,6 +47,19 @@ class ProductRepo:
                     Product.description.ilike(search_term),
                 )
             )
+
+        if status_filter:
+            statuses = [s.strip().lower() for s in status_filter.split(",")]
+            conditions = []
+            if "out of stock" in statuses:
+                conditions.append(Product.current_stock <= 0)
+            if "low stock" in statuses:
+                conditions.append((Product.current_stock > 0) & (Product.current_stock <= Product.reorder_level))
+            if "in stock" in statuses:
+                conditions.append(Product.current_stock > Product.reorder_level)
+            
+            if conditions:
+                query = query.where(or_(*conditions))
 
         count_result = await db.execute(select(func.count()).select_from(query.subquery()))
         total = count_result.scalar() or 0

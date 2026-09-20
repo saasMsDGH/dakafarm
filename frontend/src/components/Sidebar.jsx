@@ -3,7 +3,7 @@ import SimpleBar from 'simplebar-react';
 import { useLocation } from "react-router-dom";
 import { CSSTransition } from 'react-transition-group';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBoxOpen, faChartPie, faSignOutAlt, faTimes, faWarehouse, faCashRegister, faUsers, faDesktop, faLandmark } from "@fortawesome/free-solid-svg-icons";
+import { faBoxOpen, faChartPie, faSignOutAlt, faTimes, faWarehouse, faCashRegister, faUsers, faDesktop, faLandmark, faUserShield, faChartBar } from "@fortawesome/free-solid-svg-icons";
 import { Nav, Badge, Image, Button, Dropdown, Accordion, Navbar } from '@themesberg/react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -113,6 +113,12 @@ const Sidebar = (props) => {
               {user?.role_name === 'admin' ? (
                 <>
                   <NavItem title={t('dashboard')} link={Routes.DashboardOverview.path} icon={faChartPie} />
+                  
+                  <CollapsableNavItem eventKey="admin/" title={t("system_administration", "System Administration")} icon={faUserShield}>
+                    <NavItem title={t("user_management", "User Management")} link={Routes.UsersManagement?.path || '#'} />
+                  </CollapsableNavItem>
+                  <Dropdown.Divider className="my-3 border-indigo" />
+
                   <CollapsableNavItem eventKey="farm/" title={t('farm_management')} icon={faBoxOpen}>
                     <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
                     <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
@@ -141,6 +147,12 @@ const Sidebar = (props) => {
                       <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
                     </CollapsableNavItem>
                   <Dropdown.Divider className="my-3 border-indigo" />
+
+                  <CollapsableNavItem eventKey="reports/" title={t('reports', 'Reports')} icon={faChartBar}>
+                    <NavItem title={t('reports_overview', 'Overview')} link={Routes.ReportsOverview?.path || '#'} />
+                    {/* Additional specific report links can be added here if needed, but overview handles most */}
+                  </CollapsableNavItem>
+                  <Dropdown.Divider className="my-3 border-indigo" />
                 
                     <CollapsableNavItem eventKey="hr/" title={t('hr_management', 'HR Management')} icon={faUsers}>
                       <NavItem title={t('employees', 'Employees')} link={Routes.Employees?.path || '#'} />
@@ -151,16 +163,13 @@ const Sidebar = (props) => {
                       <NavItem title={t('assets', 'Assets')} link={Routes.AssetsList?.path || '#'} />
                     </CollapsableNavItem>
                     <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
-                      <NavItem title="Dashboard" link={Routes.FinanceDashboard?.path || '#'} />
+                      <NavItem title={t("dashboard", "Dashboard")} link={Routes.FinanceDashboard?.path || '#'} />
                       <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
-                      <NavItem title="General Ledger" link={Routes.FinanceTransactions?.path || '#'} />
-                      <NavItem title="Debtors & Creditors" link={Routes.FinanceDebts?.path || '#'} />
-                      <NavItem title="Financial Reports" link={Routes.FinanceReports?.path || '#'} />
+                      <NavItem title={t("general_ledger", "General Ledger")} link={Routes.FinanceTransactions?.path || '#'} />
+                      <NavItem title={t("debtors_creditors", "Debtors & Creditors")} link={Routes.FinanceDebts?.path || '#'} />
+                      <NavItem title={t("financial_reports", "Financial Reports")} link={Routes.FinanceReports?.path || '#'} />
                     </CollapsableNavItem>
 
-                    <Dropdown.Divider className="my-3 border-indigo" />
-
-                    <Dropdown.Divider className="my-3 border-indigo" />
                   </>                ) : user?.role_name === 'hr_manager' || user?.role_name === 'hr_officer' ? (
                     <>
                       <CollapsableNavItem eventKey="hr/" title={t('hr_management', 'HR Management')} icon={faUsers}>
@@ -191,7 +200,17 @@ const Sidebar = (props) => {
                       <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
                     </CollapsableNavItem>
                   </>
-                ) : (
+                ) : user?.role_name === 'finance_manager' || user?.role_name === 'finance_officer' ? (
+                  <>
+                    <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
+                      <NavItem title={t("dashboard", "Dashboard")} link={Routes.FinanceDashboard?.path || '#'} />
+                      <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
+                      <NavItem title={t("general_ledger", "General Ledger")} link={Routes.FinanceTransactions?.path || '#'} />
+                      <NavItem title={t("debtors_creditors", "Debtors & Creditors")} link={Routes.FinanceDebts?.path || '#'} />
+                      <NavItem title={t("financial_reports", "Financial Reports")} link={Routes.FinanceReports?.path || '#'} />
+                    </CollapsableNavItem>
+                  </>
+                ) : user?.role_name === 'farm_manager' || user?.role_name === 'farm_officer' ? (
                 <>
                   <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
                   <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
@@ -202,7 +221,7 @@ const Sidebar = (props) => {
                   <NavItem title={t('feeds')} link={Routes.Feeds?.path || '#'} />
                   <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
                 </>
-              )}
+              ) : null}
             </Nav>
           </div>
         </SimpleBar>

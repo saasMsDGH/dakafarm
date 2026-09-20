@@ -8,6 +8,7 @@ from app.api.v1.assets import router as assets_router
 from app.api.v1.finance.Router import account_router
 from app.api.v1.finance.Router import transaction_router
 from app.api.v1.finance.Router import books_router
+from app.api.v1.reports.router import router as reports_router
 
 router = APIRouter(
     prefix="/v1"
@@ -31,3 +32,4 @@ router.include_router(pnl_router.router, prefix="/finance")
 router.include_router(cash_flow_router.router, prefix="/finance")
 router.include_router(balance_sheet_router.router, prefix="/finance")
 router.include_router(dashboard_router.router, prefix="/finance")
+router.include_router(reports_router)

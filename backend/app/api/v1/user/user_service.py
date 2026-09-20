@@ -65,6 +65,11 @@ class UserService:
         return UserService._to_response(user)
 
     @staticmethod
+    async def get_all_roles(db: AsyncSession):
+        roles = await UserRepo.get_all_roles(db)
+        return [{"id": r.id, "name": r.name} for r in roles]
+
+    @staticmethod
     async def get_all_users(db: AsyncSession, params: PaginationParams) -> schemas.UserListResponse:
         users, total = await UserRepo.list_users(db, params)
         items = [UserService._to_response(u) for u in users]
@@ -103,7 +108,13 @@ class UserService:
         # 3. Prevent non-admins from updating roles
         update_data = request.model_dump(exclude_unset=True)
         new_role_name = update_data.pop("role", None)
+        new_is_active = update_data.pop("is_active", None)
         
+        if new_is_active is not None:
+            if not is_admin:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can change active status.")
+            update_data["is_active"] = new_is_active
+
         if new_role_name:
             if not is_admin:
                 raise HTTPException(

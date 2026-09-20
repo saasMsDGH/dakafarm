@@ -194,7 +194,7 @@ export default () => {
                 type="text" 
                 placeholder="Search..." 
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
               />
             </InputGroup>
           </Col>

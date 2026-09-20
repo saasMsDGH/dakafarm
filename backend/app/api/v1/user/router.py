@@ -36,6 +36,14 @@ async def get_me_endpoint(
     return await UserService.get_me(db, current_user.id)
 
 
+@router.get("/roles")
+async def get_roles_endpoint(
+    db: AsyncSession = Depends(get_db)
+):
+    """Get all available roles."""
+    return await UserService.get_all_roles(db)
+
+
 @router.get("/", response_model=schemas.UserListResponse)
 async def list_users_endpoint(
     page: int = Query(default=1, ge=1),

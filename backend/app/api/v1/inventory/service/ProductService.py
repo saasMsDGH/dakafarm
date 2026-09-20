@@ -66,8 +66,8 @@ class ProductService:
         return product
 
     @staticmethod
-    async def list_products(db: AsyncSession, params: PaginationParams, category_id: int = None) -> ProductListResponse:
-        products, total = await ProductRepo.list_products(db, params, category_id)
+    async def list_products(db: AsyncSession, params: PaginationParams, category_id: int = None, status_filter: str = None) -> ProductListResponse:
+        products, total = await ProductRepo.list_products(db, params, category_id, status_filter)
         return ProductListResponse(
             items=products, total=total, page=params.page, limit=params.limit, pages=compute_pages(total, params.limit)
         )

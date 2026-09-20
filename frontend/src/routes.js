@@ -44,5 +44,10 @@ export const Routes = {
     FinanceTransactions: { path: "/finance/transactions" },
     FinanceDebts: { path: "/finance/debts" },
     FinanceReports: { path: "/finance/reports" },
-};
 
+    // Admin Subsystem
+    UsersManagement: { path: "/admin/users" },
+
+    // Reports Subsystem - The Master Dashboard
+    ReportsOverview: { path: "/reports" },
+};

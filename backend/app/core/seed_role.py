@@ -14,7 +14,7 @@ DEFAULT_ROLES = [
    
     },
     {
-        "name": "Chairperson",
+        "name": "finance_manager",
        
     },
     {
