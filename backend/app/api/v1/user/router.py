@@ -21,7 +21,8 @@ router = APIRouter(
 @router.post("/", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
 async def post_user(
     request: schemas.User,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: Users=Depends(get_current_user)
 ):
     """Register a new user."""
     return await UserService.CreateUser_service(request, db)
@@ -38,7 +39,8 @@ async def get_me_endpoint(
 
 @router.get("/roles")
 async def get_roles_endpoint(
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: Users=Depends(get_current_user)
 ):
     """Get all available roles."""
     return await UserService.get_all_roles(db)
