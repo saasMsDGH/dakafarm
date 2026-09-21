@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create a configured axios instance
 export const api = axios.create({
-  baseURL: 'http://localhost:8000', // Our FastAPI backend URL
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000', // Dynamic URL from .env
   headers: {
     'Cache-Control': 'no-cache, no-store, must-revalidate',
     'Pragma': 'no-cache',
