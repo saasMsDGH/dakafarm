@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="100%" height="100%">
+  <!-- Sky -->
+  <rect width="800" height="600" fill="#e0f2fe" />
+  
+  <!-- Sun -->
+  <circle cx="650" cy="150" r="60" fill="#fde047" />
+  
+  <!-- Clouds -->
+  <path d="M 150 150 Q 170 120 200 130 Q 230 110 260 140 Q 290 140 290 170 L 130 170 Q 120 150 150 150" fill="#ffffff" opacity="0.8"/>
+  <path d="M 450 200 Q 470 170 500 180 Q 530 160 560 190 Q 590 190 590 220 L 430 220 Q 420 200 450 200" fill="#ffffff" opacity="0.8"/>
+
+  <!-- Back Hills -->
+  <path d="M 0 450 Q 200 350 400 450 T 800 400 L 800 600 L 0 600 Z" fill="#86efac" />
+  
+  <!-- Front Hills -->
+  <path d="M 0 500 Q 300 400 600 500 T 800 550 L 800 600 L 0 600 Z" fill="#4ade80" />
+
+  <!-- Fields (Rows) -->
+  <path d="M 100 550 L 150 600 M 200 530 L 250 600 M 300 515 L 350 600 M 400 500 L 450 600 M 500 495 L 550 600 M 600 500 L 650 600 M 700 520 L 750 600" stroke="#22c55e" stroke-width="8" stroke-linecap="round"/>
+
+  <!-- Barn -->
+  <rect x="250" y="320" width="160" height="130" fill="#ef4444" />
+  <!-- Barn Roof -->
+  <polygon points="230,320 330,250 430,320" fill="#b91c1c" />
+  <!-- Barn Door -->
+  <rect x="300" y="380" width="60" height="70" fill="#fca5a5" />
+  <path d="M 300 380 L 360 450 M 360 380 L 300 450" stroke="#ef4444" stroke-width="4"/>
+  <!-- Barn Window -->
+  <circle cx="330" cy="300" r="15" fill="#fca5a5" />
+  <path d="M 315 300 L 345 300 M 330 285 L 330 315" stroke="#ef4444" stroke-width="3"/>
+
+  <!-- Silo -->
+  <rect x="420" y="270" width="60" height="180" fill="#cbd5e1" />
+  <!-- Silo Roof -->
+  <path d="M 420 270 A 30 30 0 0 1 480 270 Z" fill="#94a3b8" />
+  <!-- Silo Stripes -->
+  <line x1="420" y1="300" x2="480" y2="300" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="420" y1="340" x2="480" y2="340" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="420" y1="380" x2="480" y2="380" stroke="#94a3b8" stroke-width="2"/>
+  <line x1="420" y1="420" x2="480" y2="420" stroke="#94a3b8" stroke-width="2"/>
+
+  <!-- Trees -->
+  <circle cx="150" cy="400" r="30" fill="#15803d" />
+  <rect x="145" y="420" width="10" height="30" fill="#78350f" />
+  
+  <circle cx="100" cy="430" r="25" fill="#16a34a" />
+  <rect x="95" y="445" width="10" height="25" fill="#78350f" />
+
+  <circle cx="580" cy="380" r="35" fill="#15803d" />
+  <rect x="575" y="405" width="10" height="40" fill="#78350f" />
+  
+  <circle cx="640" cy="410" r="25" fill="#16a34a" />
+  <rect x="635" y="425" width="10" height="30" fill="#78350f" />
+  
+  <!-- Fence -->
+  <line x1="0" y1="480" x2="800" y2="480" stroke="#d97706" stroke-width="4"/>
+  <line x1="0" y1="460" x2="800" y2="460" stroke="#d97706" stroke-width="4"/>
+  <line x1="50" y1="450" x2="50" y2="490" stroke="#d97706" stroke-width="6"/>
+  <line x1="150" y1="450" x2="150" y2="490" stroke="#d97706" stroke-width="6"/>
+  <line x1="550" y1="450" x2="550" y2="490" stroke="#d97706" stroke-width="6"/>
+  <line x1="650" y1="450" x2="650" y2="490" stroke="#d97706" stroke-width="6"/>
+  <line x1="750" y1="450" x2="750" y2="490" stroke="#d97706" stroke-width="6"/>
+  
+</svg>

@@ -9,7 +9,7 @@ import { useAuth } from "../../context/AuthContext";
 import { Routes } from "../../routes";
 
 // You can create/use a customized background if you want
-import BgImage from "../../assets/img/illustrations/signin.svg";
+import BgImage from "../../assets/img/illustrations/farm-signin.svg";
 
 export default () => {
   const { t } = useTranslation();
@@ -38,11 +38,21 @@ export default () => {
 
   return (
     <main>
-      <section className="d-flex align-items-center my-5 mt-lg-6 mb-lg-5">
+      <section 
+        className="d-flex align-items-center my-5 mt-lg-6 mb-lg-5 vh-100" 
+        style={{ 
+          backgroundImage: `url(${BgImage})`, 
+          backgroundSize: 'cover', 
+          backgroundPosition: 'center', 
+          backgroundRepeat: 'no-repeat',
+          marginTop: '0 !important',
+          marginBottom: '0 !important'
+        }}
+      >
         <Container>
-          <Row className="justify-content-center form-bg-image" style={{ backgroundImage: `url(${BgImage})` }}>
+          <Row className="justify-content-center">
             <Col xs={12} className="d-flex align-items-center justify-content-center">
-              <div className="bg-white shadow-soft border rounded border-light p-4 p-lg-5 w-100 fmxw-500">
+              <div className="bg-white shadow-soft border rounded border-light p-4 p-lg-5 w-100 fmxw-500" style={{ opacity: 0.95 }}>
                 <div className="text-center text-md-center mb-4 mt-md-0">
                   <h3 className="mb-0 text-primary">AMAS FARM</h3>
                   <p className="mt-2 text-gray">{t('welcome')}</p>

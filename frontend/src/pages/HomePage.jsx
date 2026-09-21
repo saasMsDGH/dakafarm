@@ -96,7 +96,7 @@ const RouteWithSidebar = ({ component: Component, ...rest }) => {
           <Preloader show={loaded ? false : true} />
           <Sidebar />
 
-          <main className="content">
+          <main className="content d-flex flex-column min-vh-100">
             <Navbar />
             <Component {...props} />
             <Footer />
