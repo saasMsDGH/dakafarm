@@ -106,112 +106,26 @@ const Sidebar = (props) => {
                 <FontAwesomeIcon icon={faTimes} />
               </Nav.Link>
             </div>
+            
             <Nav className="flex-column pt-3 pt-md-0">
               <NavItem title="AMAS FARM" link={Routes.DashboardOverview.path} image={ReactHero} />
               <Dropdown.Divider className="my-3 border-indigo" />
               
-              {user?.role_name === 'admin' ? (
-                <>
-                  <NavItem title={t('dashboard')} link={Routes.DashboardOverview.path} icon={faChartPie} />
-                  
-                  <CollapsableNavItem eventKey="admin/" title={t("system_administration", "System Administration")} icon={faUserShield}>
-                    <NavItem title={t("user_management", "User Management")} link={Routes.UsersManagement?.path || '#'} />
-                  </CollapsableNavItem>
-                  <Dropdown.Divider className="my-3 border-indigo" />
+              {/* Core Dashboard - Visible if they have roles for DashboardOverview */}
+              {(user?.role_name === 'admin' || Routes.DashboardOverview.roles.includes(user?.role_name)) && (
+                <NavItem title={t('dashboard', 'Dashboard')} link={Routes.DashboardOverview.path} icon={faChartPie} />
+              )}
 
-                  <CollapsableNavItem eventKey="farm/" title={t('farm_management')} icon={faBoxOpen}>
-                    <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
-                    <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
-                    <NavItem title={t('medications')} link={Routes.Medications?.path || '#'} />
-                    <NavItem title={t('vaccinations')} link={Routes.Vaccinations?.path || '#'} />
-                    <NavItem title={t('productions')} link={Routes.Productions?.path || '#'} />
-                    <NavItem title={t('mortalities')} link={Routes.Mortalities?.path || '#'} />
-                    <NavItem title={t('feeds')} link={Routes.Feeds?.path || '#'} />
-                    <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
-                  </CollapsableNavItem>
-                  <CollapsableNavItem eventKey="inventory/" title={t('inventory_management')} icon={faWarehouse}>
-                    <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
-                    <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
-                    <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
-                    <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
-                  </CollapsableNavItem>
-                  <Dropdown.Divider className="my-3 border-indigo" />
-                  
-                  <CollapsableNavItem eventKey="pos/" title={t('pos_sales', 'POS / Sales')} icon={faCashRegister}>
-                    <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
-                    <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
-                  </CollapsableNavItem>
-                    <CollapsableNavItem eventKey="pos_purchases/" title={t('pos_purchases', 'Purchases & Expenses')} icon={faCashRegister}>
-                      <NavItem title={t('suppliers', 'Suppliers')} link={Routes.Suppliers?.path || '#'} />
-                      <NavItem title={t('purchases', 'Purchases')} link={Routes.Purchases?.path || '#'} />
-                      <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
-                    </CollapsableNavItem>
-                  <Dropdown.Divider className="my-3 border-indigo" />
+              {/* Admin Subsystem */}
+              {user?.role_name === 'admin' && (
+                <CollapsableNavItem eventKey="admin/" title={t("system_administration", "System Administration")} icon={faUserShield}>
+                  <NavItem title={t("user_management", "User Management")} link={Routes.UsersManagement?.path || '#'} />
+                </CollapsableNavItem>
+              )}
 
-                  <CollapsableNavItem eventKey="reports/" title={t('reports', 'Reports')} icon={faChartBar}>
-                    <NavItem title={t('reports_overview', 'Overview')} link={Routes.ReportsOverview?.path || '#'} />
-                    {/* Additional specific report links can be added here if needed, but overview handles most */}
-                  </CollapsableNavItem>
-                  <Dropdown.Divider className="my-3 border-indigo" />
-                
-                    <CollapsableNavItem eventKey="hr/" title={t('hr_management', 'HR Management')} icon={faUsers}>
-                      <NavItem title={t('employees', 'Employees')} link={Routes.Employees?.path || '#'} />
-                      <NavItem title={t('payroll', 'Payroll')} link={Routes.Payroll?.path || '#'} />
-                    </CollapsableNavItem>
-
-                    <CollapsableNavItem eventKey="assets/" title={t('asset_management', 'Asset Management')} icon={faDesktop}>
-                      <NavItem title={t('assets', 'Assets')} link={Routes.AssetsList?.path || '#'} />
-                    </CollapsableNavItem>
-                    <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
-                      <NavItem title={t("dashboard", "Dashboard")} link={Routes.FinanceDashboard?.path || '#'} />
-                      <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
-                      <NavItem title={t("general_ledger", "General Ledger")} link={Routes.FinanceTransactions?.path || '#'} />
-                      <NavItem title={t("debtors_creditors", "Debtors & Creditors")} link={Routes.FinanceDebts?.path || '#'} />
-                      <NavItem title={t("financial_reports", "Financial Reports")} link={Routes.FinanceReports?.path || '#'} />
-                    </CollapsableNavItem>
-
-                  </>                ) : user?.role_name === 'hr_manager' || user?.role_name === 'hr_officer' ? (
-                    <>
-                      <CollapsableNavItem eventKey="hr/" title={t('hr_management', 'HR Management')} icon={faUsers}>
-                        <NavItem title={t('employees', 'Employees')} link={Routes.Employees?.path || '#'} />
-                        <NavItem title={t('payroll', 'Payroll')} link={Routes.Payroll?.path || '#'} />
-                      </CollapsableNavItem>
-
-                    <CollapsableNavItem eventKey="assets/" title={t('asset_management', 'Asset Management')} icon={faDesktop}>
-                      <NavItem title={t('assets', 'Assets')} link={Routes.AssetsList?.path || '#'} />
-                    </CollapsableNavItem>
-                    <Dropdown.Divider className="my-3 border-indigo" />
-
-                    </>
-                  ) : user?.role_name === 'inventory_admin' ? (
-                  <>
-                    <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
-                    <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
-                    <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
-                    <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
-                  </>
-                ) : user?.role_name === 'sell_manager' || user?.role_name === 'sell_officer' ? (
-                  <>
-                    <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
-                    <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
-                    <CollapsableNavItem eventKey="pos_purchases/" title={t('pos_purchases', 'Purchases & Expenses')} icon={faCashRegister}>
-                      <NavItem title={t('suppliers', 'Suppliers')} link={Routes.Suppliers?.path || '#'} />
-                      <NavItem title={t('purchases', 'Purchases')} link={Routes.Purchases?.path || '#'} />
-                      <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
-                    </CollapsableNavItem>
-                  </>
-                ) : user?.role_name === 'finance_manager' || user?.role_name === 'finance_officer' ? (
-                  <>
-                    <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
-                      <NavItem title={t("dashboard", "Dashboard")} link={Routes.FinanceDashboard?.path || '#'} />
-                      <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
-                      <NavItem title={t("general_ledger", "General Ledger")} link={Routes.FinanceTransactions?.path || '#'} />
-                      <NavItem title={t("debtors_creditors", "Debtors & Creditors")} link={Routes.FinanceDebts?.path || '#'} />
-                      <NavItem title={t("financial_reports", "Financial Reports")} link={Routes.FinanceReports?.path || '#'} />
-                    </CollapsableNavItem>
-                  </>
-                ) : user?.role_name === 'farm_manager' || user?.role_name === 'farm_officer' ? (
-                <>
+              {/* Farm Subsystem */}
+              {(user?.role_name === 'admin' || ["Farm Manager", "Farm Worker"].includes(user?.role_name)) && (
+                <CollapsableNavItem eventKey="farm/" title={t('farm_management', 'Farm Management')} icon={faBoxOpen}>
                   <NavItem title={t('houses')} link={Routes.Houses?.path || '#'} />
                   <NavItem title={t('flocks')} link={Routes.Flocks?.path || '#'} />
                   <NavItem title={t('medications')} link={Routes.Medications?.path || '#'} />
@@ -219,10 +133,93 @@ const Sidebar = (props) => {
                   <NavItem title={t('productions')} link={Routes.Productions?.path || '#'} />
                   <NavItem title={t('mortalities')} link={Routes.Mortalities?.path || '#'} />
                   <NavItem title={t('feeds')} link={Routes.Feeds?.path || '#'} />
-                  <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
-                </>
-              ) : null}
+                  {(user?.role_name === 'admin' || user?.role_name === 'Farm Manager') && (
+                    <NavItem title={t('farm_report', 'Farm Report')} link={Routes.FarmReport?.path || '#'} />
+                  )}
+                </CollapsableNavItem>
+              )}
+
+              {/* Inventory Subsystem */}
+              {(user?.role_name === 'admin' || ["inventory_admin", "Farm Manager", "Farm Worker", "sell_manager"].includes(user?.role_name)) && (
+                <CollapsableNavItem eventKey="inventory/" title={t('inventory_management', 'Inventory Management')} icon={faWarehouse}>
+                  {(user?.role_name === 'admin' || ["inventory_admin", "Farm Manager"].includes(user?.role_name)) && (
+                    <>
+                      <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
+                      <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
+                    </>
+                  )}
+                  {(user?.role_name === 'admin' || ["inventory_admin", "Farm Manager", "Farm Worker"].includes(user?.role_name)) && (
+                    <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
+                  )}
+                  {(user?.role_name === 'admin' || ["inventory_admin", "Farm Manager", "sell_manager"].includes(user?.role_name)) && (
+                    <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
+                  )}
+                </CollapsableNavItem>
+              )}
+              
+              {/* POS Sales Subsystem */}
+              {(user?.role_name === 'admin' || ["sell_manager", "sell_officer"].includes(user?.role_name)) && (
+                <CollapsableNavItem eventKey="pos/" title={t('pos_sales', 'POS / Sales')} icon={faCashRegister}>
+                  <NavItem title={t('customers', 'Customers')} link={Routes.Customers?.path || '#'} />
+                  <NavItem title={t('sales', 'Sales')} link={Routes.Sales?.path || '#'} />
+                </CollapsableNavItem>
+              )}
+
+              {/* POS Purchases / Expenses */}
+              {(user?.role_name === 'admin' || ["sell_manager", "sell_officer", "inventory_admin", "finance_manager", "Accountant"].includes(user?.role_name)) && (
+                <CollapsableNavItem eventKey="pos_purchases/" title={t('pos_purchases', 'Purchases & Expenses')} icon={faCashRegister}>
+                  {(user?.role_name === 'admin' || ["sell_manager", "sell_officer", "inventory_admin"].includes(user?.role_name)) && (
+                    <>
+                      <NavItem title={t('suppliers', 'Suppliers')} link={Routes.Suppliers?.path || '#'} />
+                      <NavItem title={t('purchases', 'Purchases')} link={Routes.Purchases?.path || '#'} />
+                    </>
+                  )}
+                  {(user?.role_name === 'admin' || ["finance_manager", "Accountant", "sell_manager"].includes(user?.role_name)) && (
+                    <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
+                  )}
+                </CollapsableNavItem>
+              )}
+
+              {/* Reports Subsystem */}
+              {(user?.role_name === 'admin' || ["finance_manager", "Farm Manager"].includes(user?.role_name)) && (
+                <CollapsableNavItem eventKey="reports/" title={t('reports', 'Reports')} icon={faChartBar}>
+                  <NavItem title={t('reports_overview', 'Overview')} link={Routes.ReportsOverview?.path || '#'} />
+                </CollapsableNavItem>
+              )}
+            
+              {/* HR Subsystem */}
+              {(user?.role_name === 'admin' || ["hr_manager", "hr_officer", "finance_manager"].includes(user?.role_name)) && (
+                <CollapsableNavItem eventKey="hr/" title={t('hr_management', 'HR Management')} icon={faUsers}>
+                  {(user?.role_name === 'admin' || ["hr_manager", "hr_officer"].includes(user?.role_name)) && (
+                    <NavItem title={t('employees', 'Employees')} link={Routes.Employees?.path || '#'} />
+                  )}
+                  {(user?.role_name === 'admin' || ["hr_manager", "finance_manager"].includes(user?.role_name)) && (
+                    <NavItem title={t('payroll', 'Payroll')} link={Routes.Payroll?.path || '#'} />
+                  )}
+                </CollapsableNavItem>
+              )}
+
+              {/* Assets Subsystem */}
+              {(user?.role_name === 'admin' || ["finance_manager", "Accountant", "Farm Manager"].includes(user?.role_name)) && (
+                <CollapsableNavItem eventKey="assets/" title={t('asset_management', 'Asset Management')} icon={faDesktop}>
+                  <NavItem title={t('assets', 'Assets')} link={Routes.AssetsList?.path || '#'} />
+                </CollapsableNavItem>
+              )}
+
+              {/* Finance Subsystem */}
+              {(user?.role_name === 'admin' || ["finance_manager", "Accountant"].includes(user?.role_name)) && (
+                <CollapsableNavItem eventKey="finance/" title={t('finance', 'Finance')} icon={faLandmark}>
+                  <NavItem title={t("dashboard", "Dashboard")} link={Routes.FinanceDashboard?.path || '#'} />
+                  <NavItem title={t('financial_accounts', 'Accounts')} link={Routes.FinanceAccounts?.path || '#'} />
+                  <NavItem title={t("general_ledger", "General Ledger")} link={Routes.FinanceTransactions?.path || '#'} />
+                  <NavItem title={t("debtors_creditors", "Debtors & Creditors")} link={Routes.FinanceDebts?.path || '#'} />
+                  <NavItem title={t("financial_reports", "Financial Reports")} link={Routes.FinanceReports?.path || '#'} />
+                </CollapsableNavItem>
+              )}
+
+              <Dropdown.Divider className="my-3 border-indigo" />
             </Nav>
+
           </div>
         </SimpleBar>
       </CSSTransition>
