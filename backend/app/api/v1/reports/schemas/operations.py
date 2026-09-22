@@ -1,40 +1,41 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 from decimal import Decimal
 
-class FlockSummary(BaseModel):
-    total_birds: int
-    active_flocks: int
-    total_mortality: int
-    sick_birds: int
-
-class HealthSummary(BaseModel):
-    medication_cost: Decimal
-    vaccines_used: Decimal
-
-class ProductionSummary(BaseModel):
-    total_quantity: Decimal
-
-class HRSummary(BaseModel):
-    total_employees: int
-    payroll_total: Decimal
-
-class FinanceSummary(BaseModel):
-    revenue: Decimal
-    expenses: Decimal
+class FinancialOverview(BaseModel):
+    total_sales: Decimal
+    total_purchases: Decimal
+    total_expenses: Decimal
+    total_payroll: Decimal
     net_profit: Decimal
 
-class AssetsSummary(BaseModel):
-    total_active_assets: int
-    asset_value: Decimal
+class CashPosition(BaseModel):
+    cash: Decimal
+    bank: Decimal
+    mobile_money: Decimal
+    total_available: Decimal
+
+class FarmOperations(BaseModel):
+    total_birds: int
+    eggs_produced: int
+    mortality_rate: str
+    feed_used: str
+    vaccinations_due: int
+    low_stock_items: int
+
+class CustomersSuppliers(BaseModel):
+    customer_outstanding: Decimal
+    supplier_payable: Decimal
+    active_customers: int
+    active_suppliers: int
 
 class FarmOperationsReport(BaseModel):
-    period_start: Optional[datetime]
-    period_end: Optional[datetime]
-    flocks: FlockSummary
-    health: HealthSummary
-    production: ProductionSummary
-    hr: HRSummary
-    finance: FinanceSummary
-    assets: AssetsSummary
+    period_start: Optional[datetime] = None
+    period_end: Optional[datetime] = None
+    generated_on: datetime
+    
+    financial_overview: FinancialOverview
+    cash_position: CashPosition
+    farm_operations: FarmOperations
+    customers_suppliers: CustomersSuppliers

@@ -1,8 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from fastapi import Depends, APIRouter, HTTPException, status
+from fastapi import Depends, APIRouter, HTTPException, status,dependencies
 from .database import get_db
-from app.api.v1.user.models import Roles
+from app.api.v1.user.models import Roles,Users
+from app.auth.auth import get_current_user
 
 
 router = APIRouter(tags=["Seed"])
@@ -42,6 +43,7 @@ DEFAULT_ROLES = [
 @router.post("/db")
 async def seed_roles(
     db: AsyncSession = Depends(get_db),
+    current_user : Users=Depends(get_current_user)
     
 ):
     added_any = False

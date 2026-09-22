@@ -75,7 +75,7 @@ const RouteWithLoader = ({ component: Component, ...rest }) => {
   );
 };
 
-const RouteWithSidebar = ({ component: Component, ...rest }) => {
+const RouteWithSidebar = ({ component: Component, roles, ...rest }) => {
   const { user } = useAuth();
   const [loaded, setLoaded] = useState(false);
 
@@ -89,6 +89,25 @@ const RouteWithSidebar = ({ component: Component, ...rest }) => {
       // Protect the route
       if (!user) {
         return <Redirect to={Routes.Signin.path} />;
+      }
+
+      // Smart redirect for roles that don't have access to the main dashboard
+      const getDefaultRoute = (role) => {
+        if (role === 'hr_manager' || role === 'hr_officer') return Routes.Employees.path;
+        if (role === 'inventory_admin') return Routes.Products.path;
+        if (role === 'sell_manager' || role === 'sell_officer') return Routes.Sales.path;
+        if (role === 'Accountant') return Routes.FinanceDashboard.path;
+        if (role === 'Farm Worker') return Routes.Flocks.path;
+        return Routes.Settings.path; // Safe generic fallback
+      };
+
+      // Check RBAC roles
+      if (roles && roles.length > 0) {
+        const hasAccess = user.role_name === 'admin' || roles.includes(user.role_name);
+        if (!hasAccess) {
+          // If they are not allowed on this page, redirect to their designated home page
+          return <Redirect to={getDefaultRoute(user.role_name)} />;
+        }
       }
 
       return (
@@ -115,51 +134,51 @@ export default () => (
     <RouteWithLoader exact path={Routes.ServerError.path} component={ServerError} />
 
     {/* pages */}
-    <RouteWithSidebar exact path={Routes.DashboardOverview.path} component={DashboardOverview} />
-    <RouteWithSidebar exact path={Routes.Settings.path} component={Settings} />
+    <RouteWithSidebar exact path={Routes.DashboardOverview.path} component={DashboardOverview} roles={Routes.DashboardOverview.roles} />
+    <RouteWithSidebar exact path={Routes.Settings.path} component={Settings} roles={Routes.Settings.roles} />
     
     {/* farm pages */}
-    <RouteWithSidebar exact path={Routes.Houses.path} component={Houses} />
-    <RouteWithSidebar exact path={Routes.Flocks.path} component={Flocks} />
-    <RouteWithSidebar exact path={Routes.Medications.path} component={MedicationRecords} />
-    <RouteWithSidebar exact path={Routes.Vaccinations.path} component={VaccinationRecords} />
-    <RouteWithSidebar exact path={Routes.Productions.path} component={ProductionRecords} />
-    <RouteWithSidebar exact path={Routes.Mortalities.path} component={MortalityRecords} />
-    <RouteWithSidebar exact path={Routes.Feeds.path} component={FeedRecords} />
-    <RouteWithSidebar exact path={Routes.FarmReport.path} component={FarmReport} />
+    <RouteWithSidebar exact path={Routes.Houses.path} component={Houses} roles={Routes.Houses.roles} />
+    <RouteWithSidebar exact path={Routes.Flocks.path} component={Flocks} roles={Routes.Flocks.roles} />
+    <RouteWithSidebar exact path={Routes.Medications.path} component={MedicationRecords} roles={Routes.Medications.roles} />
+    <RouteWithSidebar exact path={Routes.Vaccinations.path} component={VaccinationRecords} roles={Routes.Vaccinations.roles} />
+    <RouteWithSidebar exact path={Routes.Productions.path} component={ProductionRecords} roles={Routes.Productions.roles} />
+    <RouteWithSidebar exact path={Routes.Mortalities.path} component={MortalityRecords} roles={Routes.Mortalities.roles} />
+    <RouteWithSidebar exact path={Routes.Feeds.path} component={FeedRecords} roles={Routes.Feeds.roles} />
+    <RouteWithSidebar exact path={Routes.FarmReport.path} component={FarmReport} roles={Routes.FarmReport.roles} />
 
     {/* inventory pages */}
-    <RouteWithSidebar exact path={Routes.Products.path} component={Products} />
-    <RouteWithSidebar exact path={Routes.ProductCategories.path} component={ProductCategories} />
-    <RouteWithSidebar exact path={Routes.StockMovements.path} component={StockMovements} />
-    <RouteWithSidebar exact path={Routes.InventoryStatus.path} component={InventoryStatus} />
+    <RouteWithSidebar exact path={Routes.Products.path} component={Products} roles={Routes.Products.roles} />
+    <RouteWithSidebar exact path={Routes.ProductCategories.path} component={ProductCategories} roles={Routes.ProductCategories.roles} />
+    <RouteWithSidebar exact path={Routes.StockMovements.path} component={StockMovements} roles={Routes.StockMovements.roles} />
+    <RouteWithSidebar exact path={Routes.InventoryStatus.path} component={InventoryStatus} roles={Routes.InventoryStatus.roles} />
 
     
     {/* hr pages */}
-    <RouteWithSidebar exact path={Routes.Employees.path} component={Employees} />
-    <RouteWithSidebar exact path={Routes.Payroll.path} component={Payroll} />
+    <RouteWithSidebar exact path={Routes.Employees.path} component={Employees} roles={Routes.Employees.roles} />
+    <RouteWithSidebar exact path={Routes.Payroll.path} component={Payroll} roles={Routes.Payroll.roles} />
 
     
     {/* assets pages */}
-    <RouteWithSidebar exact path={Routes.AssetsList.path} component={AssetsList} />
-    <RouteWithSidebar exact path={Routes.FinanceDashboard.path} component={FinanceDashboard} />
-    <RouteWithSidebar exact path={Routes.FinanceAccounts.path} component={AccountsList} />
-    <RouteWithSidebar exact path={Routes.FinanceTransactions.path} component={Transactions} />
-    <RouteWithSidebar exact path={Routes.FinanceDebts.path} component={Debts} />
-    <RouteWithSidebar exact path={Routes.FinanceReports.path} component={FinancialReports} />
+    <RouteWithSidebar exact path={Routes.AssetsList.path} component={AssetsList} roles={Routes.AssetsList.roles} />
+    <RouteWithSidebar exact path={Routes.FinanceDashboard.path} component={FinanceDashboard} roles={Routes.FinanceDashboard.roles} />
+    <RouteWithSidebar exact path={Routes.FinanceAccounts.path} component={AccountsList} roles={Routes.FinanceAccounts.roles} />
+    <RouteWithSidebar exact path={Routes.FinanceTransactions.path} component={Transactions} roles={Routes.FinanceTransactions.roles} />
+    <RouteWithSidebar exact path={Routes.FinanceDebts.path} component={Debts} roles={Routes.FinanceDebts.roles} />
+    <RouteWithSidebar exact path={Routes.FinanceReports.path} component={FinancialReports} roles={Routes.FinanceReports.roles} />
 
     {/* admin pages */}
-    <RouteWithSidebar exact path={Routes.UsersManagement.path} component={UsersManagement} />
+    <RouteWithSidebar exact path={Routes.UsersManagement.path} component={UsersManagement} roles={Routes.UsersManagement.roles} />
 
     {/* pos pages */}
-    <RouteWithSidebar exact path={Routes.Customers.path} component={Customers} />
-    <RouteWithSidebar exact path={Routes.Sales.path} component={Sales} />
-    <RouteWithSidebar exact path={Routes.Suppliers.path} component={Suppliers} />
-    <RouteWithSidebar exact path={Routes.Purchases.path} component={Purchases} />
-    <RouteWithSidebar exact path={Routes.Expenses.path} component={Expenses} />
+    <RouteWithSidebar exact path={Routes.Customers.path} component={Customers} roles={Routes.Customers.roles} />
+    <RouteWithSidebar exact path={Routes.Sales.path} component={Sales} roles={Routes.Sales.roles} />
+    <RouteWithSidebar exact path={Routes.Suppliers.path} component={Suppliers} roles={Routes.Suppliers.roles} />
+    <RouteWithSidebar exact path={Routes.Purchases.path} component={Purchases} roles={Routes.Purchases.roles} />
+    <RouteWithSidebar exact path={Routes.Expenses.path} component={Expenses} roles={Routes.Expenses.roles} />
 
     {/* reports pages */}
-    <RouteWithSidebar exact path={Routes.ReportsOverview.path} component={FarmOperationsReport} />
+    <RouteWithSidebar exact path={Routes.ReportsOverview.path} component={FarmOperationsReport} roles={Routes.ReportsOverview.roles} />
 
     <Redirect to={Routes.NotFound.path} />
   </Switch>
