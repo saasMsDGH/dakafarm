@@ -268,14 +268,14 @@ export default () => {
             </tbody>
           </table>
           <div style="text-align: right; margin-top: 15px; font-size: 16px; font-weight: bold; color: #28a745;">
-            {t("total_paid", "Total Paid:")} ${parseFloat(currentSale.amount_paid).toLocaleString()}
+            ${t("total_paid", "Total Paid:")} ${parseFloat(currentSale.amount_paid).toLocaleString()}
           </div>
         </div>
       `;
     }
 
     const docTitle = currentSale.invoice_number;
-    const titleType = currentSale.payment_status === 'PAID' ? '{t("sales_receipt", "SALES RECEIPT")}' : '{t("invoice", "INVOICE")}';
+    const titleType = currentSale.payment_status === 'PAID' ? t("sales_receipt", "SALES RECEIPT") : t("invoice", "INVOICE");
 
     const html = `
       <!DOCTYPE html>
@@ -347,7 +347,7 @@ export default () => {
             <table class="item-table" style="margin-top: 20px;">
               <thead>
                 <tr>
-                  <th>{t("item", "ITEM")}</th>
+                  <th>${t("item", "ITEM")}</th>
                   <th style="text-align: center;">QTY</th>
                   <th style="text-align: right;">PRICE</th>
                   <th style="text-align: right;">TOTAL</th>
@@ -369,7 +369,7 @@ export default () => {
                   <td>${parseFloat(currentSale.discount).toLocaleString()}</td>
                 </tr>
                 <tr class="total-row">
-                  <td>{t("total_due", "TOTAL DUE:")}</td>
+                  <td>${t("total_due", "TOTAL DUE:")}</td>
                   <td>${parseFloat(currentSale.total_amount).toLocaleString()}</td>
                 </tr>
               </table>
@@ -489,7 +489,7 @@ export default () => {
         <body>
           <div class="receipt-container">
             <div class="text-center header-text" style="margin-top: 10px;">
-              *** START OF {t("sales_receipt", "SALES RECEIPT")} ***
+              *** START OF ${t("sales_receipt", "SALES RECEIPT")} ***
             </div>
             
             <div class="text-center">
@@ -556,7 +556,7 @@ export default () => {
             </div>
             
             <div class="text-center header-text" style="margin-top: 15px;">
-              *** END OF {t("sales_receipt", "SALES RECEIPT")} ***
+              *** END OF ${t("sales_receipt", "SALES RECEIPT")} ***
             </div>
           </div>
           
@@ -748,7 +748,7 @@ export default () => {
                               <th>{t("item", "Item")}</th>
                               <th className="text-center">Qty</th>
                               <th className="text-right">Total</th>
-                              <th></th>
+                              <th>${t("item", "ITEM")}</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -904,7 +904,7 @@ export default () => {
                       ))}
                     </tbody>
                   </Table>
-                  <h6 className="text-end text-success mt-2">{t("total_paid", "Total Paid:")} {parseFloat(currentSale.amount_paid).toLocaleString()}</h6>
+                  <h6 className="text-end text-success mt-2"> {parseFloat(currentSale.amount_paid).toLocaleString()}</h6>
                 </div>
               )}
             </div>
