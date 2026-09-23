@@ -81,6 +81,51 @@ const Sidebar = (props) => {
 
   return (
     <>
+      <style>
+        {`
+          .sidebar .nav-link {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.85rem !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .sidebar .sidebar-icon {
+            font-size: 0.9rem !important;
+            margin-right: 0.5rem !important;
+          }
+          .sidebar .accordion-button {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.85rem !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .sidebar .accordion-button::after {
+            width: 0.75rem;
+            height: 0.75rem;
+            background-size: 0.75rem;
+          }
+          .sidebar .multi-level .nav-link {
+            padding-left: 2.25rem !important;
+            padding-top: 0.35rem !important;
+            padding-bottom: 0.35rem !important;
+          }
+          .sidebar .sidebar-inner {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+          }
+          .sidebar .nav-item {
+            margin-bottom: 0.1rem;
+          }
+          .simplebar-content {
+             overflow-x: hidden !important;
+          }
+        `}
+      </style>
+
+      
+
       <Navbar expand={false} collapseOnSelect variant="dark" className="navbar-theme-primary px-4 d-md-none d-print-none">
         <Navbar.Brand className="me-lg-5" as={Link} to={Routes.DashboardOverview.path}>
           <Image src={ReactHero} className="navbar-brand-light" />
