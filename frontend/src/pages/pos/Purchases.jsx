@@ -516,7 +516,7 @@ export default () => {
         <body>
           <div class="receipt-container">
             <div class="text-center header-text" style="margin-top: 10px;">
-              *** START OF {t("purchases_receipt", "PURCHASES RECEIPT")} ***
+              *** START OF ${t("purchases_receipt", "PURCHASES RECEIPT")} ***
             </div>
             
             <div class="text-center">
@@ -583,7 +583,7 @@ export default () => {
             </div>
             
             <div class="text-center header-text" style="margin-top: 15px;">
-              *** END OF {t("purchases_receipt", "PURCHASES RECEIPT")} ***
+              *** END OF ${t("purchases_receipt", "PURCHASES RECEIPT")} ***
             </div>
           </div>
           
@@ -705,29 +705,29 @@ export default () => {
         </Modal.Header>
         <Modal.Body style={{ backgroundColor: '#f8f9fa' }}>
               <Row>
-                {/* LEFT SIDE: PRODUCT CARDS */}
-                <Col md={7}>
+                {/* LEFT SIDE: PRODUCT CARDS (2 per row) */}
+                <Col md={5}>
                   <Card className="border-0 shadow-sm mb-3">
                     <Card.Body>
-                                          <div className="d-flex mb-3 gap-2">
-                      <InputGroup>
-                        <InputGroup.Text><FontAwesomeIcon icon={faSearch} /></InputGroup.Text>
-                        <Form.Control 
-                          type="text" 
-                          placeholder="Search products..." 
-                          value={productSearch}
-                          onChange={(e) => setProductSearch(e.target.value)}
-                        />
-                      </InputGroup>
-                      <Button variant="outline-primary" style={{ whiteSpace: 'nowrap' }} onClick={() => setShowProductModal(true)}>
-                        <FontAwesomeIcon icon={faPlus} className="me-2" /> New Product
-                      </Button>
-                    </div>
+                      <div className="d-flex mb-3 gap-2">
+                        <InputGroup>
+                          <InputGroup.Text><FontAwesomeIcon icon={faSearch} /></InputGroup.Text>
+                          <Form.Control 
+                            type="text" 
+                            placeholder="Search products..." 
+                            value={productSearch}
+                            onChange={(e) => setProductSearch(e.target.value)}
+                          />
+                        </InputGroup>
+                        <Button variant="outline-primary" style={{ whiteSpace: 'nowrap' }} onClick={() => setShowProductModal(true)}>
+                          <FontAwesomeIcon icon={faPlus} className="me-2" /> New Product
+                        </Button>
+                      </div>
                       
                       <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '5px' }}>
                         <Row>
                           {filteredProducts.map(p => (
-                            <Col xs={6} lg={4} className="mb-3" key={p.id}>
+                            <Col xs={6} md={6} lg={6} className="mb-3" key={p.id}>
                               <Card 
                                 className="h-100 product-card shadow-sm"
                                 style={{ cursor: 'pointer', transition: 'transform 0.1s'}}
@@ -757,11 +757,11 @@ export default () => {
                   </Card>
                 </Col>
 
-                {/* RIGHT SIDE: CART & CHECKOUT */}
-                <Col md={5}>
+                {/* RIGHT SIDE: CART & CHECKOUT (Expanded for comfortable inputs) */}
+                <Col md={7}>
                   <Card className="border-0 shadow-sm h-100">
                     <Card.Body className="d-flex flex-column">
-                      <Form.Group className="mb-4" style={{ position: 'relative', zIndex: 50 }}>
+                      <Form.Group className="mb-3" style={{ position: 'relative', zIndex: 50 }}>
                         <Form.Label className="fw-bold">Supplier</Form.Label>
                         <Select
                           options={supplierOptions}
@@ -778,11 +778,11 @@ export default () => {
                         <Table hover size="sm" className="mb-0">
                           <thead className="bg-light sticky-top">
                             <tr>
-                              <th>{t("item", "Item")}</th>
-                              <th className="text-center">Cost</th>
-                              <th className="text-center">Price (New)</th>
-                              <th className="text-center">Qty</th>
-                              <th></th>
+                              <th>{t("item", "Item / Bidhaa")}</th>
+                              <th className="text-center" style={{ minWidth: '95px' }}>Cost</th>
+                              <th className="text-center" style={{ minWidth: '105px' }}>Price (New)</th>
+                              <th className="text-center" style={{ minWidth: '85px' }}>Qty</th>
+                              <th style={{ width: '35px' }}></th>
                             </tr>
                           </thead>
                           <tbody>
@@ -794,22 +794,22 @@ export default () => {
                                       const newCart = [...cartItems];
                                       newCart[idx].unit_price = e.target.value;
                                       setCartItems(newCart);
-                                  }} style={{width: '60px', padding: '0.25rem', fontSize: '0.8rem'}}/>
+                                  }} style={{ width: '95px', padding: '0.375rem 0.5rem', fontSize: '0.875rem', margin: '0 auto' }}/>
                                 </td>
                                 <td className="align-middle text-center">
                                   <Form.Control type="number" size="sm" value={item.new_selling_price || ''} onChange={(e) => {
                                       const newCart = [...cartItems];
                                       newCart[idx].new_selling_price = e.target.value;
                                       setCartItems(newCart);
-                                  }} style={{width: '60px', padding: '0.25rem', fontSize: '0.8rem'}}/>
+                                  }} style={{ width: '105px', padding: '0.375rem 0.5rem', fontSize: '0.875rem', margin: '0 auto' }}/>
                                 </td>
                                 <td className="align-middle text-center">
-                                    <Form.Control type="number" size="sm" value={item.quantity} onChange={(e) => {
+                                    <Form.Control type="number" size="sm" min="0.01" step="any" value={item.quantity} onChange={(e) => {
                                         const val = e.target.value;
                                         const newCart = [...cartItems];
                                         newCart[idx].quantity = val;
                                         setCartItems(newCart);
-                                    }} style={{width: '60px', padding: '0.25rem', fontSize: '0.8rem', margin: '0 auto'}}/>
+                                    }} style={{ width: '85px', padding: '0.375rem 0.5rem', fontSize: '0.875rem', margin: '0 auto' }}/>
                                   </td>
                                 
                                 <td className="align-middle text-center">
@@ -820,7 +820,7 @@ export default () => {
                               </tr>
                             ))}
                             {cartItems.length === 0 && (
-                              <tr><td colSpan="4" className="text-center text-muted py-4">Cart is empty</td></tr>
+                              <tr><td colSpan="5" className="text-center text-muted py-4">Cart is empty</td></tr>
                             )}
                           </tbody>
                         </Table>

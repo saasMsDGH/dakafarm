@@ -679,7 +679,7 @@ export default () => {
         <Modal.Body style={{ backgroundColor: '#f8f9fa' }}>
               <Row>
                 {/* LEFT SIDE: PRODUCT CARDS */}
-                <Col md={7}>
+                <Col md={5}>
                   <Card className="border-0 shadow-sm mb-3">
                     <Card.Body>
                       <InputGroup className="mb-3">
@@ -694,7 +694,7 @@ export default () => {
                       <div style={{ maxHeight: '60vh', overflowY: 'auto', paddingRight: '5px' }}>
                         <Row>
                           {filteredProducts.map(p => (
-                            <Col xs={6} lg={4} className="mb-3" key={p.id}>
+                            <Col xs={6} md={6} lg={6} className="mb-3" key={p.id}>
                               <Card 
                                 className={`h-100 product-card shadow-sm ${p.current_stock <= 0 ? 'opacity-50' : ''}`}
                                 style={{ cursor: p.current_stock > 0 ? 'pointer' : 'not-allowed', transition: 'transform 0.1s' }}
@@ -725,7 +725,7 @@ export default () => {
                 </Col>
 
                 {/* RIGHT SIDE: CART & CHECKOUT */}
-                <Col md={5}>
+                <Col md={7}>
                   <Card className="border-0 shadow-sm h-100">
                     <Card.Body className="d-flex flex-column">
                       <Form.Group className="mb-4" style={{ position: 'relative', zIndex: 50 }}>
@@ -745,16 +745,20 @@ export default () => {
                         <Table hover size="sm" className="mb-0">
                           <thead className="bg-light sticky-top">
                             <tr>
-                              <th>{t("item", "Item")}</th>
-                              <th className="text-center">Qty</th>
-                              <th className="text-right">Total</th>
-                              <th>${t("item", "ITEM")}</th>
+                              <th>{t("item", "Bidhaa / Item")}</th>
+                              <th className="text-end" style={{ width: '100px' }}>Price</th>
+                              <th className="text-center" style={{ width: '110px' }}>Qty</th>
+                              <th className="text-end" style={{ width: '120px' }}>Total</th>
+                              <th style={{ width: '40px' }}></th>
                             </tr>
                           </thead>
                           <tbody>
                             {cartItems.map((item, idx) => (
                               <tr key={idx}>
                                 <td className="align-middle fw-bold">{item.name}</td>
+                                <td className="align-middle text-end text-muted small">
+                                  {parseFloat(item.unit_price || 0).toLocaleString()}
+                                </td>
                                 <td className="align-middle text-center">
                                     <Form.Control type="number" size="sm" value={item.quantity} onChange={(e) => {
                                         let val = parseFloat(e.target.value);
@@ -766,9 +770,9 @@ export default () => {
                                         const newCart = [...cartItems];
                                         newCart[idx].quantity = isNaN(val) ? e.target.value : val;
                                         setCartItems(newCart);
-                                    }} style={{width: '60px', padding: '0.25rem', fontSize: '0.8rem', margin: '0 auto'}}/>
+                                    }} style={{width: '85px', padding: '0.375rem 0.5rem', fontSize: '0.875rem', margin: '0 auto'}}/>
                                   </td>
-                                <td className="align-middle text-right">{(item.quantity * item.unit_price).toLocaleString()}</td>
+                                <td className="align-middle text-end fw-bold">{(item.quantity * item.unit_price).toLocaleString()}</td>
                                 <td className="align-middle text-center">
                                   <Button variant="link" className="text-danger p-0" onClick={() => removeFromCart(idx)}>
                                     <FontAwesomeIcon icon={faTrash} />
@@ -777,7 +781,7 @@ export default () => {
                               </tr>
                             ))}
                             {cartItems.length === 0 && (
-                              <tr><td colSpan="4" className="text-center text-muted py-4">Cart is empty</td></tr>
+                              <tr><td colSpan="5" className="text-center text-muted py-4">Cart is empty</td></tr>
                             )}
                           </tbody>
                         </Table>
