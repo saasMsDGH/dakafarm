@@ -81,6 +81,51 @@ const Sidebar = (props) => {
 
   return (
     <>
+      <style>
+        {`
+          .sidebar .nav-link {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.85rem !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .sidebar .sidebar-icon {
+            font-size: 0.9rem !important;
+            margin-right: 0.5rem !important;
+          }
+          .sidebar .accordion-button {
+            padding: 0.5rem 0.75rem !important;
+            font-size: 0.85rem !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          .sidebar .accordion-button::after {
+            width: 0.75rem;
+            height: 0.75rem;
+            background-size: 0.75rem;
+          }
+          .sidebar .multi-level .nav-link {
+            padding-left: 2.25rem !important;
+            padding-top: 0.35rem !important;
+            padding-bottom: 0.35rem !important;
+          }
+          .sidebar .sidebar-inner {
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+          }
+          .sidebar .nav-item {
+            margin-bottom: 0.1rem;
+          }
+          .simplebar-content {
+             overflow-x: hidden !important;
+          }
+        `}
+      </style>
+
+      
+
       <Navbar expand={false} collapseOnSelect variant="dark" className="navbar-theme-primary px-4 d-md-none d-print-none">
         <Navbar.Brand className="me-lg-5" as={Link} to={Routes.DashboardOverview.path}>
           <Image src={ReactHero} className="navbar-brand-light" />
@@ -166,7 +211,7 @@ const Sidebar = (props) => {
               )}
 
               {/* POS Purchases / Expenses */}
-              {(user?.role_name === 'admin' || ["sell_manager", "sell_officer", "inventory_admin", "finance_manager", "Accountant"].includes(user?.role_name)) && (
+              {(user?.role_name === 'admin' || ["sell_manager", "sell_officer", "inventory_admin", "Accountant"].includes(user?.role_name)) && (
                 <CollapsableNavItem eventKey="pos_purchases/" title={t('pos_purchases', 'Purchases & Expenses')} icon={faCashRegister}>
                   {(user?.role_name === 'admin' || ["sell_manager", "sell_officer", "inventory_admin"].includes(user?.role_name)) && (
                     <>
@@ -174,33 +219,33 @@ const Sidebar = (props) => {
                       <NavItem title={t('purchases', 'Purchases')} link={Routes.Purchases?.path || '#'} />
                     </>
                   )}
-                  {(user?.role_name === 'admin' || ["finance_manager", "Accountant", "sell_manager"].includes(user?.role_name)) && (
+                  {(user?.role_name === 'admin' || ["Accountant", "sell_manager"].includes(user?.role_name)) && (
                     <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
                   )}
                 </CollapsableNavItem>
               )}
 
               {/* Reports Subsystem */}
-              {(user?.role_name === 'admin' || ["finance_manager", "Farm Manager"].includes(user?.role_name)) && (
+              {(user?.role_name === 'admin' || ["Farm Manager"].includes(user?.role_name)) && (
                 <CollapsableNavItem eventKey="reports/" title={t('reports', 'Reports')} icon={faChartBar}>
                   <NavItem title={t('reports_overview', 'Overview')} link={Routes.ReportsOverview?.path || '#'} />
                 </CollapsableNavItem>
               )}
             
               {/* HR Subsystem */}
-              {(user?.role_name === 'admin' || ["hr_manager", "hr_officer", "finance_manager"].includes(user?.role_name)) && (
+              {(user?.role_name === 'admin' || ["hr_manager", "hr_officer"].includes(user?.role_name)) && (
                 <CollapsableNavItem eventKey="hr/" title={t('hr_management', 'HR Management')} icon={faUsers}>
                   {(user?.role_name === 'admin' || ["hr_manager", "hr_officer"].includes(user?.role_name)) && (
                     <NavItem title={t('employees', 'Employees')} link={Routes.Employees?.path || '#'} />
                   )}
-                  {(user?.role_name === 'admin' || ["hr_manager", "finance_manager"].includes(user?.role_name)) && (
+                  {(user?.role_name === 'admin' || ["hr_manager"].includes(user?.role_name)) && (
                     <NavItem title={t('payroll', 'Payroll')} link={Routes.Payroll?.path || '#'} />
                   )}
                 </CollapsableNavItem>
               )}
 
               {/* Assets Subsystem */}
-              {(user?.role_name === 'admin' || ["finance_manager", "Accountant", "Farm Manager"].includes(user?.role_name)) && (
+              {(user?.role_name === 'admin' || ["Accountant", "Farm Manager"].includes(user?.role_name)) && (
                 <CollapsableNavItem eventKey="assets/" title={t('asset_management', 'Asset Management')} icon={faDesktop}>
                   <NavItem title={t('assets', 'Assets')} link={Routes.AssetsList?.path || '#'} />
                 </CollapsableNavItem>

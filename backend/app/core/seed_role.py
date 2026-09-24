@@ -22,9 +22,6 @@ DEFAULT_ROLES = [
         "name": "Farm Manager",
        
     },{
-        "name": "Accountant",
-       
-    },{
         "name":"hr_officer",
     },{
         "name": "Farm Worker",

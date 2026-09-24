@@ -1,6 +1,6 @@
 export const Routes = {
     // Core (All roles)
-    DashboardOverview: { path: "/", roles: ["admin", "finance_manager", "Farm Manager"] },
+    DashboardOverview: { path: "/", roles: ["admin", "Farm Manager"] },
     Signin: { path: "/examples/sign-in", roles: [] },
     NotFound: { path: "/examples/404", roles: [] },
     ServerError: { path: "/examples/500", roles: [] },
@@ -27,14 +27,14 @@ export const Routes = {
     Sales: { path: "/pos/sales", roles: ["admin", "sell_manager", "sell_officer"] },
     Suppliers: { path: "/pos/suppliers", roles: ["admin", "sell_manager", "sell_officer", "inventory_admin"] },
     Purchases: { path: "/pos/purchases", roles: ["admin", "sell_manager", "sell_officer", "inventory_admin"] },
-    Expenses: { path: "/pos/expenses", roles: ["admin", "finance_manager", "Accountant", "sell_manager"] },
+    Expenses: { path: "/pos/expenses", roles: ["admin", "Accountant", "sell_manager"] },
 
     // HR Subsystem
     Employees: { path: "/hr/employees", roles: ["admin", "hr_manager", "hr_officer"] },
-    Payroll: { path: "/hr/payroll", roles: ["admin", "hr_manager", "finance_manager"] },
+    Payroll: { path: "/hr/payroll", roles: ["admin", "hr_manager"] },
 
     // Assets Subsystem
-    AssetsList: { path: "/assets/list", roles: ["admin", "finance_manager", "Accountant", "Farm Manager"] },
+    AssetsList: { path: "/assets/list", roles: ["admin", "Accountant", "Farm Manager"] },
 
     // Finance Subsystem
     FinanceDashboard: { path: "/finance/dashboard", roles: ["admin", "finance_manager", "Accountant"] },
@@ -47,5 +47,5 @@ export const Routes = {
     UsersManagement: { path: "/admin/users", roles: ["admin"] },
 
     // Reports Subsystem - The Master Dashboard
-    ReportsOverview: { path: "/reports", roles: ["admin", "finance_manager", "Farm Manager"] },
+    ReportsOverview: { path: "/reports", roles: ["admin", "Farm Manager"] },
 };

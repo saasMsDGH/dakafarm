@@ -15,7 +15,7 @@ from app.core.database import get_db
 from app.shared.pagination import PaginationParams
 
 pos_manager = RoleChecker(["admin", "sell_manager"])
-pos_officer = RoleChecker(["admin", "sell_manager", "sell_officer"])
+pos_officer = RoleChecker(["admin", "sell_manager", "sell_officer","inventory_admin"])
 
 router = APIRouter(
     prefix="/purchases",
