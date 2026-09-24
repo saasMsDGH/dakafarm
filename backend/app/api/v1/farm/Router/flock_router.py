@@ -1,13 +1,4 @@
-"""
-Flock router — HTTP endpoints for the Flock resource.
 
-Route summary:
-  POST   /api/v1/farm/flocks          Create flock     (admin, Farm Manager)
-  GET    /api/v1/farm/flocks          List flocks      (any authenticated user)
-  GET    /api/v1/farm/flocks/{id}     Get flock        (any authenticated user)
-  PUT    /api/v1/farm/flocks/{id}     Update flock     (admin, Farm Manager)
-  DELETE /api/v1/farm/flocks/{id}     Delete flock     (admin only)
-"""
 
 from typing import Optional
 
