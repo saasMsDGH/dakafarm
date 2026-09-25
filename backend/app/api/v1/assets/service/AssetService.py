@@ -90,7 +90,7 @@ class AssetService:
             # 2. Create FinancialTransaction
             fin_txn = FinancialTransaction(
                 account_id=request.account_id,
-                transaction_type="ASSET",
+                transaction_type="ASSET_PURCHASE",
                 direction="OUT",
                 amount=request.amount_paid,
                 description=f"Payment for Asset {asset_code} - {request.name}",
@@ -210,7 +210,7 @@ class AssetService:
         # 3. Create FinancialTransaction
         fin_txn = FinancialTransaction(
             account_id=request.account_id,
-            transaction_type="ASSET",
+            transaction_type="ASSET_PURCHASE",
             direction="OUT",
             amount=request.amount,
             description=f"Payment for Asset {asset.asset_code} - {asset.name}",
