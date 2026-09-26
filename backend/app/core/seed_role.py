@@ -33,6 +33,8 @@ DEFAULT_ROLES = [
         "name":"sell_officer",
     },{
         "name":"hr_manager",
+    },{
+        "name":"asset_manager"
     }
 ] 
 

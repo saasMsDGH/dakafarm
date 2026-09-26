@@ -16,7 +16,7 @@ router = APIRouter(
     redirect_slashes=False
 )
 
-report_viewer = RoleChecker(["admin", "farm_manager", "finance_manager"])
+report_viewer = RoleChecker(["admin"])
 
 @router.get("/master-summary", response_model=FarmOperationsReport)
 async def get_master_summary(
