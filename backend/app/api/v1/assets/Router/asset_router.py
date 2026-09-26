@@ -18,8 +18,8 @@ from app.core.database import get_db
 from app.shared.pagination import PaginationParams
 
 # Define roles allowed for Assets
-asset_manager = RoleChecker(["admin", "farm_manager", "asset_manager"])
-asset_viewer = RoleChecker(["admin", "farm_manager", "asset_manager", "inventory_admin"])
+asset_manager = RoleChecker(["admin", "Farm Manager", "asset_manager"])
+asset_viewer = RoleChecker(["admin", "Farm Manager", "asset_manager", "inventory_admin"])
 
 router = APIRouter(
     prefix="/list",

@@ -157,7 +157,7 @@ const Sidebar = (props) => {
               <Dropdown.Divider className="my-3 border-indigo" />
               
               {/* Core Dashboard - Visible if they have roles for DashboardOverview */}
-              {(user?.role_name === 'admin' || Routes.DashboardOverview.roles.includes(user?.role_name)) && (
+              {user?.role_name === 'admin' && (
                 <NavItem title={t('dashboard', 'Dashboard')} link={Routes.DashboardOverview.path} icon={faChartPie} />
               )}
 
@@ -185,18 +185,18 @@ const Sidebar = (props) => {
               )}
 
               {/* Inventory Subsystem */}
-              {(user?.role_name === 'admin' || ["inventory_admin", "Farm Manager", "Farm Worker", "sell_manager"].includes(user?.role_name)) && (
+              {(user?.role_name === 'admin' || ["inventory_admin", "Farm Worker", "sell_manager"].includes(user?.role_name)) && (
                 <CollapsableNavItem eventKey="inventory/" title={t('inventory_management', 'Inventory Management')} icon={faWarehouse}>
-                  {(user?.role_name === 'admin' || ["inventory_admin", "Farm Manager"].includes(user?.role_name)) && (
+                  {(user?.role_name === 'admin' || ["inventory_admin"].includes(user?.role_name)) && (
                     <>
                       <NavItem title={t('products', 'Products')} link={Routes.Products?.path || '#'} />
                       <NavItem title={t('product_categories', 'Categories')} link={Routes.ProductCategories?.path || '#'} />
                     </>
                   )}
-                  {(user?.role_name === 'admin' || ["inventory_admin", "Farm Manager", "Farm Worker"].includes(user?.role_name)) && (
+                  {(user?.role_name === 'admin' || ["inventory_admin", "Farm Worker"].includes(user?.role_name)) && (
                     <NavItem title={t('stock_movements', 'Stock Movements')} link={Routes.StockMovements?.path || '#'} />
                   )}
-                  {(user?.role_name === 'admin' || ["inventory_admin", "Farm Manager", "sell_manager"].includes(user?.role_name)) && (
+                  {(user?.role_name === 'admin' || ["inventory_admin", "sell_manager"].includes(user?.role_name)) && (
                     <NavItem title={t('inventory_status', 'Inventory Status')} link={Routes.InventoryStatus?.path || '#'} />
                   )}
                 </CollapsableNavItem>
@@ -226,7 +226,7 @@ const Sidebar = (props) => {
               )}
 
               {/* Reports Subsystem */}
-              {(user?.role_name === 'admin' || ["Farm Manager"].includes(user?.role_name)) && (
+              {user?.role_name === 'admin' && (
                 <CollapsableNavItem eventKey="reports/" title={t('reports', 'Reports')} icon={faChartBar}>
                   <NavItem title={t('reports_overview', 'Overview')} link={Routes.ReportsOverview?.path || '#'} />
                 </CollapsableNavItem>

@@ -1,6 +1,6 @@
 export const Routes = {
     // Core (All roles)
-    DashboardOverview: { path: "/", roles: ["admin", "Farm Manager"] },
+    DashboardOverview: { path: "/", roles: ["admin"] },
     Signin: { path: "/examples/sign-in", roles: [] },
     NotFound: { path: "/examples/404", roles: [] },
     ServerError: { path: "/examples/500", roles: [] },
@@ -17,10 +17,10 @@ export const Routes = {
     FarmReport: { path: "/farm/report", roles: ["admin", "Farm Manager"] },
 
     // Inventory Subsystem
-    Products: { path: "/inventory/products", roles: ["admin", "inventory_admin", "Farm Manager"] },
-    ProductCategories: { path: "/inventory/categories", roles: ["admin", "inventory_admin", "Farm Manager"] },
-    StockMovements: { path: "/inventory/stock-movements", roles: ["admin", "inventory_admin", "Farm Manager", "Farm Worker"] },
-    InventoryStatus: { path: "/inventory/status", roles: ["admin", "inventory_admin", "Farm Manager", "sell_manager"] },
+    Products: { path: "/inventory/products", roles: ["admin", "inventory_admin"] },
+    ProductCategories: { path: "/inventory/categories", roles: ["admin", "inventory_admin"] },
+    StockMovements: { path: "/inventory/stock-movements", roles: ["admin", "inventory_admin", "Farm Worker"] },
+    InventoryStatus: { path: "/inventory/status", roles: ["admin", "inventory_admin", "sell_manager"] },
 
     // POS Subsystem
     Customers: { path: "/pos/customers", roles: ["admin", "sell_manager", "sell_officer"] },
@@ -47,5 +47,5 @@ export const Routes = {
     UsersManagement: { path: "/admin/users", roles: ["admin"] },
 
     // Reports Subsystem - The Master Dashboard
-    ReportsOverview: { path: "/reports", roles: ["admin", "Farm Manager"] },
+    ReportsOverview: { path: "/reports", roles: ["admin"] },
 };
