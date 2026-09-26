@@ -4,7 +4,7 @@ export const Routes = {
     Signin: { path: "/examples/sign-in", roles: [] },
     NotFound: { path: "/examples/404", roles: [] },
     ServerError: { path: "/examples/500", roles: [] },
-    Settings: { path: "/settings", roles: ["admin", "finance_manager", "Farm Manager", "Accountant", "hr_officer", "Farm Worker", "inventory_admin", "sell_manager", "sell_officer", "hr_manager", "asset_manager"] },
+    Settings: { path: "/settings", roles: ["admin", "finance_manager", "Farm Manager", "hr_officer", "Farm Worker", "inventory_admin", "sell_manager", "sell_officer", "hr_manager", "asset_manager"] },
 
     // Farm Subsystem
     Houses: { path: "/farm/houses", roles: ["admin", "Farm Manager", "Farm Worker"] },
@@ -27,21 +27,21 @@ export const Routes = {
     Sales: { path: "/pos/sales", roles: ["admin", "sell_manager", "sell_officer"] },
     Suppliers: { path: "/pos/suppliers", roles: ["admin", "sell_manager", "sell_officer", "inventory_admin"] },
     Purchases: { path: "/pos/purchases", roles: ["admin", "sell_manager", "sell_officer", "inventory_admin"] },
-    Expenses: { path: "/pos/expenses", roles: ["admin", "Accountant", "sell_manager"] },
+    Expenses: { path: "/pos/expenses", roles: ["admin", "sell_manager"] },
 
     // HR Subsystem
     Employees: { path: "/hr/employees", roles: ["admin", "hr_manager", "hr_officer"] },
     Payroll: { path: "/hr/payroll", roles: ["admin", "hr_manager"] },
 
     // Assets Subsystem
-    AssetsList: { path: "/assets/list", roles: ["admin", "Accountant", "Farm Manager", "asset_manager"] },
+    AssetsList: { path: "/assets/list", roles: ["admin", "Farm Manager", "asset_manager"] },
 
     // Finance Subsystem
-    FinanceDashboard: { path: "/finance/dashboard", roles: ["admin", "finance_manager", "Accountant"] },
-    FinanceAccounts: { path: "/finance/accounts", roles: ["admin", "finance_manager", "Accountant"] },
-    FinanceTransactions: { path: "/finance/transactions", roles: ["admin", "finance_manager", "Accountant"] },
-    FinanceDebts: { path: "/finance/debts", roles: ["admin", "finance_manager", "Accountant"] },
-    FinanceReports: { path: "/finance/reports", roles: ["admin", "finance_manager", "Accountant"] },
+    FinanceDashboard: { path: "/finance/dashboard", roles: ["admin", "finance_manager"] },
+    FinanceAccounts: { path: "/finance/accounts", roles: ["admin", "finance_manager"] },
+    FinanceTransactions: { path: "/finance/transactions", roles: ["admin", "finance_manager"] },
+    FinanceDebts: { path: "/finance/debts", roles: ["admin", "finance_manager"] },
+    FinanceReports: { path: "/finance/reports", roles: ["admin", "finance_manager"] },
 
     // Admin Subsystem
     UsersManagement: { path: "/admin/users", roles: ["admin"] },
