@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.pos.models.sale import Sale
 from app.api.v1.pos.models.purchase import Purchase
+from app.api.v1.pos.models.expense import Expense
 from app.api.v1.finance.models.transaction import FinancialTransaction
 
 class PnLRepo:
@@ -64,8 +65,17 @@ class PnLRepo:
             return tx_nets.get(t_type, {'in': Decimal('0.00'), 'out': Decimal('0.00')})
 
         # Calculate OPEX
+        exp_table_q = select(func.sum(Expense.amount))
+        if start_date:
+            exp_table_q = exp_table_q.where(Expense.expense_date >= start_date)
+        if end_date:
+            exp_table_q = exp_table_q.where(Expense.expense_date <= end_date)
+        exp_table_agg = await db.execute(exp_table_q)
+        total_expenses_from_table = Decimal(exp_table_agg.scalar() or '0.00')
+
         exp_flows = get_flow('EXPENSE')
-        direct_expenses = exp_flows['out'] - exp_flows['in']  # Net expense
+        direct_expenses_from_tx = exp_flows['out'] - exp_flows['in']  # Net expense
+        direct_expenses = max(total_expenses_from_table, direct_expenses_from_tx)
         
         payroll_flows = get_flow('PAYROLL')
         payroll_expenses = payroll_flows['out'] - payroll_flows['in']

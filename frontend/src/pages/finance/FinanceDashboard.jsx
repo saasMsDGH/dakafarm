@@ -73,7 +73,7 @@ export default () => {
     { name: 'Purchases (Inventory)', value: parseFloat(pnlData.cogs.total_cogs || 0), color: '#3B82F6' },
     { name: 'Direct Expenses', value: parseFloat(pnlData.opex.direct_expenses || 0), color: '#F59E0B' },
     { name: 'Payroll (Salaries)', value: parseFloat(pnlData.opex.payroll || 0), color: '#8B5CF6' },
-  ].filter(item => item.value > 0);
+  ].filter(item => !isNaN(item.value) && item.value > 0);
 
   return (
     <>
@@ -240,18 +240,35 @@ export default () => {
                         data={expenseBreakdownData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={100}
-                        paddingAngle={5}
+                        innerRadius={55}
+                        outerRadius={85}
+                        minAngle={8}
+                        paddingAngle={expenseBreakdownData.length > 1 ? 2 : 0}
                         dataKey="value"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent }) => {
+                          const pct = (percent || 0) * 100;
+                          if (pct <= 0) return null;
+                          const pctStr = pct < 0.1 ? '<0.1%' : pct < 1 ? `${pct.toFixed(1)}%` : `${pct.toFixed(0)}%`;
+                          return `${name} ${pctStr}`;
+                        }}
                       >
                         {expenseBreakdownData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
                       <Tooltip formatter={(value) => formatCurrency(value)} />
-                      <Legend verticalAlign="bottom" height={36}/>
+                      <Legend
+                        verticalAlign="bottom"
+                        height={40}
+                        formatter={(value) => {
+                          const item = expenseBreakdownData.find(d => d.name === value);
+                          if (!item) return value;
+                          const total = expenseBreakdownData.reduce((sum, d) => sum + d.value, 0);
+                          const pct = total > 0 ? (item.value / total) * 100 : 0;
+                          const pctStr = pct < 0.1 ? '<0.1%' : pct < 1 ? `${pct.toFixed(1)}%` : `${pct.toFixed(0)}%`;
+                          return `${value}: ${formatCurrency(item.value)} (${pctStr})`;
+                        }}
+                      />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
