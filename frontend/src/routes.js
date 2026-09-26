@@ -4,7 +4,7 @@ export const Routes = {
     Signin: { path: "/examples/sign-in", roles: [] },
     NotFound: { path: "/examples/404", roles: [] },
     ServerError: { path: "/examples/500", roles: [] },
-    Settings: { path: "/settings", roles: ["admin", "finance_manager", "Farm Manager", "Accountant", "hr_officer", "Farm Worker", "inventory_admin", "sell_manager", "sell_officer", "hr_manager"] },
+    Settings: { path: "/settings", roles: ["admin", "finance_manager", "Farm Manager", "Accountant", "hr_officer", "Farm Worker", "inventory_admin", "sell_manager", "sell_officer", "hr_manager", "asset_manager"] },
 
     // Farm Subsystem
     Houses: { path: "/farm/houses", roles: ["admin", "Farm Manager", "Farm Worker"] },
@@ -34,7 +34,7 @@ export const Routes = {
     Payroll: { path: "/hr/payroll", roles: ["admin", "hr_manager"] },
 
     // Assets Subsystem
-    AssetsList: { path: "/assets/list", roles: ["admin", "Accountant", "Farm Manager"] },
+    AssetsList: { path: "/assets/list", roles: ["admin", "Accountant", "Farm Manager", "asset_manager"] },
 
     // Finance Subsystem
     FinanceDashboard: { path: "/finance/dashboard", roles: ["admin", "finance_manager", "Accountant"] },

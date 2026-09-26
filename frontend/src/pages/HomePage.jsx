@@ -98,6 +98,7 @@ const RouteWithSidebar = ({ component: Component, roles, ...rest }) => {
         if (role === 'sell_manager' || role === 'sell_officer') return Routes.Sales.path;
         if (role === 'Accountant' || role === 'finance_manager') return Routes.FinanceDashboard.path;
         if (role === 'Farm Worker' || role === 'Farm Manager') return Routes.Flocks.path;
+        if (role === 'asset_manager') return Routes.AssetsList.path;
         return Routes.Settings.path; // Safe generic fallback
       };
 

@@ -245,7 +245,7 @@ const Sidebar = (props) => {
               )}
 
               {/* Assets Subsystem */}
-              {(user?.role_name === 'admin' || ["Accountant", "Farm Manager"].includes(user?.role_name)) && (
+              {(user?.role_name === 'admin' || ["Accountant", "Farm Manager", "asset_manager"].includes(user?.role_name)) && (
                 <CollapsableNavItem eventKey="assets/" title={t('asset_management', 'Asset Management')} icon={faDesktop}>
                   <NavItem title={t('assets', 'Assets')} link={Routes.AssetsList?.path || '#'} />
                 </CollapsableNavItem>
