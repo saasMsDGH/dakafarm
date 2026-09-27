@@ -1,6 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSignOutAlt, faLanguage } from "@fortawesome/free-solid-svg-icons";
+import { faSignOutAlt, faLanguage, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import { Nav, Navbar, Dropdown, Container } from '@themesberg/react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -45,13 +45,13 @@ export default (props) => {
                   onClick={() => i18n.changeLanguage('en')} 
                   className={`fw-bold ${!isSwahili ? 'text-primary' : ''}`}
                 >
-                  🇺🇸 English (EN)
+                  <FontAwesomeIcon icon={faGlobe} className="me-2 text-primary" /> English (EN)
                 </Dropdown.Item>
                 <Dropdown.Item 
                   onClick={() => i18n.changeLanguage('sw')} 
                   className={`fw-bold ${isSwahili ? 'text-primary' : ''}`}
                 >
-                  🇹🇿 Kiswahili (SW)
+                  <FontAwesomeIcon icon={faLanguage} className="me-2 text-success" /> Kiswahili (SW)
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
