@@ -23,7 +23,7 @@ export default () => {
         <Col xs={12} lg={4} className="mb-2 mb-lg-0 text-center">
           <p className="mb-0 text-muted fw-normal">
             Created by{" "}
-            <Card.Link href="https://alfred.dev" target="_blank" className="text-primary fw-bold text-decoration-none">
+            <Card.Link href="" target="_blank" className="text-primary fw-bold text-decoration-none">
               tajirdev
             </Card.Link>
           </p>

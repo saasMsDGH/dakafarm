@@ -114,8 +114,8 @@ export default () => {
     <>
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
-          <h4>Receivables & Payables</h4>
-          <p className="mb-0">Track who owes you money and who you owe money to.</p>
+          <h4>{t("receivables_payables", "Receivables & Payables")}</h4>
+          <p className="mb-0">{t("track_debts_desc", "Track who owes you money and who you owe money to.")}</p>
         </div>
       </div>
 
@@ -125,9 +125,9 @@ export default () => {
             {/* RECEIVABLES TAB */}
             <Tab eventKey="receivables" title={<span>{t("receivables_customers", "Receivables (Customers)")} <Badge bg="success" className="ms-2">{receivables.length}</Badge></span>}>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <h5 className="mb-0 text-success">Total Expected: {rTotal ? parseFloat(rTotal).toLocaleString() : '0.00'}</h5>
+                <h5 className="mb-0 text-success">{t("total_expected", "Total Expected")}: {rTotal ? parseFloat(rTotal).toLocaleString() : '0.00'}</h5>
                 <InputGroup style={{ maxWidth: '300px' }}>
-                  <Form.Control type="text" placeholder="Search customer..." value={rSearch} onChange={handleRSearch} />
+                  <Form.Control type="text" placeholder={t("search_customer_placeholder", "Search customer...")} value={rSearch} onChange={handleRSearch} />
                   <Button variant="primary" onClick={applyRSearch}><FontAwesomeIcon icon={faSearch} /></Button>
                 </InputGroup>
               </div>
@@ -135,18 +135,18 @@ export default () => {
               <Table responsive className="align-items-center table-flush">
                 <thead className="thead-light">
                   <tr>
-                    <th>Customer Name</th>
-                    <th>Code</th>
-                    <th>Phone</th>
-                    <th className="text-end">Outstanding Balance</th>
-                    <th className="text-end">Actions</th>
+                    <th>{t("customer_name", "Customer Name")}</th>
+                    <th>{t("code", "Code")}</th>
+                    <th>{t("phone", "Phone")}</th>
+                    <th className="text-end">{t("outstanding_balance", "Outstanding Balance")}</th>
+                    <th className="text-end">{t("actions", "Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {rLoading ? (
-                    <tr><td colSpan="5" className="text-center">Loading...</td></tr>
+                    <tr><td colSpan="5" className="text-center">{t("loading", "Loading...")}</td></tr>
                   ) : receivables.length === 0 ? (
-                    <tr><td colSpan="5" className="text-center">No outstanding customer debts found.</td></tr>
+                    <tr><td colSpan="5" className="text-center">{t("no_customer_debts", "No outstanding customer debts found.")}</td></tr>
                   ) : (
                     receivables.map(c => (
                       <tr key={c.customer_id}>
@@ -156,7 +156,7 @@ export default () => {
                         <td className="text-end text-danger fw-bold">{parseFloat(c.outstanding_balance).toLocaleString()}</td>
                         <td className="text-end">
                           <Button variant="info" size="sm" onClick={() => viewCustomerDetails(c.customer_id)}>
-                            <FontAwesomeIcon icon={faEye} className="me-1" /> View Unpaid Sales
+                            <FontAwesomeIcon icon={faEye} className="me-1" /> {t("view_unpaid_sales", "View Unpaid Sales")}
                           </Button>
                         </td>
                       </tr>
@@ -179,9 +179,9 @@ export default () => {
             {/* PAYABLES TAB */}
             <Tab eventKey="payables" title={<span>{t("payables_suppliers", "Payables (Suppliers)")} <Badge bg="danger" className="ms-2">{payables.length}</Badge></span>}>
               <div className="d-flex justify-content-between align-items-center mb-3">
-                <h5 className="mb-0 text-danger">Total Owed: {pTotal ? parseFloat(pTotal).toLocaleString() : '0.00'}</h5>
+                <h5 className="mb-0 text-danger">{t("total_owed", "Total Owed")}: {pTotal ? parseFloat(pTotal).toLocaleString() : '0.00'}</h5>
                 <InputGroup style={{ maxWidth: '300px' }}>
-                  <Form.Control type="text" placeholder="Search supplier..." value={pSearch} onChange={handlePSearch} />
+                  <Form.Control type="text" placeholder={t("search_supplier_placeholder", "Search supplier...")} value={pSearch} onChange={handlePSearch} />
                   <Button variant="primary" onClick={applyPSearch}><FontAwesomeIcon icon={faSearch} /></Button>
                 </InputGroup>
               </div>
@@ -189,18 +189,18 @@ export default () => {
               <Table responsive className="align-items-center table-flush">
                 <thead className="thead-light">
                   <tr>
-                    <th>Supplier Name</th>
-                    <th>Code</th>
-                    <th>Phone</th>
-                    <th className="text-end">Outstanding Balance</th>
-                    <th className="text-end">Actions</th>
+                    <th>{t("supplier_name", "Supplier Name")}</th>
+                    <th>{t("code", "Code")}</th>
+                    <th>{t("phone", "Phone")}</th>
+                    <th className="text-end">{t("outstanding_balance", "Outstanding Balance")}</th>
+                    <th className="text-end">{t("actions", "Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pLoading ? (
-                    <tr><td colSpan="5" className="text-center">Loading...</td></tr>
+                    <tr><td colSpan="5" className="text-center">{t("loading", "Loading...")}</td></tr>
                   ) : payables.length === 0 ? (
-                    <tr><td colSpan="5" className="text-center">No outstanding supplier debts found.</td></tr>
+                    <tr><td colSpan="5" className="text-center">{t("no_supplier_debts", "No outstanding supplier debts found.")}</td></tr>
                   ) : (
                     payables.map(s => (
                       <tr key={s.supplier_id}>
@@ -210,7 +210,7 @@ export default () => {
                         <td className="text-end text-danger fw-bold">{parseFloat(s.outstanding_balance).toLocaleString()}</td>
                         <td className="text-end">
                           <Button variant="info" size="sm" onClick={() => viewSupplierDetails(s.supplier_id)}>
-                            <FontAwesomeIcon icon={faEye} className="me-1" /> View Unpaid Purchases
+                            <FontAwesomeIcon icon={faEye} className="me-1" /> {t("view_unpaid_purchases", "View Unpaid Purchases")}
                           </Button>
                         </td>
                       </tr>
@@ -237,32 +237,32 @@ export default () => {
       <Modal as={Modal.Dialog} centered show={showDetailModal} onHide={() => setShowDetailModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            {detailType === 'customer' ? 'Unpaid Sales' : 'Unpaid Purchases'}
+            {detailType === 'customer' ? t('unpaid_sales', 'Unpaid Sales') : t('unpaid_purchases', 'Unpaid Purchases')}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {detailLoading ? (
-            <div className="text-center p-4">Loading details...</div>
+            <div className="text-center p-4">{t('loading_details', 'Loading details...')}</div>
           ) : detailData ? (
             <div>
               <h5 className="mb-4">
                 {detailType === 'customer' ? detailData.customer_name : detailData.supplier_name}
-                <span className="float-end text-danger">Total Due: {parseFloat(detailData.total_outstanding).toLocaleString()}</span>
+                <span className="float-end text-danger">{t('total_due', 'Total Due')}: {parseFloat(detailData.total_outstanding).toLocaleString()}</span>
               </h5>
               
               <Table responsive hover size="sm">
                 <thead className="thead-light">
                   <tr>
-                    <th>Date</th>
-                    <th>Invoice / Ref</th>
-                    <th className="text-end">Total Amount</th>
-                    <th className="text-end">Amount Paid</th>
-                    <th className="text-end">Balance Due</th>
+                    <th>{t("date", "Date")}</th>
+                    <th>{t("invoice_no", "Invoice / Ref")}</th>
+                    <th className="text-end">{t("total_due", "Total Amount")}</th>
+                    <th className="text-end">{t("amount_paid", "Amount Paid")}</th>
+                    <th className="text-end">{t("balance", "Balance Due")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(detailType === 'customer' ? detailData.sales : detailData.purchases).length === 0 ? (
-                    <tr><td colSpan="5" className="text-center">All clear!</td></tr>
+                    <tr><td colSpan="5" className="text-center">{t("all_clear", "All clear!")}</td></tr>
                   ) : (
                     (detailType === 'customer' ? detailData.sales : detailData.purchases).map(item => (
                       <tr key={item.sale_id || item.purchase_id}>
@@ -278,11 +278,11 @@ export default () => {
               </Table>
             </div>
           ) : (
-            <div className="text-center p-4 text-danger">Failed to load data.</div>
+            <div className="text-center p-4 text-danger">{t("error_loading", "Failed to load data.")}</div>
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowDetailModal(false)}>{t("cancel", "Close")}</Button>
+          <Button variant="secondary" onClick={() => setShowDetailModal(false)}>{t("close", "Close")}</Button>
         </Modal.Footer>
       </Modal>
     </>

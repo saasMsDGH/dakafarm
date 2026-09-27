@@ -206,9 +206,9 @@ export default () => {
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="6" className="text-center">Loading...</td></tr>
+                <tr><td colSpan="6" className="text-center">{t('loading', 'Loading...')}</td></tr>
               ) : accounts.length === 0 ? (
-                <tr><td colSpan="6" className="text-center">No accounts found.</td></tr>
+                <tr><td colSpan="6" className="text-center">{t('no_accounts', 'No accounts found.')}</td></tr>
               ) : (
                 accounts.map(acc => (
                   <tr key={acc.id}>
@@ -283,9 +283,9 @@ export default () => {
                 <Form.Group>
                   <Form.Label>{t('account_type', 'Account Type')} <span className="text-danger">*</span></Form.Label>
                   <Form.Select name="account_type" value={currentAccount.account_type} onChange={handleChange} required>
-                    <option value="CASH">Cash</option>
-                    <option value="BANK">Bank Account</option>
-                    <option value="MOBILE_MONEY">Mobile Money</option>
+                    <option value="CASH">{t('cash', 'Cash')}</option>
+                    <option value="BANK">{t('bank', 'Bank Account')}</option>
+                    <option value="MOBILE_MONEY">{t('mobile_money', 'Mobile Money')}</option>
                   </Form.Select>
                 </Form.Group>
               </Col>
@@ -312,7 +312,7 @@ export default () => {
                     <Form.Group>
                     <Form.Label>{t('opening_balance', 'Opening Balance')}</Form.Label>
                     <Form.Control type="number" step="0.01" name="opening_balance" value={currentAccount.opening_balance} onChange={handleChange} />
-                    <Form.Text className="text-muted">You cannot change this later. Ensure this is correct.</Form.Text>
+                    <Form.Text className="text-muted">{t('opening_balance_warning', 'You cannot change this later. Ensure this is correct.')}</Form.Text>
                     </Form.Group>
                 </Col>
               )}

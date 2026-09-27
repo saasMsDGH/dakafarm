@@ -81,7 +81,7 @@ export default () => {
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
           <h4>{t("general_ledger", "General Ledger")}</h4>
-          <p className="mb-0">A master list of all financial transactions across the farm.</p>
+          <p className="mb-0">{t("general_ledger_desc", "A master list of all financial transactions across the farm.")}</p>
         </div>
       </div>
 
@@ -91,7 +91,7 @@ export default () => {
             <Col md={3}>
               <InputGroup>
                 <InputGroup.Text><FontAwesomeIcon icon={faSearch} /></InputGroup.Text>
-                <Form.Control type="text" placeholder="Search ref or description..." value={searchTerm} onChange={handleSearch} />
+                <Form.Control type="text" placeholder={t("search_ref_desc", "Search ref or description...")} value={searchTerm} onChange={handleSearch} />
               </InputGroup>
             </Col>
             <Col md={2}>
@@ -108,9 +108,9 @@ export default () => {
             </Col>
             <Col md={2}>
               <Form.Select name="direction" value={filters.direction} onChange={handleFilterChange}>
-                <option value="">All Directions</option>
-                <option value="IN">Money IN</option>
-                <option value="OUT">Money OUT</option>
+                <option value="">{t("all_directions", "All Directions")}</option>
+                <option value="IN">{t("money_in", "Money IN")}</option>
+                <option value="OUT">{t("money_out", "Money OUT")}</option>
               </Form.Select>
             </Col>
             <Col md={2}>
@@ -124,7 +124,7 @@ export default () => {
                 <FontAwesomeIcon icon={faFilter} />
               </Button>
               <Button variant="outline-secondary" size="sm" onClick={clearFilters} className="w-100">
-                Clear
+                {t("clear", "Clear")}
               </Button>
             </Col>
           </Row>
@@ -132,20 +132,20 @@ export default () => {
           <Table responsive className="align-items-center table-flush">
             <thead className="thead-light">
               <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Ref No.</th>
-                <th scope="col">Account</th>
-                <th scope="col">Type</th>
-                <th scope="col">Description</th>
-                <th scope="col" className="text-end">Money IN</th>
-                <th scope="col" className="text-end">Money OUT</th>
+                <th scope="col">{t("date", "Date")}</th>
+                <th scope="col">{t("ref_number", "Ref No.")}</th>
+                <th scope="col">{t("payment_account", "Account")}</th>
+                <th scope="col">{t("type", "Type")}</th>
+                <th scope="col">{t("description", "Description")}</th>
+                <th scope="col" className="text-end">{t("money_in", "Money IN")}</th>
+                <th scope="col" className="text-end">{t("money_out", "Money OUT")}</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="7" className="text-center">Loading transactions...</td></tr>
+                <tr><td colSpan="7" className="text-center">{t("loading", "Loading transactions...")}</td></tr>
               ) : transactions.length === 0 ? (
-                <tr><td colSpan="7" className="text-center">No transactions found.</td></tr>
+                <tr><td colSpan="7" className="text-center">{t("no_transactions", "No transactions found.")}</td></tr>
               ) : (
                 transactions.map(txn => (
                   <tr key={txn.id}>

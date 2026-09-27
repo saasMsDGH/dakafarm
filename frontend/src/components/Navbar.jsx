@@ -1,6 +1,6 @@
 import React from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import { faSignOutAlt, faLanguage, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import { faUserCircle } from "@fortawesome/free-regular-svg-icons";
 import { Nav, Navbar, Dropdown, Container } from '@themesberg/react-bootstrap';
 import { Link } from 'react-router-dom';
@@ -10,7 +10,7 @@ import { useAuth } from "../context/AuthContext";
 import { Routes } from "../routes";
 
 export default (props) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, logout } = useAuth();
 
   const UserAvatar = ({ name }) => {
@@ -25,11 +25,37 @@ export default (props) => {
     );
   };
 
+  const isSwahili = i18n.language?.startsWith('sw');
+
   return (
     <Navbar variant="dark" expanded className="ps-0 pe-2 pb-0 d-print-none">
       <Container fluid className="px-0">
         <div className="d-flex justify-content-end w-100">
           <Nav className="align-items-center">
+            {/* Language Switcher */}
+            <Dropdown as={Nav.Item} className="me-3">
+              <Dropdown.Toggle as={Nav.Link} className="pt-1 px-2 d-flex align-items-center text-dark">
+                <FontAwesomeIcon icon={faLanguage} className="me-1 text-primary" style={{ fontSize: '1.2rem' }} />
+                <span className="fw-bold small text-uppercase">
+                  {isSwahili ? 'SW' : 'EN'}
+                </span>
+              </Dropdown.Toggle>
+              <Dropdown.Menu className="user-dropdown dropdown-menu-right mt-2">
+                <Dropdown.Item 
+                  onClick={() => i18n.changeLanguage('en')} 
+                  className={`fw-bold ${!isSwahili ? 'text-primary' : ''}`}
+                >
+                  <FontAwesomeIcon icon={faGlobe} className="me-2 text-primary" /> English (EN)
+                </Dropdown.Item>
+                <Dropdown.Item 
+                  onClick={() => i18n.changeLanguage('sw')} 
+                  className={`fw-bold ${isSwahili ? 'text-primary' : ''}`}
+                >
+                  <FontAwesomeIcon icon={faLanguage} className="me-2 text-success" /> Kiswahili (SW)
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+
             <Dropdown as={Nav.Item}>
               <Dropdown.Toggle as={Nav.Link} className="pt-1 px-0">
                 <div className="media d-flex align-items-center">

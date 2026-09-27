@@ -161,6 +161,13 @@ const Sidebar = (props) => {
                 <NavItem title={t('dashboard', 'Dashboard')} link={Routes.DashboardOverview.path} icon={faChartPie} />
               )}
 
+              {/* Reports Subsystem */}
+              {user?.role_name === 'admin' && (
+                <CollapsableNavItem eventKey="reports/" title={t('reports', 'Reports')} icon={faChartBar}>
+                  <NavItem title={t('reports_overview', 'Overview')} link={Routes.ReportsOverview?.path || '#'} />
+                </CollapsableNavItem>
+              )}
+
               {/* Admin Subsystem */}
               {user?.role_name === 'admin' && (
                 <CollapsableNavItem eventKey="admin/" title={t("system_administration", "System Administration")} icon={faUserShield}>
@@ -222,13 +229,6 @@ const Sidebar = (props) => {
                   {(user?.role_name === 'admin' || ["sell_manager"].includes(user?.role_name)) && (
                     <NavItem title={t('expenses', 'Expenses')} link={Routes.Expenses?.path || '#'} />
                   )}
-                </CollapsableNavItem>
-              )}
-
-              {/* Reports Subsystem */}
-              {user?.role_name === 'admin' && (
-                <CollapsableNavItem eventKey="reports/" title={t('reports', 'Reports')} icon={faChartBar}>
-                  <NavItem title={t('reports_overview', 'Overview')} link={Routes.ReportsOverview?.path || '#'} />
                 </CollapsableNavItem>
               )}
             
