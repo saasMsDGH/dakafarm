@@ -24,6 +24,10 @@ import "./scss/volt.scss";
 import "react-datetime/css/react-datetime.css";
 
 import "./i18n"; // Import i18n for English and Swahili translations
+import { initSwalI18n } from "./utils/swalI18n";
+
+// Initialize global SweetAlert2 Swahili auto-translator
+initSwalI18n();
 
 import { AuthProvider } from "./context/AuthContext";
 import HomePage from "./pages/HomePage";

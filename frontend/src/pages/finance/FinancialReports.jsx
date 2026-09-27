@@ -76,7 +76,7 @@ export default () => {
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
           <h4>{t("financial_reports", "Financial Reports")}</h4>
-          <p className="mb-0">Real-time accounting insights and statements for AMAS Farm.</p>
+          <p className="mb-0">{t("financial_reports_desc", "Real-time accounting insights and statements for AMAS Farm.")}</p>
         </div>
         <div className="btn-toolbar mb-2 mb-md-0 d-flex gap-2">
             <InputGroup>
@@ -84,11 +84,11 @@ export default () => {
               <Form.Control type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} placeholder="From Date" />
             </InputGroup>
             <InputGroup>
-              <InputGroup.Text>To</InputGroup.Text>
+              <InputGroup.Text>{t("to", "To")}</InputGroup.Text>
               <Form.Control type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} placeholder="To Date" />
             </InputGroup>
-            <Button variant="primary" onClick={handleApplyFilter}>Generate</Button>
-            <Button variant="outline-secondary" onClick={handleClearFilter}>Clear</Button>
+            <Button variant="primary" onClick={handleApplyFilter}>{t("generate", "Generate")}</Button>
+            <Button variant="outline-secondary" onClick={handleClearFilter}>{t("clear", "Clear")}</Button>
         </div>
       </div>
 
@@ -98,7 +98,7 @@ export default () => {
             
             {/* ---------------- PROFIT & LOSS ---------------- */}
             <Tab eventKey="pnl" title={<span><FontAwesomeIcon icon={faChartLine} className="me-2" /> {t("profit_loss", "Profit & Loss")}</span>}>
-              {loading ? <div className="text-center p-5">Generating Report...</div> : pnl && (
+              {loading ? <div className="text-center p-5">{t("generating_report", "Generating Report...")}</div> : pnl && (
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                   <h4 className="text-center mb-4">INCOME STATEMENT</h4>
                   
@@ -187,8 +187,8 @@ export default () => {
             </Tab>
 
             {/* ---------------- CASH FLOW ---------------- */}
-            <Tab eventKey="cashflow" title={<span><FontAwesomeIcon icon={faMoneyBillWave} className="me-2" /> Cash Flow</span>}>
-              {loading ? <div className="text-center p-5">Generating Report...</div> : cashFlow && (
+            <Tab eventKey="cashflow" title={<span><FontAwesomeIcon icon={faMoneyBillWave} className="me-2" /> {t("cash_flow", "Cash Flow")}</span>}>
+              {loading ? <div className="text-center p-5">{t("generating_report", "Generating Report...")}</div> : cashFlow && (
                 <div style={{ maxWidth: '800px', margin: '0 auto' }}>
                   <h4 className="text-center mb-4">STATEMENT OF CASH FLOWS</h4>
                   

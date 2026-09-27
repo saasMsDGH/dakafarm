@@ -103,7 +103,7 @@ export default () => {
 
   const handlePaymentSubmit = async (e) => {
     e.preventDefault();
-    if (!paymentData.account_id) return alert("Please select a financial account");
+    if (!paymentData.account_id) return Swal.fire('Error', 'Please select a financial account', 'error');
     try {
       await api.post(`/api/v1/hr/payrolls/${currentPayroll.id}/payments/`, {
         amount: parseFloat(paymentData.amount),
@@ -112,9 +112,10 @@ export default () => {
       });
       setShowPaymentModal(false);
       fetchPayrolls();
+      Swal.fire('Success', 'Payment recorded successfully', 'success');
     } catch (error) {
       console.error("Payment failed", error);
-      alert(error.response?.data?.detail || "Payment failed");
+      Swal.fire('Error', error.response?.data?.detail || "Payment failed", 'error');
     }
   };
 

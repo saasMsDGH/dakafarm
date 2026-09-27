@@ -52,17 +52,17 @@ export default () => {
     );
   }
 
-  if (!metrics || !pnlData) return <div>Error loading data.</div>;
+  if (!metrics || !pnlData) return <div>{t("error_loading", "Error loading data.")}</div>;
 
   // Prepare data for Income vs Expenses Bar Chart
   const incomeVsExpenseData = [
     {
-      name: 'Total Money In (Income)',
+      name: t('total_money_in', 'Total Money In (Income)'),
       amount: parseFloat(pnlData.revenue.total_revenue || 0) + parseFloat(pnlData.non_operating.other_income || 0),
       fill: '#10B981' // Green
     },
     {
-      name: 'Total Money Out (Expenses)',
+      name: t('total_money_out', 'Total Money Out (Expenses)'),
       amount: parseFloat(pnlData.cogs.total_cogs || 0) + parseFloat(pnlData.opex.total_opex || 0),
       fill: '#EF4444' // Red
     }
@@ -70,9 +70,9 @@ export default () => {
 
   // Prepare data for Expenses Pie Chart
   const expenseBreakdownData = [
-    { name: 'Purchases (Inventory)', value: parseFloat(pnlData.cogs.total_cogs || 0), color: '#3B82F6' },
-    { name: 'Direct Expenses', value: parseFloat(pnlData.opex.direct_expenses || 0), color: '#F59E0B' },
-    { name: 'Payroll (Salaries)', value: parseFloat(pnlData.opex.payroll || 0), color: '#8B5CF6' },
+    { name: t('purchases_inventory', 'Purchases (Inventory)'), value: parseFloat(pnlData.cogs.total_cogs || 0), color: '#3B82F6' },
+    { name: t('direct_expenses', 'Direct Expenses'), value: parseFloat(pnlData.opex.direct_expenses || 0), color: '#F59E0B' },
+    { name: t('payroll_salaries', 'Payroll (Salaries)'), value: parseFloat(pnlData.opex.payroll || 0), color: '#8B5CF6' },
   ].filter(item => !isNaN(item.value) && item.value > 0);
 
   return (
@@ -80,19 +80,19 @@ export default () => {
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
           <h4 className="mb-0">{t("finance_dashboard", "Finance Dashboard")}</h4>
-          <p className="mb-0 text-muted">A simple overview of your farm's financial health.</p>
+          <p className="mb-0 text-muted">{t("finance_overview_desc", "A simple overview of your farm's financial health.")}</p>
         </div>
         <div className="btn-toolbar mb-2 mb-md-0">
           <Form onSubmit={fetchDashboardData} className="d-flex align-items-center">
             <Form.Group className="me-2 mb-0">
               <Form.Control type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} size="sm" />
             </Form.Group>
-            <span className="me-2">to</span>
+            <span className="me-2">{t("to", "to")}</span>
             <Form.Group className="me-2 mb-0">
               <Form.Control type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} size="sm" />
             </Form.Group>
             <Button variant="primary" size="sm" type="submit">
-              <FontAwesomeIcon icon={faSearch} className="me-2"/> Filter
+              <FontAwesomeIcon icon={faSearch} className="me-2"/> {t("filter", "Filter")}
             </Button>
           </Form>
         </div>
@@ -117,7 +117,7 @@ export default () => {
                   <div className="small d-flex mt-1">
                     <h4 className="fw-bolder mb-0">{formatCurrency(metrics.cash_on_hand)}</h4>
                   </div>
-                  <div className="small mt-2 text-muted">Total money in banks & cash</div>
+                  <div className="small mt-2 text-muted">{t("total_money_banks_cash", "Total money in banks & cash")}</div>
                 </Col>
               </Row>
             </Card.Body>
@@ -141,7 +141,7 @@ export default () => {
                   <div className="small d-flex mt-1">
                     <h4 className="fw-bolder mb-0 text-info">{formatCurrency(metrics.accounts_receivable)}</h4>
                   </div>
-                  <div className="small mt-2 text-muted">Unpaid customer invoices</div>
+                  <div className="small mt-2 text-muted">{t("unpaid_customer_invoices", "Unpaid customer invoices")}</div>
                 </Col>
               </Row>
             </Card.Body>
@@ -165,7 +165,7 @@ export default () => {
                   <div className="small d-flex mt-1">
                     <h4 className="fw-bolder mb-0 text-danger">{formatCurrency(metrics.accounts_payable)}</h4>
                   </div>
-                  <div className="small mt-2 text-muted">Unpaid supplier bills</div>
+                  <div className="small mt-2 text-muted">{t("unpaid_supplier_bills", "Unpaid supplier bills")}</div>
                 </Col>
               </Row>
             </Card.Body>
@@ -191,7 +191,7 @@ export default () => {
                       {formatCurrency(metrics.monthly_net_profit)}
                     </h4>
                   </div>
-                  <div className="small mt-2 text-muted">Revenue - Expenses</div>
+                  <div className="small mt-2 text-muted">{t("revenue_minus_exp_label", "Revenue - Expenses")}</div>
                 </Col>
               </Row>
             </Card.Body>
@@ -273,7 +273,7 @@ export default () => {
                   </ResponsiveContainer>
                 </div>
               ) : (
-                <div className="text-muted mt-5">No expenses recorded yet.</div>
+                <div className="text-muted mt-5">{t("no_expenses_recorded", "No expenses recorded yet.")}</div>
               )}
             </Card.Body>
           </Card>
