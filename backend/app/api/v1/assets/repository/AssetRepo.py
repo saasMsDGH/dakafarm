@@ -101,7 +101,7 @@ class AssetRepo:
         try:
             await db.delete(asset)
             await db.commit()
-            await db.refresh(asset)
+ 
         except IntegrityError:
             await db.rollback()
             raise HTTPException(
