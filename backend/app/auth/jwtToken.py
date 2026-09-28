@@ -1,0 +1,11 @@
+from pydantic import BaseModel
+
+
+# jwt token class
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: str | None = None   

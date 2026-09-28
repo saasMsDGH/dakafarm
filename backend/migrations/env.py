@@ -24,11 +24,10 @@ from app.core.config import settings
 from app.core.database import Base
 
 # Import ALL models here so their tables are registered on Base.metadata
-from app.api.v1.user.models import Users  # noqa: F401
+from app.db import *  # noqa: F401
 
 # Override the URL from settings (env.py always wins over alembic.ini)
 config.set_main_option("sqlalchemy.url", str(settings.DATABASE_URL))
-
 target_metadata = Base.metadata
 
 

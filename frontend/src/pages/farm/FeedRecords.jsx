@@ -1,0 +1,323 @@
+﻿import React, { useState, useEffect } from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faEdit, faTrash, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { Col, Row, Card, Table, Button, Modal, Form, InputGroup, Pagination } from '@themesberg/react-bootstrap';
+import { useTranslation } from 'react-i18next';
+import { api } from "../../api/axios";
+import Swal from 'sweetalert2';
+import moment from 'moment';
+
+export default () => {
+  const { t } = useTranslation();
+  
+  const [records, setRecords] = useState([]);
+  const [flocks, setFlocks] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Pagination and Search
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  // Modal State
+  const [showModal, setShowModal] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const [currentRecord, setCurrentRecord] = useState({
+    flock_id: '',
+    product_id: '',
+    record_date: moment().format('YYYY-MM-DD'),
+    quantity_used: '',
+  });
+
+  const fetchFlocks = async () => {
+    try {
+      const response = await api.get('/api/v1/farm/flocks/', { params: { limit: 100 } });
+      setFlocks(response.data.items);
+    } catch (error) {
+      console.error("Failed to fetch flocks:", error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      // For now, fetch all products. Later this can be filtered by category (e.g. Feed)
+      const response = await api.get('/api/v1/inventory/products/', { params: { limit: 100 } });
+      setProducts(response.data.items);
+    } catch (error) {
+      console.error("Failed to fetch products:", error);
+    }
+  };
+
+  const fetchRecords = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/api/v1/farm/feed-records/', {
+        params: { page, limit: 10, search: searchTerm }
+      });
+      setRecords(response.data.items);
+      setTotalPages(response.data.pages || 1);
+    } catch (error) {
+      console.error("Failed to fetch feed records:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFlocks();
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    fetchRecords();
+  }, [page, searchTerm]);
+
+  const handleShowModal = (record = null) => {
+    if (record) {
+      setCurrentRecord({
+        ...record,
+        record_date: record.record_date || moment().format('YYYY-MM-DD'),
+        product_id: record.product_id || '',
+        quantity_used: record.quantity_used || '',
+      });
+      setIsEdit(true);
+    } else {
+      setCurrentRecord({
+        flock_id: '',
+        product_id: '',
+        record_date: moment().format('YYYY-MM-DD'),
+        quantity_used: '',
+      });
+      setIsEdit(false);
+    }
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => setShowModal(false);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentRecord({ ...currentRecord, [name]: value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        ...currentRecord,
+        flock_id: parseInt(currentRecord.flock_id),
+        product_id: currentRecord.product_id ? parseInt(currentRecord.product_id) : null,
+        quantity_used: parseFloat(currentRecord.quantity_used),
+      };
+
+      if (isEdit) {
+        await api.put(`/api/v1/farm/feed-records/${currentRecord.id}`, payload);
+        Swal.fire('Updated!', 'The record has been updated.', 'success');
+      } else {
+        await api.post('/api/v1/farm/feed-records/', payload);
+        Swal.fire('Saved!', 'The record has been added.', 'success');
+      }
+      handleCloseModal();
+      fetchRecords();
+    } catch (error) {
+      const errorMsg = error.response?.data?.detail || 'An error occurred while saving the record.';
+      Swal.fire('Error', errorMsg, 'error');
+    }
+  };
+
+  const handleDelete = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await api.delete(`/api/v1/farm/feed-records/${id}`);
+        Swal.fire('Deleted!', 'The record has been deleted.', 'success');
+        fetchRecords();
+      } catch (error) {
+        let errorMsg = error.response?.data?.detail || 'Failed to delete the record.';
+        if (error.response?.status === 403) {
+           errorMsg = t('admin_only_delete', 'This action is for admins only.');
+        }
+        Swal.fire('Error', errorMsg, 'error');
+      }
+    }
+  };
+
+  const getFlockDisplay = (flockId) => {
+    const flock = flocks.find(f => f.id === flockId);
+    return flock ? `${flock.flock_code} (${flock.breed || 'N/A'})` : flockId;
+  };
+
+  const getProductDisplay = (productId) => {
+    if (!productId) return '-';
+    const product = products.find(p => p.id === productId);
+    return product ? product.name : productId;
+  };
+
+  return (
+    <>
+      <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
+        <div className="d-block mb-4 mb-md-0">
+          <h4>{t('feed_records_title', 'Feed Records')}</h4>
+        </div>
+        <div className="btn-toolbar mb-2 mb-md-0">
+          <Button variant="primary" size="sm" onClick={() => handleShowModal()}>
+            <FontAwesomeIcon icon={faPlus} className="me-2" /> {t('add_feed', 'Add Feed')}
+          </Button>
+        </div>
+      </div>
+
+      <div className="table-settings mb-4">
+        <Row className="justify-content-between align-items-center">
+          <Col xs={8} md={6} lg={3} xl={4}>
+            <InputGroup>
+              <InputGroup.Text><FontAwesomeIcon icon={faSearch} /></InputGroup.Text>
+              <Form.Control 
+                type="text" 
+                placeholder="Search..." 
+                value={searchTerm}
+                onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
+              />
+            </InputGroup>
+          </Col>
+        </Row>
+      </div>
+
+      <Card border="light" className="table-wrapper table-responsive shadow-sm">
+        <Card.Body className="pt-0">
+          <Table hover className="user-table align-items-center">
+            <thead>
+              <tr>
+                <th className="border-bottom">{t('record_date', 'Date')}</th>
+                <th className="border-bottom">{t('flock', 'Flock')}</th>
+                <th className="border-bottom">{t('product', 'Product')}</th>
+                <th className="border-bottom text-warning">{t('quantity_used', 'Qty Used')}</th>
+                <th className="border-bottom text-success">{t('total_cost', 'Total Cost')}</th>
+                <th className="border-bottom">{t('actions', 'Actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="6" className="text-center">Loading...</td></tr>
+              ) : records.length === 0 ? (
+                <tr><td colSpan="6" className="text-center">No records found</td></tr>
+              ) : (
+                records.map(record => (
+                  <tr key={record.id}>
+                    <td><span className="fw-normal">{record.record_date}</span></td>
+                    <td><span className="fw-normal">{getFlockDisplay(record.flock_id)}</span></td>
+                    <td><span className="fw-normal">{getProductDisplay(record.product_id)}</span></td>
+                    <td><span className="fw-bold text-warning">{record.quantity_used}</span></td>
+                    <td><span className="fw-bold text-success">{record.total_cost || '-'}</span></td>
+                    <td>
+                      <Button variant="info" size="sm" className="me-2" onClick={() => handleShowModal(record)}>
+                        <FontAwesomeIcon icon={faEdit} />
+                      </Button>
+                      <Button variant="danger" size="sm" onClick={() => handleDelete(record.id)}>
+                        <FontAwesomeIcon icon={faTrash} />
+                      </Button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </Table>
+          
+          <Card.Footer className="px-3 border-0 d-flex flex-column flex-lg-row align-items-center justify-content-between">
+            <Pagination className="mb-2 mb-lg-0">
+              <Pagination.Prev disabled={page === 1} onClick={() => setPage(page - 1)}>
+                Previous
+              </Pagination.Prev>
+              <Pagination.Item active>{page}</Pagination.Item>
+              <Pagination.Next disabled={page === totalPages || totalPages === 0} onClick={() => setPage(page + 1)}>
+                Next
+              </Pagination.Next>
+            </Pagination>
+          </Card.Footer>
+        </Card.Body>
+      </Card>
+
+      {/* Add/Edit Modal */}
+      <Modal as={Modal.Dialog} centered show={showModal} onHide={handleCloseModal}>
+        <Form onSubmit={handleSubmit}>
+          <Modal.Header closeButton>
+            <Modal.Title>{isEdit ? t('edit', 'Edit') : t('add_feed', 'Add Feed')}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form.Group id="flock_id" className="mb-3">
+              <Form.Label>{t('select_flock', 'Select Flock')}</Form.Label>
+              <Form.Select 
+                required 
+                name="flock_id"
+                value={currentRecord.flock_id} 
+                onChange={handleInputChange}
+              >
+                <option value="">-- {t('select_flock', 'Select Flock')} --</option>
+                {flocks.map(f => (
+                  <option key={f.id} value={f.id}>{f.flock_code} ({f.breed || 'N/A'})</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+
+            <Form.Group id="product_id" className="mb-3">
+              <Form.Label>{t('select_product', 'Select Product')}</Form.Label>
+              <Form.Select 
+                required 
+                name="product_id"
+                value={currentRecord.product_id} 
+                onChange={handleInputChange}
+              >
+                <option value="">-- {t('select_product', 'Select Product')} --</option>
+                {products.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            
+            <Form.Group id="record_date" className="mb-3">
+              <Form.Label>{t('record_date', 'Record Date')}</Form.Label>
+              <Form.Control 
+                required 
+                type="date" 
+                name="record_date"
+                value={currentRecord.record_date} 
+                onChange={handleInputChange} 
+              />
+            </Form.Group>
+            
+            <Form.Group id="quantity_used" className="mb-3">
+              <Form.Label>{t('quantity_used', 'Quantity Used')}</Form.Label>
+              <Form.Control 
+                required 
+                type="number" 
+                step="0.01"
+                min="0.01"
+                name="quantity_used"
+                value={currentRecord.quantity_used} 
+                onChange={handleInputChange} 
+              />
+            </Form.Group>
+
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" type="button" onClick={handleCloseModal}>
+              {t('cancel', 'Cancel')}
+            </Button>
+            <Button variant="primary" type="submit">
+              {t('save', 'Save')}
+            </Button>
+          </Modal.Footer>
+        </Form>
+      </Modal>
+    </>
+  );
+};

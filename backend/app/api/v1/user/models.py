@@ -1,7 +1,7 @@
 from app.core.database import Base
-from sqlalchemy import Column,Integer,String,Boolean,DateTime
+from sqlalchemy import Column,Integer,String,Boolean,DateTime,ForeignKey
 from sqlalchemy.sql import func
-
+from sqlalchemy.orm import relationship
 
 class Users(Base):
     __tablename__ ="users"
@@ -14,3 +14,28 @@ class Users(Base):
     is_active = Column(Boolean,default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(),server_default=func.now())
+
+    role = relationship("UserRole",back_populates="user")
+    house = relationship("House", back_populates="user")
+
+
+class Roles(Base):
+    __tablename__ = "roles"
+    id = Column(Integer,primary_key=True) 
+    name = Column(String)
+
+
+    userrolid= relationship("UserRole",back_populates="roleid")
+
+
+
+class UserRole(Base):
+    __tablename__ = "userrole"
+    id = Column(Integer,primary_key=True)
+    user_id = Column(Integer,ForeignKey("users.id",ondelete="CASCADE"))
+    role_id = Column(Integer,ForeignKey("roles.id" ,ondelete="CASCADE"))
+
+
+    user = relationship("Users",back_populates="role")
+    roleid = relationship("Roles", back_populates="userrolid")
+
