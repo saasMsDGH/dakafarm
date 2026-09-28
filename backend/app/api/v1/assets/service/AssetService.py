@@ -166,6 +166,11 @@ class AssetService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Asset with id {asset_id} not found."
             )
+        if asset.amount_paid > 0 :
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="sorry you can't delete asset which as payment info "
+            )
         await AssetRepo.delete(db, asset)
 
     @staticmethod
