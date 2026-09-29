@@ -1,6 +1,5 @@
 fastapi
 uvicorn
-sqlalchemy
 asyncpg
 alembic
 python-dotenv
@@ -10,3 +9,5 @@ pwdlib[argon2]
 pyjwt
 pydantic[email]
 python-multipart
+sqlalchemy[asyncio]
+greenlet
