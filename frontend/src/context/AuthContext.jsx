@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { api } from '../api/axios';
+import Preloader from '../components/Preloader';
 
 const AuthContext = createContext();
 
@@ -14,7 +15,7 @@ export const AuthProvider = ({ children }) => {
   // Fetch current user if token exists
   const fetchUser = async () => {
     try {
-      const response = await api.get('/api/v1/user/me');
+      const response = await api.get('/api/v1/user/me', { timeout: 8000 });
       setUser(response.data);
     } catch (err) {
       setUser(null);
@@ -67,7 +68,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading, fetchUser }}>
-      {!loading && children}
+      {loading ? <Preloader show={true} /> : children}
     </AuthContext.Provider>
   );
 };

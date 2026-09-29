@@ -13,7 +13,7 @@
 
 // * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. Please contact us to request a removal.
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HashRouter } from "react-router-dom";
 
@@ -32,13 +32,16 @@ initSwalI18n();
 import { AuthProvider } from "./context/AuthContext";
 import HomePage from "./pages/HomePage";
 import ScrollToTop from "./components/ScrollToTop";
+import Preloader from "./components/Preloader";
 
 const root = createRoot(document.getElementById("root"));
 root.render(
-  <AuthProvider>
-    <HashRouter>
-      <ScrollToTop />
-      <HomePage />
-    </HashRouter>
-  </AuthProvider>
+  <Suspense fallback={<Preloader show={true} />}>
+    <AuthProvider>
+      <HashRouter>
+        <ScrollToTop />
+        <HomePage />
+      </HashRouter>
+    </AuthProvider>
+  </Suspense>
 );
