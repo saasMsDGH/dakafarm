@@ -22,7 +22,7 @@ router = APIRouter(
 async def post_user(
     request: schemas.User,
     db: AsyncSession = Depends(get_db),
-    current_user: Users=Depends(get_current_user)
+    current_user: Users=Depends(admin_only)
 ):
     """Register a new user."""
     return await UserService.CreateUser_service(request, db)
