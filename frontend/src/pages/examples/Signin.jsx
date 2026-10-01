@@ -30,7 +30,7 @@ export default () => {
       await login(username, password);
       history.push(Routes.DashboardOverview.path);
     } catch (err) {
-      setError(err.response?.data?.detail || t('login_failed', 'Failed to login. Please try again.'));
+      setError(err.response?.data?.detail || t('login_failed', 'Network error. Please try again.'));
     } finally {
       setIsLoading(false);
     }
