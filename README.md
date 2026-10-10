@@ -72,3 +72,5 @@ Each team member will contribute to different areas of the system, with developm
 **Currently:** Project initialization and database/system design.
 
 More detailed documentation will be added as the project develops.
+
+===THIS README WAS DURING DEVELOPMENT WERE GOING TO CHANGE IY SOON ===
