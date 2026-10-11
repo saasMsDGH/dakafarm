@@ -215,5 +215,6 @@ Released under the MIT License. See [LICENSE](LICENSE) for details. The frontend
 
 ## Author
 
-**Your Name**
-[GitHub](https://github.com/<tajirdev>) | [LinkedIn](https://www.linkedin.com/in/<alfred-christopher>) | mgenialfred671@gmail.com
+More detailed documentation will be added as the project develops.
+
+===THIS README WAS DURING DEVELOPMENT WERE GOING TO CHANGE IY SOON ===
