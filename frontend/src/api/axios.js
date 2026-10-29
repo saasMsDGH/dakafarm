@@ -1,9 +1,11 @@
 import axios from 'axios';
+import i18n from '../i18n';
+import { translateToFrench } from '../utils/frenchMessages';
 import { isSwahiliActive, translateToSwahili } from '../utils/swalI18n';
 
 // Create a configured axios instance
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000', // Dynamic URL from .env
+  baseURL: import.meta.env.VITE_API_BASE_URL || '/', // Dynamic URL from .env
   headers: {
     'Cache-Control': 'no-cache, no-store, must-revalidate',
     'Pragma': 'no-cache',
@@ -28,14 +30,15 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     // If language is Swahili, translate detail error messages from FastAPI
-    if (isSwahiliActive() && error.response && error.response.data) {
+    if ((i18n.language?.startsWith('fr') || isSwahiliActive()) && error.response && error.response.data) {
+      const translate = i18n.language?.startsWith('fr') ? translateToFrench : translateToSwahili;
       const detail = error.response.data.detail;
       if (typeof detail === 'string') {
-        error.response.data.detail = translateToSwahili(detail);
+        error.response.data.detail = translate(detail);
       } else if (Array.isArray(detail)) {
         error.response.data.detail = detail.map((item) => {
           if (item && item.msg) {
-            return { ...item, msg: translateToSwahili(item.msg) };
+            return { ...item, msg: translate(item.msg) };
           }
           return item;
         });

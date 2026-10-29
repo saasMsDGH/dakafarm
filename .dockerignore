@@ -1,11 +1,7 @@
-__pycache__/
-*.pyc
-*.pyo
-.env
 .git
-.gitignore
-.venv/
-venv/
-*.db
-*.sqlite3
-.pytest_cache/
+**/node_modules
+**/dist
+**/__pycache__
+**/.env*
+**/.secrets
+**/.private

@@ -55,8 +55,9 @@ export default () => {
               <div className="bg-white shadow-soft border rounded border-light p-4 p-lg-5 w-100 fmxw-500" style={{ opacity: 0.95 }}>
                 <div className="d-flex justify-content-end mb-3">
                   <ButtonGroup size="sm">
+                    <Button variant={i18n.language?.startsWith('fr') ? 'primary' : 'outline-primary'} size="sm" onClick={() => i18n.changeLanguage('fr')}>FR</Button>
                     <Button 
-                      variant={!i18n.language?.startsWith('sw') ? 'primary' : 'outline-primary'} 
+                      variant={i18n.language?.startsWith('en') ? 'primary' : 'outline-primary'}
                       size="sm" 
                       onClick={() => i18n.changeLanguage('en')}
                       className="py-1 px-2 font-xs fw-bold"
@@ -75,7 +76,7 @@ export default () => {
                 </div>
 
                 <div className="text-center text-md-center mb-4 mt-md-0">
-                  <h3 className="mb-0 text-primary">AMAS FARM</h3>
+                  <h3 className="mb-0 text-primary">DAKAFARM</h3>
                   <p className="mt-2 text-gray">{t('welcome')}</p>
                 </div>
                 
@@ -92,7 +93,7 @@ export default () => {
                         autoFocus 
                         required 
                         type="text" 
-                        placeholder="worker@amas.com" 
+                        placeholder="adresse@exemple.fr"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                       />

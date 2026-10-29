@@ -153,7 +153,7 @@ const Sidebar = (props) => {
             </div>
             
             <Nav className="flex-column pt-3 pt-md-0">
-              <NavItem title="AMAS FARM" link={Routes.DashboardOverview.path} image={ReactHero} />
+              <NavItem title="DAKAFARM" link={Routes.DashboardOverview.path} image={ReactHero} />
               <Dropdown.Divider className="my-3 border-indigo" />
               
               {/* Core Dashboard - Visible if they have roles for DashboardOverview */}

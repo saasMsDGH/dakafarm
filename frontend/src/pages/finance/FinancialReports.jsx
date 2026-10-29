@@ -76,7 +76,7 @@ export default () => {
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
           <h4>{t("financial_reports", "Financial Reports")}</h4>
-          <p className="mb-0">{t("financial_reports_desc", "Real-time accounting insights and statements for AMAS Farm.")}</p>
+          <p className="mb-0">{t("financial_reports_desc", "Real-time accounting insights and statements for DAKAFARM.")}</p>
         </div>
         <div className="btn-toolbar mb-2 mb-md-0 d-flex gap-2">
             <InputGroup>

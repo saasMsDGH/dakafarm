@@ -352,7 +352,7 @@ export default () => {
             <table class="header-table">
               <tr>
                 <td>
-                  <div class="title">AMAS FARM</div>
+                  <div class="title">DAKAFARM</div>
                   <div style="color: #777; margin-top: 5px;">
                     Dar es Salaam<br>
                     Tel: 0712 345 678<br>
@@ -406,7 +406,7 @@ export default () => {
             ${paymentsHtml}
             
             <div style="margin-top: 50px; text-align: center; color: #777; font-size: 12px; border-top: 1px solid #ddd; padding-top: 20px;">
-              Thank you for doing business with AMAS FARM.
+              Thank you for doing business with DAKAFARM.
             </div>
           </div>
           <script>
@@ -520,7 +520,7 @@ export default () => {
             </div>
             
             <div class="text-center">
-              <h1>AMAS FARM</h1>
+              <h1>DAKAFARM</h1>
               <p>Dar es Salaam</p>
               <p>Tel: 0712 345 678</p>
               <p>info@amasfarm.com</p>
@@ -884,7 +884,7 @@ export default () => {
           {currentPurchase && (
             <div className="bg-white p-4 border shadow-sm">
               <div className="text-center mb-4">
-                <h4 className="mb-0">AMAS FARM</h4>
+                <h4 className="mb-0">DAKAFARM</h4>
                 {currentPurchase.payment_status === 'PAID' ? <h5>{t("purchases_receipt", "PURCHASES RECEIPT")}</h5> : <h5>{t("invoice", "INVOICE")}</h5>}
                 <small>Receipt/Invoice #: {currentPurchase.invoice_number}</small>
               </div>

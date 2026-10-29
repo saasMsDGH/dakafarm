@@ -327,7 +327,7 @@ export default () => {
               <>
                 <div className="d-flex justify-content-between align-items-end border-bottom pb-3 mb-4">
                   <div>
-                    <h2 className="mb-0 fw-bolder text-uppercase" style={{ color: '#2c3e50', letterSpacing: '2px' }}>AMAS FARM</h2>
+                    <h2 className="mb-0 fw-bolder text-uppercase" style={{ color: '#2c3e50', letterSpacing: '2px' }}>DAKAFARM</h2>
                     <p className="mb-0 text-muted mt-1">Official Employee Pay Slip</p>
                   </div>
                   <div className="text-end">
@@ -383,7 +383,7 @@ export default () => {
                     <div style={{ borderTop: '1px solid #333', width: '80%', margin: '0 auto', paddingTop: '10px' }}>
                       <p className="fw-bold mb-0">Authorized By</p>
                       <p className="text-muted small">
-                        {currentPayroll.user ? `${currentPayroll.user.first_name} ${currentPayroll.user.last_name}` : 'AMAS Farm Admin'}
+                        {currentPayroll.user ? `${currentPayroll.user.first_name} ${currentPayroll.user.last_name}` : 'DAKAFARM Admin'}
                       </p>
                     </div>
                   </Col>
@@ -397,7 +397,7 @@ export default () => {
 
                 <div className="text-center mt-5 text-muted small">
                   <hr />
-                  <p>Thank you for your hard work and dedication to AMAS FARM!</p>
+                  <p>Thank you for your hard work and dedication to DAKAFARM!</p>
                 </div>
               </>
             )}

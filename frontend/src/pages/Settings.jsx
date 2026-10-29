@@ -254,7 +254,7 @@ export default () => {
                   className="badge bg-white text-success fw-bold px-2 py-1 shadow-sm"
                   style={{ fontSize: "0.72rem", letterSpacing: "0.5px" }}
                 >
-                  AMAS FARM
+                  DAKAFARM
                 </span>
                 <span
                   className={`badge ${user?.is_active !== false ? "bg-success" : "bg-secondary"} text-white shadow-sm px-2 py-1`}
@@ -768,6 +768,42 @@ export default () => {
 
               <Card.Body className="p-4">
                 <Row className="g-3 mb-4">
+                  {/* French Card */}
+                  <Col md={6}>
+                    <div
+                      onClick={() => handleLanguageChange("fr")}
+                      className={`p-4 rounded-3 border transition-all h-100 position-relative ${
+                        i18n.language === "fr"
+                          ? "border-primary bg-primary bg-opacity-10 shadow-sm"
+                          : "border-light bg-light hover-shadow"
+                      }`}
+                      style={{ cursor: "pointer", transition: "all 0.2s ease" }}
+                    >
+                      <div className="d-flex align-items-start justify-content-between mb-3">
+                        <div
+                          className="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center shadow-xs"
+                          style={{ width: "46px", height: "46px" }}
+                        >
+                          <FontAwesomeIcon icon={faGlobe} size="lg" />
+                        </div>
+                        {i18n.language === "fr" ? (
+                          <Badge bg="primary" className="px-2 py-1 text-white">
+                            <FontAwesomeIcon icon={faCheck} className="me-1" />
+                            {t("active_language", "Active Language")}
+                          </Badge>
+                        ) : (
+                          <Badge bg="light" className="text-secondary border">
+                            {t("select_this_language", "Select this language")}
+                          </Badge>
+                        )}
+                      </div>
+                      <h6 className="fw-bold text-dark mb-1">{t("french_language", "Français")}</h6>
+                      <p className="text-muted small mb-0">
+                        {t("french_display_desc", "Interface affichée en français")}
+                      </p>
+                    </div>
+                  </Col>
+
                   {/* English Card */}
                   <Col md={6}>
                     <div
@@ -845,7 +881,7 @@ export default () => {
                   <div className="d-flex align-items-start">
                     <FontAwesomeIcon icon={faInfoCircle} className="text-primary me-2 mt-1" />
                     <p className="small text-muted mb-0">
-                      {i18n.language === "sw"
+                      {i18n.language === "fr" ? "La langue choisie s’applique aux menus, formulaires et tableaux." : i18n.language === "sw"
                         ? "Mabadiliko ya lugha hutumika mara moja kwenye menyu zote, fomu, ripoti za uendeshaji na jumbe za taarifa za mfumo mzima."
                         : "Language preferences apply immediately across all navigation panels, tables, forms, and alerts throughout the system."}
                     </p>

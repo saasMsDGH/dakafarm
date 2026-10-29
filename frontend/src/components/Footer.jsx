@@ -13,8 +13,8 @@ export default () => {
         <Col xs={12} lg={4} className="mb-2 mb-lg-0 text-center text-lg-start">
           <p className="mb-0 text-muted fw-normal">
             &copy; {currentYear}{" "}
-            <Card.Link href="https://amasfarm.com" target="_blank" className="text-primary fw-bold text-decoration-none">
-              AMAS FARM
+            <Card.Link href="https://github.com/saasMsDGH/dakafarm" target="_blank" className="text-primary fw-bold text-decoration-none">
+              DAKAFARM
             </Card.Link>
           </p>
         </Col>
@@ -22,8 +22,8 @@ export default () => {
         {/* Creator */}
         <Col xs={12} lg={4} className="mb-2 mb-lg-0 text-center">
           <p className="mb-0 text-muted fw-normal">
-            Created by{" "}
-            <Card.Link href="" target="_blank" className="text-primary fw-bold text-decoration-none">
+            Créé par{" "}
+            <Card.Link href="https://github.com/tajirdev" target="_blank" className="text-primary fw-bold text-decoration-none">
               tajirdev
             </Card.Link>
           </p>

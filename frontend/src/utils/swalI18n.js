@@ -1,5 +1,6 @@
 import Swal from 'sweetalert2';
 import i18n from '../i18n';
+import { translateToFrench } from './frenchMessages';
 
 // Exact match translation dictionary for English to natural Swahili
 export const swahiliTranslations = {
@@ -316,19 +317,21 @@ export function initSwalI18n() {
   const originalFire = Swal.fire.bind(Swal);
 
   Swal.fire = function (...args) {
-    if (!isSwahiliActive()) {
+    const isFrench = i18n.language?.startsWith('fr');
+    const translate = isFrench ? translateToFrench : translateToSwahili;
+    if (!isFrench && !isSwahiliActive()) {
       return originalFire(...args);
     }
 
     // Handle object call: Swal.fire({ title: '...', text: '...' })
     if (args.length === 1 && typeof args[0] === 'object' && args[0] !== null) {
       const opts = { ...args[0] };
-      if (opts.title) opts.title = translateToSwahili(opts.title);
-      if (opts.text) opts.text = translateToSwahili(opts.text);
-      if (opts.html && typeof opts.html === 'string') opts.html = translateToSwahili(opts.html);
-      if (opts.confirmButtonText) opts.confirmButtonText = translateToSwahili(opts.confirmButtonText);
-      if (opts.cancelButtonText) opts.cancelButtonText = translateToSwahili(opts.cancelButtonText);
-      if (opts.denyButtonText) opts.denyButtonText = translateToSwahili(opts.denyButtonText);
+      if (opts.title) opts.title = translate(opts.title);
+      if (opts.text) opts.text = translate(opts.text);
+      if (opts.html && typeof opts.html === 'string') opts.html = translate(opts.html);
+      if (opts.confirmButtonText) opts.confirmButtonText = translate(opts.confirmButtonText);
+      if (opts.cancelButtonText) opts.cancelButtonText = translate(opts.cancelButtonText);
+      if (opts.denyButtonText) opts.denyButtonText = translate(opts.denyButtonText);
       return originalFire(opts);
     }
 
@@ -336,7 +339,7 @@ export function initSwalI18n() {
     const translatedArgs = args.map((arg, idx) => {
       // Index 0: Title, Index 1: Message
       if ((idx === 0 || idx === 1) && typeof arg === 'string') {
-        return translateToSwahili(arg);
+        return translate(arg);
       }
       return arg;
     });

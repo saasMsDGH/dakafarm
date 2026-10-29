@@ -197,7 +197,7 @@ export default () => {
             <div>
                 <div className="pdf-header-band d-flex justify-content-between align-items-center">
                     <div>
-                        <div className="pdf-company-title">AMAS FARM ENTERPRISES LTD</div>
+                        <div className="pdf-company-title">DAKAFARM ENTERPRISES LTD</div>
                         <div className="pdf-page-subtitle">Farm Performance Report | {subtitle}</div>
                     </div>
                     <div className="text-end text-white-50 small">
@@ -212,7 +212,7 @@ export default () => {
         // Common Footer Generator
         const renderFooter = (pageNum) => (
             <div className="pdf-footer d-flex justify-content-between text-muted">
-                <span>AMAS FARM Performance Report - amounts in Tanzanian Shillings (TZS)</span>
+                <span>DAKAFARM Performance Report - amounts in Tanzanian Shillings (TZS)</span>
                 <span>Page {pageNum} of 4</span>
             </div>
         );
@@ -229,7 +229,7 @@ export default () => {
 
                         {/* Plain English Lead Paragraph */}
                         <div className="pdf-lead-text my-4">
-                            AMAS FARM brought in TZS {formatMoney(totalSales)} from sales and spent TZS {formatMoney(farmCosts)} running the farm, leaving TZS {formatMoney(netProfit)} in profit. Cash on hand across the safe, bank and mobile money comes to TZS {formatMoney(cashAvailable)}, and the farm owns TZS {formatMoney(totalWealth)} in equipment, machinery and stored feed.
+                            DAKAFARM brought in TZS {formatMoney(totalSales)} from sales and spent TZS {formatMoney(farmCosts)} running the farm, leaving TZS {formatMoney(netProfit)} in profit. Cash on hand across the safe, bank and mobile money comes to TZS {formatMoney(cashAvailable)}, and the farm owns TZS {formatMoney(totalWealth)} in equipment, machinery and stored feed.
                             <div className="pdf-sub-lead mt-1">
                                 {dateRange.date_from || dateRange.date_to 
                                     ? `These figures cover the reporting window from ${moment(dateRange.date_from).format('D MMM YYYY')} to ${moment(dateRange.date_to).format('D MMM YYYY')}.`

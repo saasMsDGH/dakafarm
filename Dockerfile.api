@@ -1,0 +1,11 @@
+FROM python:3.11-slim@sha256:673719e071ecf27434fd2635bbd8d00f49f4fdd81f243143438a42ced8bedf60
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_DISABLE_PIP_VERSION_CHECK=1
+WORKDIR /app
+COPY backend/requirements.lock /app/requirements.lock
+RUN pip install --no-cache-dir -r requirements.lock && groupadd -g 10001 app && useradd -u 10001 -g app -M app
+COPY backend/app /app/app
+COPY backend/migrations /app/migrations
+COPY backend/alembic.ini /app/alembic.ini
+USER 10001:10001
+EXPOSE 8000
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--no-access-log", "--proxy-headers", "--forwarded-allow-ips", "*"]

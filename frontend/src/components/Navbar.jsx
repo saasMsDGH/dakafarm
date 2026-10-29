@@ -37,13 +37,14 @@ export default (props) => {
               <Dropdown.Toggle as={Nav.Link} className="pt-1 px-2 d-flex align-items-center text-dark">
                 <FontAwesomeIcon icon={faLanguage} className="me-1 text-primary" style={{ fontSize: '1.2rem' }} />
                 <span className="fw-bold small text-uppercase">
-                  {isSwahili ? 'SW' : 'EN'}
+                  {i18n.language?.slice(0, 2).toUpperCase()}
                 </span>
               </Dropdown.Toggle>
               <Dropdown.Menu className="user-dropdown dropdown-menu-right mt-2">
+                <Dropdown.Item onClick={() => i18n.changeLanguage('fr')}>Français (FR)</Dropdown.Item>
                 <Dropdown.Item 
                   onClick={() => i18n.changeLanguage('en')} 
-                  className={`fw-bold ${!isSwahili ? 'text-primary' : ''}`}
+                  className={`fw-bold ${i18n.language?.startsWith('en') ? 'text-primary' : ''}`}
                 >
                   <FontAwesomeIcon icon={faGlobe} className="me-2 text-primary" /> English (EN)
                 </Dropdown.Item>

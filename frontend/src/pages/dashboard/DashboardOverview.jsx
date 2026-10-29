@@ -176,7 +176,7 @@ export default () => {
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div>
           <h4>{t('dashboard') || 'Control Center'}</h4>
-          <p className="mb-0">{t('global_overview', 'Global overview of AMAS FARM operations.')}</p>
+          <p className="mb-0">{t('global_overview', 'Global overview of DAKAFARM operations.')}</p>
         </div>
       </div>
 
