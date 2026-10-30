@@ -33,3 +33,6 @@ router.include_router(cash_flow_router.router, prefix="/finance")
 router.include_router(balance_sheet_router.router, prefix="/finance")
 router.include_router(dashboard_router.router, prefix="/finance")
 router.include_router(reports_router)
+
+from app.api.v1.campaigns.router import router as campaign_router
+router.include_router(campaign_router)

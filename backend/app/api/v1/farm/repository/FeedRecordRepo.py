@@ -17,10 +17,13 @@ class FeedRecordRepo:
     """Database access layer for the FeedRecord model."""
 
     @staticmethod
-    async def create(db: AsyncSession, record: FeedRecord) -> FeedRecord:
+    async def create(db: AsyncSession, record: FeedRecord, commit: bool = True) -> FeedRecord:
         """Persist a new feed record."""
         db.add(record)
-        await db.commit()
+        if commit:
+            await db.commit()
+        else:
+            await db.flush()
         await db.refresh(record)
         return record
 
@@ -62,17 +65,23 @@ class FeedRecordRepo:
         return records, total
 
     @staticmethod
-    async def update(db: AsyncSession, record: FeedRecord, data: dict) -> FeedRecord:
+    async def update(db: AsyncSession, record: FeedRecord, data: dict, commit: bool = True) -> FeedRecord:
         """Apply a partial update."""
         for field, value in data.items():
             if value is not None:
                 setattr(record, field, value)
-        await db.commit()
+        if commit:
+            await db.commit()
+        else:
+            await db.flush()
         await db.refresh(record)
         return record
 
     @staticmethod
-    async def delete(db: AsyncSession, record: FeedRecord) -> None:
+    async def delete(db: AsyncSession, record: FeedRecord, commit: bool = True) -> None:
         """Permanently delete a record."""
         await db.delete(record)
-        await db.commit()
+        if commit:
+            await db.commit()
+        else:
+            await db.flush()

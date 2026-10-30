@@ -1,4 +1,4 @@
-﻿from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Numeric
+from sqlalchemy import Column, BigInteger, Integer, String, ForeignKey, DateTime, Numeric
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
@@ -12,6 +12,10 @@ class StockMovement(Base):
     movement_type = Column(String(20), nullable=False)  # IN, OUT, ADJUSTMENT
     quantity = Column(Numeric(15, 3), nullable=False)
     
+    unit_cost_snapshot = Column(Numeric(20, 6), nullable=True)
+    cost_total_fcfa = Column(BigInteger, nullable=True)
+    valuation_basis = Column(String(24), nullable=True)
+
     reference_type = Column(String(100), nullable=True) # e.g., FeedRecord, Purchase
     reference_id = Column(Integer, nullable=True)
     

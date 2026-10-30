@@ -36,6 +36,7 @@ import AssetsList from "./assets/AssetsList";
 
 // finance
 import FinanceDashboard from "./finance/FinanceDashboard";
+import CampaignData from "./campaigns/CampaignData";
 import AccountsList from "./finance/AccountsList";
 import Transactions from "./finance/Transactions";
 import Debts from "./finance/Debts";
@@ -96,7 +97,7 @@ const RouteWithSidebar = ({ component: Component, roles, ...rest }) => {
         if (role === 'hr_manager' || role === 'hr_officer') return Routes.Employees.path;
         if (role === 'inventory_admin') return Routes.Products.path;
         if (role === 'sell_manager' || role === 'sell_officer') return Routes.Sales.path;
-        if (role === 'finance_manager') return Routes.FinanceDashboard.path;
+        if (role === 'finance_manager') return Routes.CampaignData.path;
         if (role === 'Farm Worker' || role === 'Farm Manager') return Routes.Flocks.path;
         if (role === 'asset_manager') return Routes.AssetsList.path;
         return Routes.Settings.path; // Safe generic fallback
@@ -135,6 +136,7 @@ export default () => (
     <RouteWithLoader exact path={Routes.ServerError.path} component={ServerError} />
 
     {/* pages */}
+    <RouteWithSidebar exact path={Routes.CampaignData.path} component={CampaignData} roles={Routes.CampaignData.roles} />
     <RouteWithSidebar exact path={Routes.DashboardOverview.path} component={DashboardOverview} roles={Routes.DashboardOverview.roles} />
     <RouteWithSidebar exact path={Routes.Settings.path} component={Settings} roles={Routes.Settings.roles} />
     

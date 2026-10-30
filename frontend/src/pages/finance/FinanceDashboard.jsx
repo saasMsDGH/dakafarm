@@ -1,3 +1,4 @@
+import LegacyDataNotice from '../../components/LegacyDataNotice';
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWallet, faFileInvoiceDollar, faHandHoldingUsd, faChartLine, faSearch } from '@fortawesome/free-solid-svg-icons';
@@ -77,6 +78,7 @@ export default () => {
 
   return (
     <>
+      <LegacyDataNotice />
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
           <h4 className="mb-0">{t("finance_dashboard", "Finance Dashboard")}</h4>

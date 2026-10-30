@@ -15,6 +15,13 @@
 
 ---
 
+## Reprise DAKAFARM : la donnée avant l’interface
+
+La branche de reprise ajoute activités, campagnes pluriannuelles, validation des sources,
+valorisation contrôlée et graphiques issus des données rattachées.
+Consulter le [contrat de données et la recette](docs/DATA-REWORK.md) avant toute migration.
+Ce premier périmètre de gestion reste à valider et ne certifie pas les états comptables historiques.
+
 ## Overview
 
 AMAS FARM Management System replaces scattered paper and spreadsheet records with one connected platform. Farm activity, sales, purchasing, stock, payroll, assets and accounting all share one database and one ledger. A payment recorded in one module shows up in the finance reports without any manual re-entry.

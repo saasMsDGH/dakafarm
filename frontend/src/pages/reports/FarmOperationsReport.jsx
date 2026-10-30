@@ -1,3 +1,4 @@
+import LegacyDataNotice from '../../components/LegacyDataNotice';
 import React, { useState, useEffect, useRef } from "react";
 import { Card, Button, Spinner, Alert, Form, Row, Col, Table } from "@themesberg/react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -679,6 +680,7 @@ export default () => {
 
     return (
         <div className="report-container">
+            <LegacyDataNotice />
             {/* Action Bar */}
             <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-3 d-print-none">
                 <div className="d-block mb-2 mb-md-0">

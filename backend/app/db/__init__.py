@@ -27,3 +27,5 @@ from app.api.v1.assets.models.asset_payment import AssetPayment
 from app.api.v1.finance.models.account import FinancialAccount
 from app.api.v1.finance.models.transaction import FinancialTransaction
 __all__ = ["Base","Users","Roles","UserRole","House","Flock","FeedRecord", "ProductionRecord", "MortalityRecord", "MedicationRecord", "VaccinationRecord", "ProductCategory", "Product", "StockMovement", "Customer", "Sale", "SaleItem", "Payment", "Supplier", "Purchase", "PurchaseItem", "PurchasePayment", "Expense", "ExpensePayment", "Employee", "Payroll", "PayrollPayment", "Asset", "AssetDistribution", "AssetPayment", "FinancialAccount", "FinancialTransaction"]
+
+from app.api.v1.campaigns.models import Activity, Campaign, CampaignEvent, ProductValuation

@@ -23,8 +23,11 @@ class ProductRepo:
         return product
 
     @staticmethod
-    async def get_by_id(db: AsyncSession, product_id: int) -> Optional[Product]:
-        result = await db.execute(select(Product).where(Product.id == product_id))
+    async def get_by_id(db: AsyncSession, product_id: int, for_update: bool = False) -> Optional[Product]:
+        query = select(Product).where(Product.id == product_id)
+        if for_update:
+            query = query.with_for_update().execution_options(populate_existing=True)
+        result = await db.execute(query)
         return result.scalar_one_or_none()
     @staticmethod
     async def get_by_name(db: AsyncSession, product_name: str) -> Optional[Product]:
@@ -78,6 +81,8 @@ class ProductRepo:
 
     @staticmethod
     async def update(db: AsyncSession, product: Product, data: dict) -> Product:
+        if any(k in data and data[k] is not None for k in ["unit_price", "current_stock"]):
+            product.cost_basis = "UNVERIFIED"
         for field, value in data.items():
             if value is not None:
                 setattr(product, field, value)
@@ -103,3 +108,9 @@ class ProductRepo:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Cannot delete product because it is referenced by stock transactions.",
             )
+
+
+    @staticmethod
+    async def lock_many(db: AsyncSession, product_ids):
+        await db.execute(select(Product).where(Product.id.in_(sorted(set(product_ids))))
+                         .order_by(Product.id).with_for_update())

@@ -3,8 +3,11 @@ FeedRecord service - business logic.
 """
 
 from fastapi import HTTPException, status
+from app.shared.transactions import atomic
+from app.api.v1.campaigns.service import require_unassigned
 from sqlalchemy.ext.asyncio import AsyncSession
 from decimal import Decimal
+from datetime import datetime, time, timezone
 
 from app.api.v1.farm.models.feed_record import FeedRecord
 from app.api.v1.farm.repository.FeedRecordRepo import FeedRecordRepo
@@ -24,6 +27,7 @@ class FeedRecordService:
     """Business logic for FeedRecord."""
 
     @staticmethod
+    @atomic
     async def create(
         db: AsyncSession,
         request: FeedRecordCreate,
@@ -45,7 +49,7 @@ class FeedRecordService:
                 detail="product_id is strictly required for feed records."
             )
             
-        product = await ProductRepo.get_by_id(db, request.product_id)
+        product = await ProductRepo.get_by_id(db, request.product_id, for_update=True)
         if not product:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -79,7 +83,7 @@ class FeedRecordService:
             total_cost=total_cost,
             recorded_by=current_user_id,
         )
-        created_record = await FeedRecordRepo.create(db, new_record)
+        created_record = await FeedRecordRepo.create(db, new_record, commit=False)
 
         # 4. Automate the Inventory Movement
         movement_request = StockMovementCreate(
@@ -88,9 +92,9 @@ class FeedRecordService:
             quantity=request.quantity_used,
             reference_type="FeedRecord",
             reference_id=created_record.id,
-            movement_date=None
+            movement_date=datetime.combine(request.record_date, time.min, timezone.utc)
         )
-        await StockMovementService.create(db, movement_request, current_user_id)
+        await StockMovementService.create(db, movement_request, current_user_id, commit=False)
         
         await db.refresh(created_record)
         return created_record
@@ -120,12 +124,14 @@ class FeedRecordService:
         )
 
     @staticmethod
+    @atomic
     async def update(
         db: AsyncSession,
         record_id: int,
         request: FeedRecordUpdate,
         current_user_id: int,
     ) -> FeedRecord:
+        await require_unassigned(db,'FEED',record_id)
         record = await FeedRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(
@@ -133,6 +139,7 @@ class FeedRecordService:
                 detail=f"FeedRecord with id {record_id} not found.",
             )
             
+        await ProductRepo.lock_many(db, [p for p in [record.product_id, request.product_id] if p])
         old_product_id = record.product_id
         old_quantity = record.quantity_used
         new_product_id = request.product_id if request.product_id is not None else old_product_id
@@ -148,7 +155,7 @@ class FeedRecordService:
                 reference_type="FeedRecord",
                 reference_id=record.id
             )
-            await StockMovementService.create(db, revert_req, current_user_id)
+            await StockMovementService.create(db, revert_req, current_user_id, commit=False)
             
             # Check and pull from new product
             new_prod = await ProductRepo.get_by_id(db, new_product_id)
@@ -164,7 +171,7 @@ class FeedRecordService:
                 reference_type="FeedRecord",
                 reference_id=record.id
             )
-            await StockMovementService.create(db, pull_req, current_user_id)
+            await StockMovementService.create(db, pull_req, current_user_id, commit=False)
             await db.refresh(record)
             
         # Scenario B: Same product, quantity changed (Delta)
@@ -182,7 +189,7 @@ class FeedRecordService:
                     reference_type="FeedRecord",
                     reference_id=record.id
                 )
-                await StockMovementService.create(db, mov_req, current_user_id)
+                await StockMovementService.create(db, mov_req, current_user_id, commit=False)
                 await db.refresh(record)
             elif delta < 0:
                 # We used LESS feed, ADJUSTMENT to return the difference
@@ -193,7 +200,7 @@ class FeedRecordService:
                     reference_type="FeedRecord",
                     reference_id=record.id
                 )
-                await StockMovementService.create(db, mov_req, current_user_id)
+                await StockMovementService.create(db, mov_req, current_user_id, commit=False)
                 await db.refresh(record)
 
         update_data = request.model_dump(exclude_unset=True)
@@ -213,12 +220,14 @@ class FeedRecordService:
             if c_qty is not None and c_cost is not None:
                 update_data["total_cost"] = c_qty * c_cost
 
-        updated_record = await FeedRecordRepo.update(db, record, update_data)
+        updated_record = await FeedRecordRepo.update(db, record, update_data, commit=False)
         await db.refresh(updated_record)
         return updated_record
 
     @staticmethod
+    @atomic
     async def delete(db: AsyncSession, record_id: int, current_user_id: int) -> None:
+        await require_unassigned(db,'FEED',record_id)
         record = await FeedRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(
@@ -235,6 +244,6 @@ class FeedRecordService:
                 reference_type="FeedRecord_Deleted",
                 reference_id=record.id
             )
-            await StockMovementService.create(db, restore_req, current_user_id)
+            await StockMovementService.create(db, restore_req, current_user_id, commit=False)
             
-        await FeedRecordRepo.delete(db, record)
+        await FeedRecordRepo.delete(db, record, commit=False)

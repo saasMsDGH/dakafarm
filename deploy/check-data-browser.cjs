@@ -1,0 +1,86 @@
+// Recette réelle du build Web et de l'API isolés. Aucun jeton ni mot de passe affiché.
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || '/home/romeo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const assert = require('node:assert/strict');
+const path = require('node:path');
+const fs = require('node:fs');
+(async () => {
+  const browser = await chromium.launch({ executablePath: process.env.CHROME_BIN || '/usr/bin/google-chrome', headless: true, args: ['--no-sandbox'] });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 1080 }, locale: 'fr-FR' });
+    page.setDefaultTimeout(10000);
+    const errors = [];
+    page.on('pageerror', e => errors.push(e.message));
+    await page.goto(process.env.TEST_WEB_URL + '/#/examples/sign-in');
+    await page.locator('#username input').fill(process.env.TEST_ADMIN_EMAIL);
+    await page.locator('#password input').fill(process.env.TEST_ADMIN_PASSWORD);
+    await page.locator('button[type=submit]').click();
+    await page.getByRole('link', { name: 'Campagnes et données', exact: true }).first().waitFor();
+    await page.getByRole('link', { name: 'Campagnes et données', exact: true }).first().click();
+    await page.getByRole('heading', { name: 'Campagnes et données', exact: true }).waitFor();
+    await page.getByText('Aucune campagne. Commencez').waitFor();
+    await page.getByRole('button', { name: 'Activités et campagnes', exact: true }).click();
+    const activityForm = page.locator('form').filter({ has: page.getByRole('button', { name: 'Créer l’activité', exact: true }) });
+    await activityForm.getByLabel('Code', { exact: true }).fill('AVICULTURE-RECETTE');
+    await activityForm.getByLabel('Nom de l’activité').fill('Aviculture · recette');
+    await activityForm.getByRole('button', { name: 'Créer l’activité' }).click();
+    await page.getByText('Aviculture · recette (AVICULTURE-RECETTE)').waitFor();
+    const campaignForm = page.locator('form').filter({ has: page.getByRole('button', { name: 'Créer la campagne', exact: true }) });
+    await campaignForm.locator('select[name="activity_id"]').selectOption({ label: 'Aviculture · recette' });
+    await campaignForm.getByLabel('Code', { exact: true }).fill('PONDEUSES-2025-2027');
+    await campaignForm.getByLabel('Nom', { exact: true }).fill('Pondeuses 2025–2027 · recette');
+    await campaignForm.getByLabel('Début', { exact: true }).fill('2025-01-01');
+    await campaignForm.getByLabel('Fin prévue (facultative)').fill('2027-12-31');
+    await campaignForm.getByRole('button', { name: 'Créer la campagne' }).click();
+    await page.getByRole('checkbox', { name: /Pondeuses 2025/ }).waitFor();
+    const token = await page.evaluate(() => localStorage.getItem('access_token'));
+    const headers = { Authorization: 'Bearer ' + token };
+    async function post(endpoint, data) {
+      const res = await page.request.post(process.env.TEST_WEB_URL + endpoint, { headers, data });
+      assert.equal(res.status(), 201, 'Création de la pièce synthétique');
+      return res.json();
+    }
+    await post('/api/v1/pos/expenses/', { category: 'Transport', description: 'Pièce synthétique pour la recette', amount: '15000', expense_date: '2025-06-01T00:00:00Z' });
+    const category = await post('/api/v1/inventory/product-categories/', { name: 'Aliments · recette' });
+    await post('/api/v1/inventory/products/', { name: 'Aliment · recette', category_id: category.id, unit_of_measure: 'kg', current_stock: '20', unit_price: '1000' });
+    await page.getByRole('button', { name: '2. Vérifier les sources', exact: true }).click();
+    await page.getByLabel('Type de source').selectOption('EXPENSE');
+    await page.getByRole('button', { name: 'Vérifier et rattacher', exact: true }).click();
+    const dialog = page.getByRole('region', { name: /^Vérifier EXP-/ });
+    await dialog.getByLabel('Motif et référence du justificatif').fill('Justificatif synthétique contrôlé en XOF');
+    await dialog.getByRole('checkbox').check();
+    await dialog.getByRole('button', { name: 'Confirmer', exact: true }).click();
+    await page.getByRole('button', { name: 'Libérer pour corriger', exact: true }).waitFor();
+    await page.getByRole('button', { name: '1. Lire les résultats', exact: true }).click();
+    await page.getByRole('heading', { name: 'Lecture par année', exact: true }).waitFor();
+    assert.match(await page.locator('section').innerText(), /-15\s000\sFCFA/);
+    const out = path.join(__dirname, '../docs/screenshots'); fs.mkdirSync(out, { recursive: true });
+    await page.screenshot({ path: path.join(out, 'campagnes-resultats-recette.png'), fullPage: true });
+    await page.getByRole('button', { name: 'Historique', exact: true }).click();
+    await page.getByRole('cell', { name: /Justificatif synthétique contrôlé en XOF/ }).waitFor();
+    await page.getByRole('button', { name: '2. Vérifier les sources', exact: true }).click();
+    await page.getByRole('button', { name: 'Libérer pour corriger', exact: true }).click();
+    const release = page.getByRole('region', { name: 'Libérer une affectation', exact: true });
+    await release.getByLabel('Motif et référence du justificatif').fill('Correction de campagne, recette synthétique');
+    await release.getByRole('button', { name: 'Confirmer', exact: true }).click();
+    await page.getByRole('button', { name: 'Vérifier et rattacher', exact: true }).waitFor();
+    await page.getByRole('button', { name: '3. Vérifier les coûts', exact: true }).click();
+    const productRow = page.getByRole('row').filter({ has: page.getByRole('cell', { name: 'Aliment · recette', exact: true }) });
+    await productRow.getByRole('button', { name: 'Déclarer le coût', exact: true }).click();
+    const valueForm = page.getByRole('region', { name: 'Valoriser Aliment · recette', exact: true });
+    await valueForm.getByLabel('Coût unitaire justifié en FCFA').fill('1000');
+    await valueForm.getByLabel('Motif et référence du justificatif').fill('Inventaire synthétique contrôlé');
+    await valueForm.getByRole('checkbox').check();
+    await valueForm.getByRole('button', { name: 'Confirmer', exact: true }).click();
+    await page.getByRole('cell', { name: 'Déclaré en XOF', exact: true }).waitFor();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.getByRole('button', { name: '2. Vérifier les sources', exact: true }).click();
+    await page.getByRole('button', { name: 'Vérifier et rattacher', exact: true }).waitFor();
+    assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), 'Pas de débordement horizontal sur mobile');
+    assert.deepEqual(errors, [], 'Aucune erreur JavaScript');
+    console.log('Navigateur : connexion, état vide, création activité/campagne, affectation XOF, graphiques, historique, libération, valorisation et mobile vérifiés.');
+  } finally { await browser.close(); }
+})().catch(e => {
+  let message = e.message;
+  for (const value of [process.env.TEST_ADMIN_PASSWORD, process.env.TEST_ADMIN_EMAIL]) if (value) message = message.replaceAll(value, '[masqué]');
+  console.error('Échec recette navigateur : ' + message); process.exitCode = 1;
+});

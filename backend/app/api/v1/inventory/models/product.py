@@ -10,7 +10,8 @@ class Product(Base):
     category_id = Column(Integer, ForeignKey("product_categories.id", ondelete="RESTRICT"), nullable=False)
     name = Column(String(100), index=True, nullable=False)
     unit_of_measure = Column(String(50), nullable=False) # e.g., kg, liters, bags
-    unit_price = Column(Numeric(15, 2), default=0.00)
+    unit_price = Column(Numeric(20, 6), default=0.00)
+    cost_basis = Column(String(24), nullable=False, default="UNVERIFIED", server_default="UNVERIFIED")
     selling_price = Column (Numeric(15,2) , default =0.00)
     current_stock = Column(Numeric(15, 3), default=0.000)
     reorder_level = Column(Numeric(15, 3), default=0.000)

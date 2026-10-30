@@ -10,6 +10,7 @@ from app.api.v1.pos.models.payment import Payment
 from app.api.v1.pos.repository.SaleRepo import SaleRepo
 from app.api.v1.pos.repository.PaymentRepo import PaymentRepo
 from app.api.v1.pos.repository.CustomerRepo import CustomerRepo
+from app.api.v1.inventory.repository.ProductRepo import ProductRepo
 from app.api.v1.inventory.service.StockMovementService import StockMovementService
 from app.api.v1.inventory.schemas.StockMovementSchema import StockMovementCreate
 from app.api.v1.pos.schemas.SaleSchema import SaleCreate, SaleListResponse
@@ -89,6 +90,7 @@ class SaleService:
         )
         created_sale = await SaleRepo.create(db, sale)
 
+        await ProductRepo.lock_many(db, [item.product_id for item in request.items])
         # 4. Process Items & Inventory
         for req_item in request.items:
             # Create Sale Item

@@ -1,6 +1,7 @@
 import uuid
 from decimal import Decimal
 from fastapi import HTTPException, status
+from app.api.v1.campaigns.service import require_unassigned
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -126,6 +127,7 @@ class ExpenseService:
 
     @staticmethod
     async def update(db: AsyncSession, expense_id: int, request: ExpenseUpdate) -> Expense:
+        await require_unassigned(db,'EXPENSE',expense_id)
         expense = await ExpenseRepo.get_by_id(db, expense_id)
         if not expense:
             raise HTTPException(
@@ -137,6 +139,7 @@ class ExpenseService:
 
     @staticmethod
     async def delete(db: AsyncSession, expense_id: int) -> None:
+        await require_unassigned(db,'EXPENSE',expense_id)
         expense = await ExpenseRepo.get_by_id(db, expense_id)
         if not expense:
             raise HTTPException(

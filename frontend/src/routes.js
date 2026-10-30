@@ -1,4 +1,5 @@
 export const Routes = {
+    CampaignData: { path: "/campaigns", roles: ["admin", "finance_manager"] },
     // Core (All roles)
     DashboardOverview: { path: "/", roles: ["admin"] },
     Signin: { path: "/examples/sign-in", roles: [] },

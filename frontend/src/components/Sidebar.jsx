@@ -157,6 +157,9 @@ const Sidebar = (props) => {
               <Dropdown.Divider className="my-3 border-indigo" />
               
               {/* Core Dashboard - Visible if they have roles for DashboardOverview */}
+              {['admin', 'finance_manager'].includes(user?.role_name) && (
+                <NavItem title="Campagnes et données" link={Routes.CampaignData.path} icon={faChartBar} />
+              )}
               {user?.role_name === 'admin' && (
                 <NavItem title={t('dashboard', 'Dashboard')} link={Routes.DashboardOverview.path} icon={faChartPie} />
               )}

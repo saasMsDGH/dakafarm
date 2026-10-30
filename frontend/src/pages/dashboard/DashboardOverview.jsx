@@ -1,3 +1,4 @@
+import LegacyDataNotice from '../../components/LegacyDataNotice';
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
@@ -173,6 +174,7 @@ export default () => {
 
   return (
     <>
+      <LegacyDataNotice />
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div>
           <h4>{t('dashboard') || 'Control Center'}</h4>

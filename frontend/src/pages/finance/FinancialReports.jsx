@@ -1,3 +1,4 @@
+import LegacyDataNotice from '../../components/LegacyDataNotice';
 import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -73,6 +74,7 @@ export default () => {
 
   return (
     <>
+      <LegacyDataNotice />
       <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center py-4">
         <div className="d-block mb-4 mb-md-0">
           <h4>{t("financial_reports", "Financial Reports")}</h4>

@@ -1,4 +1,4 @@
-﻿from fastapi import HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.inventory.models.stock_movement import StockMovement
 from app.api.v1.inventory.repository.StockMovementRepo import StockMovementRepo
@@ -9,16 +9,24 @@ from app.api.v1.inventory.schemas.StockMovementSchema import (
 )
 from app.shared.pagination import PaginationParams, compute_pages
 import datetime
+from decimal import Decimal, ROUND_HALF_UP
 
 class StockMovementService:
     @staticmethod
-    async def create(db: AsyncSession, request: StockMovementCreate, current_user_id: int, commit: bool = True) -> StockMovement:
-        product = await ProductRepo.get_by_id(db, request.product_id)
+    async def create(db: AsyncSession, request: StockMovementCreate, current_user_id: int, commit: bool = True, purchase_valued: bool = False) -> StockMovement:
+        # Conserver le CUMP calculé dans la même transaction avant le rechargement verrouillé.
+        await db.flush()
+        product = await ProductRepo.get_by_id(db, request.product_id, for_update=True)
         if not product:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Product with id {request.product_id} not found."
             )
+
+        cost = product.unit_price
+        basis = product.cost_basis
+        if request.movement_type in {"IN", "ADJUSTMENT"} and not purchase_valued:
+            product.cost_basis = "UNVERIFIED"
 
         # Apply stock math securely
         if request.movement_type == "IN":
@@ -31,6 +39,8 @@ class StockMovementService:
                 )
             product.current_stock -= request.quantity
         elif request.movement_type == "ADJUSTMENT":
+            if product.current_stock + request.quantity < 0:
+                raise HTTPException(422, "Un ajustement ne peut pas rendre le stock négatif.")
             product.current_stock += request.quantity
 
         movement = StockMovement(
@@ -40,6 +50,10 @@ class StockMovementService:
             reference_type=request.reference_type,
             reference_id=request.reference_id,
             movement_date=request.movement_date or datetime.datetime.now(datetime.timezone.utc),
+            unit_cost_snapshot=cost if request.movement_type == "OUT" else None,
+            valuation_basis=basis if request.movement_type == "OUT" else None,
+            cost_total_fcfa=int((request.quantity * cost).quantize(Decimal("1"), rounding=ROUND_HALF_UP))
+                if request.movement_type == "OUT" and basis in {"DECLARED", "WEIGHTED_AVERAGE"} and cost is not None else None,
             created_by=current_user_id
         )
 

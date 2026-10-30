@@ -1,4 +1,5 @@
 import uuid
+from app.api.v1.inventory.service.valuation import apply_purchase_cost
 import datetime
 from decimal import Decimal
 from fastapi import HTTPException, status
@@ -44,6 +45,8 @@ class PurchaseService:
         # 2. Calculate totals
         subtotal = sum((item.quantity * item.unit_cost) for item in request.items)
         total_amount = subtotal - request.discount
+        if total_amount < 0:
+            raise HTTPException(422, "La remise ne peut pas dépasser le total de l’achat.")
 
         if request.amount_paid > total_amount:
             raise HTTPException(status_code=400, detail="Amount paid cannot exceed total amount.")
@@ -81,10 +84,11 @@ class PurchaseService:
         )
         created_purchase = await PurchaseRepo.create(db, purchase)
 
+        await ProductRepo.lock_many(db, [item.product_id for item in request.items])
         # 5. Process Items & Inventory (stock IN)
         for req_item in request.items:
             # Validate product exists
-            product = await ProductRepo.get_by_id(db, req_item.product_id)
+            product = await ProductRepo.get_by_id(db, req_item.product_id, for_update=True)
             if not product:
                 raise HTTPException(status_code=404, detail=f"Product with id {req_item.product_id} not found.")
 
@@ -106,10 +110,9 @@ class PurchaseService:
                 reference_type="Purchase",
                 reference_id=created_purchase.id
             )
-            await StockMovementService.create(db, movement_request, current_user_id, commit=False)
-
-            # Update product's cost price (unit_price) with latest purchase cost
-            product.unit_price = req_item.unit_cost
+            discount_factor = total_amount / subtotal if subtotal else Decimal('1')
+            apply_purchase_cost(db, product, req_item.quantity, req_item.unit_cost * discount_factor, created_purchase.id, current_user_id)
+            await StockMovementService.create(db, movement_request, current_user_id, commit=False, purchase_valued=True)
             if req_item.new_selling_price is not None:
                 product.selling_price = req_item.new_selling_price
 

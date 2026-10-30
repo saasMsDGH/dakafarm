@@ -28,7 +28,7 @@ export default () => {
 
     try {
       await login(username, password);
-      history.push(Routes.DashboardOverview.path);
+      history.push(Routes.CampaignData.path);
     } catch (err) {
       setError(err.response?.data?.detail || t('login_failed', 'Network error. Please try again.'));
     } finally {

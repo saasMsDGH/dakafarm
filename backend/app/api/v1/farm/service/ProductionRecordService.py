@@ -3,6 +3,7 @@ ProductionRecord service — business logic.
 """
 
 from fastapi import HTTPException, status
+from app.api.v1.campaigns.service import require_unassigned
 from sqlalchemy.ext.asyncio import AsyncSession
 from decimal import Decimal
 
@@ -119,6 +120,7 @@ class ProductionRecordService:
         request: ProductionRecordUpdate,
     ) -> ProductionRecord:
         """Update a production record and recalculate derived fields if necessary."""
+        await require_unassigned(db,'PRODUCTION',record_id)
         record = await ProductionRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(
@@ -164,6 +166,7 @@ class ProductionRecordService:
     @staticmethod
     async def delete(db: AsyncSession, record_id: int) -> None:
         """Delete a production record."""
+        await require_unassigned(db,'PRODUCTION',record_id)
         record = await ProductionRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(
