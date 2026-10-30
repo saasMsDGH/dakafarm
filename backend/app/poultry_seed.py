@@ -230,4 +230,12 @@ async def seed_poultry(db,actor,if_absent=False):
                 await cash(campaign,when,amount,'PAYROLL',ref)
     manifest={'extension':EXTENSION,'campaign_ids':campaign_ids,'source_count':sum(source_counts.values()),'sources':dict(source_counts),'employee_ids':employees,'customer_ids':customer_ids,'employee_count':10,'monthly_salary_fcfa':SALARY,'monthly_payroll_fcfa':10*SALARY,'as_of':AS_OF.isoformat(),'retired_sources':len(events)}
     extension.manifest=manifest;await db.flush()
+    # Valider dans cette transaction : aucune retraite V1 ni pièce V2 ne doit
+    # devenir visible si les rapprochements du jeu complet échouent.
+    from app.api.v1.campaigns.service import _report
+    verified=await _report(db,campaign_ids,AS_OF)
+    if (not verified['quality']['result_available'] or verified['poultry']['employee_count']!=10
+            or verified['poultry']['customer_count']!=10
+            or sum(int(c['wages']) for c in verified['poultry']['campaigns'])!=34000000):
+        raise RuntimeError('Rapprochement avicole incomplet : extension et archivage annulés.')
     return {**manifest,'replayed':False}
