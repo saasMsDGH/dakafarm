@@ -460,7 +460,7 @@ export default () => {
       <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
         <div style="flex: 2; text-align: left; padding-right: 5px;">
           <div>${getProductName(item.product_id)}</div>
-          <div style="color: #555; font-size: 12px;">@ TSh ${parseFloat(item.unit_price).toLocaleString()}</div>
+          <div style="color: #555; font-size: 12px;">@ FCFA ${parseFloat(item.unit_price).toLocaleString()}</div>
         </div>
         <div style="flex: 1; text-align: center;">${item.quantity}</div>
         <div style="flex: 1; text-align: right;">${parseFloat(item.total_amount).toLocaleString()}</div>
@@ -550,23 +550,23 @@ export default () => {
             
             <div class="flex-between">
               <span>SUBTOTAL</span>
-              <span>TSh ${parseFloat(currentPurchase.subtotal).toLocaleString()}</span>
+              <span>FCFA ${parseFloat(currentPurchase.subtotal).toLocaleString()}</span>
             </div>
             <div class="flex-between">
               <span>DISCOUNT</span>
-              <span>TSh ${parseFloat(currentPurchase.discount).toLocaleString()}</span>
+              <span>FCFA ${parseFloat(currentPurchase.discount).toLocaleString()}</span>
             </div>
             <div class="flex-between" style="font-size: 16px; font-weight: 900; margin: 5px 0;">
               <span>TOTAL</span>
-              <span>TSh ${parseFloat(currentPurchase.total_amount).toLocaleString()}</span>
+              <span>FCFA ${parseFloat(currentPurchase.total_amount).toLocaleString()}</span>
             </div>
             <div class="flex-between">
               <span>CASH / PAID</span>
-              <span>TSh ${parseFloat(currentPurchase.amount_paid).toLocaleString()}</span>
+              <span>FCFA ${parseFloat(currentPurchase.amount_paid).toLocaleString()}</span>
             </div>
             <div class="flex-between">
               <span>BALANCE</span>
-              <span>TSh ${(parseFloat(currentPurchase.total_amount) - parseFloat(currentPurchase.amount_paid)).toLocaleString()}</span>
+              <span>FCFA ${(parseFloat(currentPurchase.total_amount) - parseFloat(currentPurchase.amount_paid)).toLocaleString()}</span>
             </div>
             
             <br/>
@@ -742,7 +742,7 @@ export default () => {
                                     Stock: {p.current_stock}
                                   </Badge>
                                   <div className="fw-bolder text-primary" style={{ fontSize: '16px' }}>
-                                    TSh {parseFloat(p.selling_price).toLocaleString()}
+                                    FCFA {parseFloat(p.selling_price).toLocaleString()}
                                   </div>
                                 </Card.Body>
                               </Card>
@@ -838,7 +838,7 @@ export default () => {
                         </div>
                         <div className="d-flex justify-content-between mb-3 p-2 bg-light rounded">
                           <span className="fw-bold h5 mb-0 text-dark">{t('total_due')}:</span>
-                          <span className="fw-bold h5 mb-0 text-danger">{cartTotal.toLocaleString()} TSh</span>
+                          <span className="fw-bold h5 mb-0 text-danger">{cartTotal.toLocaleString()} FCFA</span>
                         </div>
                         
                         <div className="d-flex justify-content-between align-items-center mb-2">

@@ -32,6 +32,7 @@ export default (props) => {
       <Container fluid className="px-0">
         <div className="d-flex justify-content-end w-100">
           <Nav className="align-items-center">
+            <span className="badge bg-light text-dark me-3" title="Franc CFA BCEAO">FCFA · XOF</span>
             {/* Language Switcher */}
             <Dropdown as={Nav.Item} className="me-3">
               <Dropdown.Toggle as={Nav.Link} className="pt-1 px-2 d-flex align-items-center text-dark">

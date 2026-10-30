@@ -1,0 +1,25 @@
+import React from 'react';
+import { money } from './numbers.mjs';
+
+const integer = value => new Intl.NumberFormat('fr-FR').format(BigInt(value || '0'));
+export default function PoultryView({ data, Chart, ready }) {
+  if (!data) return <div className="alert alert-info">Sélectionnez une campagne d’élevage pour consulter les cycles de ponte.</div>;
+  const sum = key => data.campaigns.reduce((n,c) => n + BigInt(c[key] || '0'), 0n).toString();
+  const totals = [
+    ['Poules achetées', integer(sum('birds_bought'))], ['Poules vivantes à la date choisie', integer(sum('birds_remaining'))],
+    ['Œufs vendus', integer(sum('eggs_sold'))], ['Poules vendues en fin de cycle', integer(sum('hens_sold'))],
+    ['Fonds investis', money(data.capital_fcfa)], ['ROI de trésorerie réalisé', data.cash_roi_percent === null ? 'À vérifier' : data.cash_roi_percent + ' %'],
+  ];
+  if (!ready) return <div className="alert alert-warning">Les indicateurs avicoles sont suspendus : résoudre les contrôles de sources avant de lire un ROI.</div>;
+  return <>
+    <h2 className="h4">Élevage de poules pondeuses</h2>
+    <p>Achats de poulettes, ponte, nourriture, vaccins, salaires et vente des poules en fin de cycle. Toutes les hypothèses sont fictives et les montants sont en francs CFA (XOF).</p>
+    <div className="row g-3 mb-3">{totals.map(([title,value]) => <div key={title} className="col-sm-6 col-lg-4"><div className="card p-3 h-100"><span>{title}</span><strong className="mt-2">{value}</strong></div></div>)}</div>
+    <div className="alert alert-info"><strong>{data.employee_count} employés avec paies rattachées · salaire moyen : {money(data.salary_mean_fcfa)} par mois.</strong> Les dix salaires de 100 000 FCFA représentent 1 000 000 FCFA mensuels pour l’ensemble de l’élevage. Ils sont répartis entre les bandes actives, jamais multipliés par le nombre de campagnes. Les cotisations patronales restent à paramétrer. {data.customer_count} clients figurent dans les ventes sélectionnées.</div>
+    <h3 className="h5">Bilan de chaque bande</h3><div className="row g-3 mb-3">{data.campaigns.map(c => <div className="col-lg-6" key={c.campaign_id}><article className="card p-3 h-100 poultry-band"><h4 className="h6">{c.name}</h4><p className="small">{integer(c.birds_remaining)} poules restantes · {integer(c.deaths)} pertes · {integer(c.hens_sold)} poules vendues en fin de cycle</p><dl className="row mb-0">{[['Fonds investis','capital_fcfa'],['Achat des poulettes','bird_purchase'],['Ventes d’œufs','egg_revenue'],['Vente des poules de fin de cycle','hen_revenue'],['Alimentation consommée','feed_cost'],['Vaccins consommés','vaccine_cost'],['Salaires affectés','wages'],['Autres frais','other_cost'],['Résultat de gestion','management_result_fcfa']].map(([label,key]) => <React.Fragment key={key}><dt className="col-6 fw-normal">{label}</dt><dd className="col-6 text-end">{money(c[key])}</dd></React.Fragment>)}<dt className="col-6">ROI de trésorerie</dt><dd className="col-6 text-end fw-bold">{c.cash_roi_percent === null ? 'À vérifier' : c.cash_roi_percent + ' %'}</dd><dt className="col-6 fw-normal">Coûts décaissés récupérés le</dt><dd className="col-6 text-end">{c.payback_date || 'Pas encore atteint'}</dd></dl></article></div>)}</div>
+    <div className="row g-3 mb-3"><div className="col-lg-6"><div className="card p-3 h-100"><h3 className="h5">Vente des œufs et des poules</h3><Chart rows={data.monthly} series={[{key:'egg_revenue',name:'Œufs vendus',color:'#20866a'},{key:'hen_revenue',name:'Poules de fin de cycle',color:'#326a9e'}]} /></div></div><div className="col-lg-6"><div className="card p-3 h-100"><h3 className="h5">Coûts de fonctionnement</h3><Chart rows={data.monthly} series={[{key:'feed_cost',name:'Alimentation consommée',color:'#be7043'},{key:'vaccine_cost',name:'Vaccins consommés',color:'#8655a3'},{key:'wages',name:'Salaires',color:'#326a9e'},{key:'other_cost',name:'Autres frais',color:'#6f7d24'}]} /></div></div></div>
+    <div className="card p-3 mb-3"><h3 className="h5">Ponte et pertes d’œufs</h3><Chart quantity rows={data.monthly} series={[{key:'eggs_produced',name:'Bons œufs produits',color:'#20866a'},{key:'damaged_eggs',name:'Œufs déclassés',color:'#be7043'}]} /></div>
+    <div className="card p-3 mb-3"><h3 className="h5">Récupération des coûts et trésorerie du cycle</h3><p>Flux cumulés hors apports. Le passage au-dessus de zéro indique que les encaissements ont couvert les décaissements observés. Les stocks achetés pour les mois futurs restent des décaissements dans cette courbe.</p><Chart line rows={data.monthly} series={[{key:'cumulative_cash_fcfa',name:'Flux cumulé hors apports',color:'#20866a'}]} /></div>
+    <details className="card p-3 mb-3"><summary>Voir les employés et les hypothèses</summary><ul>{data.employees.map(e => <li key={e.id}>{e.name} · {e.position}</li>)}</ul><p>Hypothèses de départ : poulettes à 3 000 FCFA, œuf à 120 FCFA, poule de fin de cycle à 1 500 FCFA, aliment à 350 FCFA/kg. Ces valeurs servent à tester les données ; ce ne sont pas des cours de marché.</p><p>{data.note}</p></details>
+  </>;
+}

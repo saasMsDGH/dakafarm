@@ -197,7 +197,7 @@ export default () => {
               ) : (
                 records.map(record => (
                   <tr key={record.id}>
-                    <td><span className="fw-normal">{record.record_date}</span></td>
+                    <td><span className="fw-normal">{record.period_start_date ? `${record.period_start_date} → ${record.record_date}` : record.record_date}</span></td>
                     <td><span className="fw-normal">{getFlockDisplay(record.flock_id)}</span></td>
                     <td><span className="fw-normal">{record.total_birds}</span></td>
                     <td><span className="fw-bold">{record.total_eggs}</span></td>

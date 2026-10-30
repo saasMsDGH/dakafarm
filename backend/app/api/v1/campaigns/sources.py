@@ -13,13 +13,22 @@ from app.api.v1.inventory.models.stock_movement import StockMovement
 from app.api.v1.farm.models.production_record import ProductionRecord
 from app.api.v1.farm.models.feed_record import FeedRecord
 
+from app.api.v1.farm.models.vaccination_record import VaccinationRecord
+from app.api.v1.farm.models.medication_record import MedicationRecord
+from app.api.v1.farm.models.mortality_record import MortalityRecord
+from app.api.v1.campaigns.poultry_models import PayrollAllocation
+
 SOURCES = {
     'SALE': (Sale, 'sale_date', ('invoice_number','customer_id','subtotal','discount','total_amount')),
     'PURCHASE': (Purchase, 'purchase_date', ('purchase_number','supplier_id','subtotal','discount','total_amount')),
     'EXPENSE': (Expense, 'expense_date', ('expense_number','description','category','amount')),
     'CASH': (FinancialTransaction, 'transaction_date', ('account_id','transaction_type','direction','amount','reference_number')),
     'STOCK': (StockMovement, 'movement_date', ('product_id','movement_type','quantity','reference_type','reference_id','unit_cost_snapshot','cost_total_fcfa','valuation_basis')),
-    'PRODUCTION': (ProductionRecord, 'record_date', ('flock_id','total_birds','total_eggs','damaged_eggs','good_eggs')),
+    'PRODUCTION': (ProductionRecord, 'record_date', ('flock_id','period_start_date','bird_days','total_birds','total_eggs','damaged_eggs','good_eggs')),
+    'PAYROLL_ALLOC': (PayrollAllocation, 'allocation_date', ('payroll_id','campaign_id','employee_id','amount_fcfa','payroll_net_fcfa','pay_period','method')),
+    'VACCINATION': (VaccinationRecord, 'record_date', ('flock_id','product_id','quantity_used','cost_per_unit','total_cost','disease_targeted')),
+    'MEDICATION': (MedicationRecord, 'record_date', ('flock_id','product_id','quantity_used','cost_per_unit','total_cost','disease_suspected')),
+    'MORTALITY': (MortalityRecord, 'record_date', ('flock_id','quantity','cause')),
     'FEED': (FeedRecord, 'record_date', ('flock_id','product_id','quantity_used','cost_per_unit','total_cost')),
 }
 
@@ -70,7 +79,8 @@ def measures(snapshot):
     if not snapshot.get('date'):
         raise HTTPException(422,'Date absente : corriger la source avant rattachement.')
     result={'revenue':0,'expense':0,'consumption':0,'cash_in':0,'cash_out':0,'funding_in':0,'funding_out':0,'unvalued':0,'unclassified':0,'eggs':0}
-    if kind=='SALE':result['revenue']=integer_amount(raw['total_amount'])
+    if kind=='PAYROLL_ALLOC':result['expense']=integer_amount(raw['amount_fcfa'])
+    elif kind=='SALE':result['revenue']=integer_amount(raw['total_amount'])
     elif kind=='EXPENSE':result['expense']=integer_amount(raw['amount'])
     elif kind=='CASH':
         amount=integer_amount(raw['amount'])
@@ -79,13 +89,13 @@ def measures(snapshot):
         if raw['transaction_type']=='OWNER_INVESTMENT':result['funding_in' if raw['direction']=='IN' else 'funding_out']=amount
         # Aucun double comptage avec les documents de vente, achat ou dépense.
         # Les autres flux demandent encore une qualification économique explicite.
-        if raw['transaction_type'] not in {'SALE','PURCHASE','EXPENSE','OWNER_INVESTMENT'}:
+        if raw['transaction_type'] not in {'SALE','PURCHASE','EXPENSE','PAYROLL','OWNER_INVESTMENT'}:
             result['unclassified']=1
     elif kind=='STOCK' and raw['movement_type']=='OUT':
-        if raw.get('reference_type') not in {'Sale','FeedRecord','MedicationRecord','VaccinationRecord'}:
+        if raw.get('reference_type') not in {'Sale','FeedRecord','MedicationRecord','VaccinationRecord','MortalityRecord'}:
             # Une sortie manuelle n'est pas automatiquement une charge (ex. transfert).
             result['unvalued']=1
-        elif raw.get('valuation_basis') not in {'DECLARED','WEIGHTED_AVERAGE'} or raw.get('cost_total_fcfa') is None:
+        elif raw.get('valuation_basis') not in {'DECLARED','WEIGHTED_AVERAGE','PRODUCTION_EXPENSED'} or raw.get('cost_total_fcfa') is None:
             result['unvalued']=1
         else:result['consumption']=integer_amount(raw['cost_total_fcfa'])
     elif kind=='STOCK' and raw['movement_type']=='ADJUSTMENT':result['unclassified']=1

@@ -66,3 +66,11 @@ les agrégats du serveur, pas des valeurs de démonstration écrites dans le fro
 Le hook ArgoCD de qualification utilise aussi `--if-absent` : les déploiements
 suivants n’écrasent et ne réinitialisent jamais les essais faits sur le jeu déjà
 importé. La commande sans ce drapeau reste disponible pour vérifier le manifeste.
+
+## Extension poules pondeuses
+
+Le scénario d’élevage est désormais détaillé par l’extension
+[dakrex-poultry-v2](POULTRY.md) : quatre bandes, ponte, vaccins, aliments,
+mortalité, fin de cycle et dix paies de 100 000 FCFA par mois réparties entre
+les bandes. Les anciennes pièces de négoce sont conservées en historique, sans
+être additionnées aux nouveaux cycles dans les rapports de campagne.

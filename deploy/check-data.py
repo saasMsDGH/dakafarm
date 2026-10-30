@@ -76,6 +76,7 @@ asyncio.run(main())
               'python','-m','unittest','discover','-s','/tests','-v').strip())
     if '--browser' in sys.argv:
         subprocess.run(['node',str(root/'deploy/check-coexistence-browser.cjs')],env=browser_env,check=True)
+        subprocess.run(['node',str(root/'deploy/check-poultry-browser.cjs')],env=browser_env,check=True)
 
 finally:
     for name in [web,api,db]: subprocess.run(['docker','rm','-f','-v',name],capture_output=True)

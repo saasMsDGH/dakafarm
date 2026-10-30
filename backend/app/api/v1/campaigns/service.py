@@ -7,6 +7,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import aliased
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.v1.campaigns.models import Activity, Campaign, CampaignEvent, ProductValuation, DemoSource
+from app.api.v1.campaigns.poultry_models import RetiredDemoSource, PayrollAllocation
+from app.api.v1.campaigns.poultry_report import validate_payroll, poultry_summary
 from app.api.v1.campaigns.sources import SOURCES, fingerprint, measures, project, source_row
 from app.api.v1.inventory.models.product import Product
 from app.api.v1.inventory.models.stock_movement import StockMovement
@@ -120,7 +122,7 @@ async def release(db,event_id,request,actor):
 
 async def list_sources(db,kind,limit,before_id):
     model=SOURCES[kind][0]
-    query=select(model).order_by(model.id.desc()).limit(limit+1)
+    query=select(model).where(~exists(select(RetiredDemoSource.source_id).where(RetiredDemoSource.source_type==kind,RetiredDemoSource.source_id==model.id))).order_by(model.id.desc()).limit(limit+1)
     if before_id:query=query.where(model.id<before_id)
     rows=list((await db.scalars(query)).all());page=rows[:limit]
     active=list((await db.scalars(terminal_query().where(CampaignEvent.source_type==kind,CampaignEvent.source_id.in_([r.id for r in page]),CampaignEvent.action=='ASSIGN'))).all())
@@ -142,7 +144,7 @@ async def quality(db):
     for e in active:by_kind[e.source_type].add(e.source_id)
     counts={}
     for kind,(model,_,_) in SOURCES.items():
-        total=await db.scalar(select(func.count()).select_from(model))
+        total=await db.scalar(select(func.count()).select_from(model).where(~exists(select(RetiredDemoSource.source_id).where(RetiredDemoSource.source_type==kind,RetiredDemoSource.source_id==model.id))))
         # Une affectation d'une source supprimée ne doit pas masquer une autre source non affectée.
         present=await db.scalar(select(func.count()).select_from(model).where(model.id.in_(by_kind[kind])))
         counts[kind]={'total':total,'assigned':present,'unassigned':total-present}
@@ -220,12 +222,12 @@ async def _report(db,campaign_ids,as_of):
     for event in sources:
         if event['source_type']!='STOCK':continue
         raw=event['snapshot']['data']
-        parent_kind={'Sale':'SALE','FeedRecord':'FEED'}.get(raw.get('reference_type'))
+        parent_kind={'Sale':'SALE','FeedRecord':'FEED','VaccinationRecord':'VACCINATION','MedicationRecord':'MEDICATION','MortalityRecord':'MORTALITY'}.get(raw.get('reference_type'))
         if parent_kind:
             parent=included.get((parent_kind,raw.get('reference_id')))
             if not parent or parent['campaign_id']!=event['campaign_id']:
                 issues.append({'event_id':event['id'],'type':'DOCUMENT_ASSIGNMENT_REQUIRED','source_type':parent_kind,'source_id':raw.get('reference_id')})
-    for kind,reference in [('SALE','Sale'),('FEED','FeedRecord')]:
+    for kind,reference in [('SALE','Sale'),('FEED','FeedRecord'),('VACCINATION','VaccinationRecord'),('MEDICATION','MedicationRecord'),('MORTALITY','MortalityRecord')]:
         wanted=[e['source_id'] for e in sources if e['source_type']==kind]
         if not wanted:continue
         movements=list((await db.scalars(select(StockMovement).where(StockMovement.reference_type==reference,StockMovement.reference_id.in_(wanted)))).all())
@@ -238,6 +240,7 @@ async def _report(db,campaign_ids,as_of):
                 target=included.get(('STOCK',movement.id))
                 if not target or target['campaign_id']!=origin['campaign_id']:
                     issues.append({'event_id':origin['id'],'type':'STOCK_ASSIGNMENT_REQUIRED','source_type':'STOCK','source_id':movement.id})
+    await validate_payroll(db,sources,issues)
     ready=not issues
     cash_ready=not any(i['source_type']=='CASH' and i['type'] in {'SOURCE_CHANGED','SOURCE_MISSING'} for i in issues)
     def serialize(v):
@@ -281,11 +284,17 @@ async def _report(db,campaign_ids,as_of):
                 row[f'activity_{activity.id}']=str(activity_running[activity.id]) if cash_ready else None
             activity_monthly.append(row)
             cursor=date(cursor.year+1,1,1) if cursor.month==12 else date(cursor.year,cursor.month+1,1)
+    campaign_finance=[{'campaign_id':c.id,'activity_id':c.activity_id,'name':c.name,**serialize(per_campaign[c.id])} for c in campaigns]
+    poultry=await poultry_summary(db,sources,campaign_finance,campaigns,as_of,issues)
+    ready=not issues
+    if not ready:
+        for row in monthly+by_activity+campaign_finance:row['result_fcfa']=None
+        for row in monthly:row['cumulative_result_fcfa']=None
     return {'campaign_ids':ids,'campaigns':[campaign_json(c) for c in campaigns],'currency':'XOF','as_of':as_of.isoformat(),
         'scope':'Sources explicitement rattachées uniquement ; aucune reprise automatique de l’historique.',
         'totals':serialize(totals),'monthly':monthly,
         'yearly':[{'period':k,**serialize(v)} for k,v in sorted(years.items())],
-        'by_campaign':[{'campaign_id':c.id,'activity_id':c.activity_id,'name':c.name,**serialize(per_campaign[c.id])} for c in campaigns],
+        'by_campaign':campaign_finance,'poultry':poultry,
         'by_activity':by_activity,'activity_monthly':activity_monthly,'demo_dataset':next(iter(datasets),None),
         'quality':{'result_available':ready,'cash_available':cash_ready,'issues':issues,'unassigned_global':reconciliation['unassigned_total'],
                    'status':'À vérifier' if issues or reconciliation['unassigned_total'] else 'Sources rattachées cohérentes',
@@ -321,7 +330,8 @@ async def require_unassigned(db,kind,source_id):
     if latest and latest.action=='ASSIGN':
         raise HTTPException(409,'Source rattachée à une campagne : libérer explicitement son affectation avant correction.')
     await source_row(db,kind,source_id,lock=True)
-    if kind=='FEED':
-        linked=(await db.scalars(select(StockMovement.id).where(StockMovement.reference_type=='FeedRecord',StockMovement.reference_id==source_id).order_by(StockMovement.id))).all()
+    if kind in {'FEED','VACCINATION','MEDICATION','MORTALITY'}:
+        reference={'FEED':'FeedRecord','VACCINATION':'VaccinationRecord','MEDICATION':'MedicationRecord','MORTALITY':'MortalityRecord'}[kind]
+        linked=(await db.scalars(select(StockMovement.id).where(StockMovement.reference_type==reference,StockMovement.reference_id==source_id).order_by(StockMovement.id))).all()
         for movement_id in linked:
             await require_unassigned(db,'STOCK',movement_id)

@@ -2,14 +2,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ResponsiveContainer, BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { api } from '../../api/axios';
 import { useAuth } from '../../context/AuthContext';
+import PoultryView from './PoultryView';
 import { money, chartRows } from './numbers.mjs';
 
 const base = '/api/v1/campaign-data';
-const kinds = { SALE: 'Ventes', PURCHASE: 'Achats', EXPENSE: 'Dépenses', CASH: 'Mouvements de caisse', STOCK: 'Mouvements de stock', PRODUCTION: 'Production', FEED: 'Alimentation' };
+const kinds = { PAYROLL_ALLOC: 'Salaires ventilés', VACCINATION: 'Vaccinations', MEDICATION: 'Soins', MORTALITY: 'Mortalité', SALE: 'Ventes', PURCHASE: 'Achats', EXPENSE: 'Dépenses', CASH: 'Mouvements de caisse', STOCK: 'Mouvements de stock', PRODUCTION: 'Production', FEED: 'Alimentation' };
 const labels = { invoice_number: 'N° de facture', purchase_number: 'N° d’achat', expense_number: 'N° de dépense', customer_id: 'Client', supplier_id: 'Fournisseur', subtotal: 'Sous-total', discount: 'Remise', total_amount: 'Montant total', description: 'Description', category: 'Catégorie', amount: 'Montant', account_id: 'Compte de trésorerie', transaction_type: 'Nature du flux', direction: 'Sens', reference_number: 'Référence du paiement', product_id: 'Produit', movement_type: 'Type de mouvement', quantity: 'Quantité', reference_type: 'Document d’origine', reference_id: 'Identifiant du document', unit_cost_snapshot: 'Coût unitaire à la sortie', cost_total_fcfa: 'Coût total de sortie en FCFA', valuation_basis: 'Base de valorisation', flock_id: 'Bande', total_birds: 'Effectif', total_eggs: 'Œufs produits', damaged_eggs: 'Œufs endommagés', good_eggs: 'Bons œufs', quantity_used: 'Quantité consommée', cost_per_unit: 'Coût unitaire d’origine', total_cost: 'Coût total d’origine', date: 'Date métier' };
 const issues = { SOURCE_CHANGED: 'Source modifiée après validation', SOURCE_MISSING: 'Source supprimée après validation', UNVALUED_CONSUMPTION: 'Coût de sortie de stock non vérifié', ECONOMIC_CLASSIFICATION_REQUIRED: 'Nature économique à qualifier', STOCK_LINK_MISSING: 'Mouvement de stock manquant', STOCK_ASSIGNMENT_REQUIRED: 'Sortie de stock à rattacher à la même campagne', DOCUMENT_ASSIGNMENT_REQUIRED: 'Document d’origine à rattacher à la même campagne' };
-const tabs = { coexistence: 'Activités côte à côte', overview: '1. Lire les résultats', sources: '2. Vérifier les sources', valuation: '3. Vérifier les coûts', journal: 'Historique', settings: 'Activités et campagnes' };
+const tabs = { poultry: 'Élevage de poules', coexistence: 'Activités côte à côte', overview: '1. Lire les résultats', sources: '2. Vérifier les sources', valuation: '3. Vérifier les coûts', journal: 'Historique', settings: 'Activités et campagnes' };
 issues.CASH_DOCUMENT_LINK_REQUIRED = 'Paiement à rapprocher de son document dans la même campagne';
+issues.PAYROLL_RECONCILIATION_REQUIRED = 'Paie ou ventilation salariale à rapprocher';
+issues.POULTRY_RECONCILIATION_REQUIRED = 'Quantités ou valeurs avicoles à rapprocher';
 issues.SOURCE_PROVENANCE_MISMATCH = 'Origine réelle ou fictive incompatible avec la campagne';
 const amount = value => money(value).replace(/ FCFA$/, '');
 const today = () => new Date().toLocaleDateString('en-CA');
@@ -32,7 +35,7 @@ function State({ state }) {
   return state.loading ? <p role="status">Chargement des données…</p> : state.error ? <p role="alert" className="alert alert-danger">{state.error}</p> : null;
 }
 
-function DataChart({ rows, series, line = false }) {
+function DataChart({ rows, series, line = false, quantity = false }) {
   const values = chartRows(rows, series.map(s => s.key));
   if (!rows.length) return <p>Aucune donnée rattachée sur cette période.</p>;
   if (!values) return <p>Montants trop élevés pour un graphique précis. Les valeurs exactes restent disponibles dans le tableau.</p>;
@@ -40,7 +43,7 @@ function DataChart({ rows, series, line = false }) {
   return <div style={{ width: '100%', height: 285 }} role="img" aria-label={series.map(s => s.name).join(', ')}>
     <ResponsiveContainer><Chart data={values} margin={{ left: 15, right: 15 }}>
       <CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="period" /><YAxis allowDecimals={false} domain={[min => Math.min(0, min), max => Math.max(0, max)]} tickFormatter={n => new Intl.NumberFormat('fr-FR', { notation: 'compact' }).format(n)} />
-      <Tooltip formatter={(value, name) => [money(String(value)), name]} /><Legend />
+      <Tooltip formatter={(value, name) => [quantity ? new Intl.NumberFormat('fr-FR').format(value) + ' œufs' : money(String(value)), name]} /><Legend />
       {series.map(s => line ? <Line key={s.key} type="linear" dataKey={s.key} name={s.name} stroke={s.color} strokeWidth={2} isAnimationActive={false} /> : <Bar key={s.key} dataKey={s.key} name={s.name} fill={s.color} isAnimationActive={false} />)}
     </Chart></ResponsiveContainer>
   </div>;
@@ -49,7 +52,7 @@ function DataChart({ rows, series, line = false }) {
 export default function CampaignData() {
   const { user } = useAuth();
   const isAdmin = user?.role_name === 'admin';
-  const [tab, setTab] = useState('coexistence');
+  const [tab, setTab] = useState(() => window.location.hash.includes('view=poultry') ? 'poultry' : 'coexistence');
   const [activityFilter, setActivityFilter] = useState('all');
   const [dataScope, setDataScope] = useState('real');
   const [revision, setRevision] = useState(0);
@@ -140,14 +143,15 @@ export default function CampaignData() {
     </div>
     <nav aria-label="Étapes de validation" className="d-flex flex-wrap gap-2 mb-4">{Object.entries(tabs).map(([key, title]) => <button key={key} className={`btn btn-${tab === key ? 'primary' : 'outline-primary'}`} aria-current={tab === key ? 'page' : undefined} onClick={() => setTab(key)}>{title}</button>)}</nav>
 
-    {(tab === 'overview' || tab === 'coexistence') && <>
+    {(tab === 'overview' || tab === 'coexistence' || tab === 'poultry') && <>
       <State state={report} />
       {!selected.length && <div className="alert alert-info">Sélectionnez une campagne ou créez-en une dans « Activités et campagnes ».</div>}
       {data && <>
         <div className="alert alert-info"><strong>Périmètre partiel : sources rattachées uniquement.</strong> {data.scope} Le résultat est un indicateur de gestion provisoire. La trésorerie affichée correspond aux flux sélectionnés, sans solde d’ouverture.</div>
         {data.quality.issues.length > 0 && <div className="alert alert-warning"><strong>Résultat suspendu : {data.quality.issues.length} contrôle(s) à résoudre.</strong><p>Les totaux ci-dessous décrivent les instantanés enregistrés lors du rattachement ; les sources signalées doivent être rapprochées.</p><ul className="mb-0">{data.quality.issues.slice(0, 20).map((issue, i) => <li key={i}>{issues[issue.type] || issue.type} — {kinds[issue.source_type]} #{issue.source_id}</li>)}</ul>{data.quality.issues.length > 20 && <p>Les autres contrôles sont disponibles dans l’export JSON.</p>}</div>}
-        {data.demo_dataset && <div className="alert alert-warning" role="note"><strong>DÉMONSTRATION · données fictives en FCFA.</strong> Jeu initial : 8 activités et 4 campagnes par activité. Les opérations vont jusqu’au 30 octobre 2026. Les scénarios comparent des flux financiers simplifiés ; ils ne simulent pas les rendements biologiques, la transformation des matières ni le float Mobile Money.</div>}
-        {data.sources.length > 0 && <div className="row g-3 mb-3">{[['Ventes documentées', data.totals.revenue], ['Dépenses documentées', data.totals.expense], ['Stock consommé valorisé', data.totals.consumption], ['Résultat provisoire', data.totals.result_fcfa], ['Flux net de trésorerie', data.totals.cash_net_fcfa]].map(([label, value]) => <div className="col-sm-6 col-xl" key={label}><div className="card h-100 p-3"><span>{label}</span><strong className="mt-2">{value === null ? 'À vérifier' : money(value)}</strong></div></div>)}</div>}
+        {data.demo_dataset && <div className="alert alert-warning" role="note"><strong>DÉMONSTRATION · données fictives en FCFA.</strong> Jeu initial : 8 activités et 4 campagnes par activité. Les opérations vont jusqu’au 30 octobre 2026. Les scénarios comparent des flux financiers simplifiés ; l’élevage détaille les cycles de ponte et les salaires. La transformation des matières et le float Mobile Money restent simplifiés.</div>}
+        {tab === 'poultry' && <PoultryView data={data.poultry} Chart={DataChart} ready={data.quality.result_available} />}
+        {tab !== 'poultry' && data.sources.length > 0 && <div className="row g-3 mb-3">{[['Ventes documentées', data.totals.revenue], ['Dépenses documentées', data.totals.expense], ['Stock consommé valorisé', data.totals.consumption], ['Résultat provisoire', data.totals.result_fcfa], ['Flux net de trésorerie', data.totals.cash_net_fcfa]].map(([label, value]) => <div className="col-sm-6 col-xl" key={label}><div className="card h-100 p-3"><span>{label}</span><strong className="mt-2">{value === null ? 'À vérifier' : money(value)}</strong></div></div>)}</div>}
         {tab === 'coexistence' && data.sources.length > 0 && <>
           <h2 className="h4">Comment les activités coexistent</h2>
           <p>Comparez le résultat et la caisse séparément. Les apports ne sont pas des ventes. Une activité excédentaire ne finance pas automatiquement sa voisine.</p>

@@ -153,7 +153,7 @@ class ProductionRecordService:
 
         # Recalculate
         good_eggs, laying_percentage = ProductionRecordService._calculate_automated_fields(
-            total_birds=record.total_birds,
+            total_birds=record.bird_days or record.total_birds,
             total_eggs=new_total_eggs,
             damaged_eggs=new_damaged_eggs,
         )

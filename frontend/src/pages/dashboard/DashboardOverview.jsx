@@ -215,7 +215,7 @@ export default () => {
             <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
                 title={t('todays_sales', "Today's Sales")} 
-                value={`${Math.round(financeData.todaySales).toLocaleString()} TZS`} 
+                value={`${Math.round(financeData.todaySales).toLocaleString()} FCFA`}
                 icon={faShoppingCart} 
                 color="primary" 
                 subtitle={t('total_revenue_today', 'Total revenue generated today')}
@@ -226,7 +226,7 @@ export default () => {
             <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
                 title={t('cash_on_hand', 'Cash on Hand')} 
-                value={`${Math.round(financeData.cash).toLocaleString()} TZS`} 
+                value={`${Math.round(financeData.cash).toLocaleString()} FCFA`}
                 icon={faMoneyBillWave} 
                 color="success" 
                 subtitle={t('total_liquid_assets', 'Total liquid assets available')}
@@ -235,7 +235,7 @@ export default () => {
             <Col xs={12} sm={6} xl={4}>
               <SummaryCard 
                 title={t('monthly_profit', 'Monthly Net Profit')} 
-                value={`${Math.round(financeData.profit).toLocaleString()} TZS`} 
+                value={`${Math.round(financeData.profit).toLocaleString()} FCFA`}
                 icon={faChartLine} 
                 color="success" 
                 subtitle={t('revenue_minus_expenses', 'Revenue minus expenses this month')}
@@ -315,7 +315,7 @@ export default () => {
                       <div className="d-flex justify-content-between align-items-center">
                         <span className="fw-bold">{t('customers_owe', 'Customers Owe Us')}:</span>
                         <Badge bg={financeData.receivables > 0 ? "warning" : "success"}>
-                          {Math.round(financeData.receivables).toLocaleString()} TZS
+                          {Math.round(financeData.receivables).toLocaleString()} FCFA
                         </Badge>
                       </div>
                     </li>
@@ -323,7 +323,7 @@ export default () => {
                       <div className="d-flex justify-content-between align-items-center">
                         <span className="fw-bold">{t('we_owe', 'We Owe Suppliers')}:</span>
                         <Badge bg={financeData.payables > 0 ? "danger" : "success"}>
-                          {Math.round(financeData.payables).toLocaleString()} TZS
+                          {Math.round(financeData.payables).toLocaleString()} FCFA
                         </Badge>
                       </div>
                     </li>

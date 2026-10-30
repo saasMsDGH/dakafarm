@@ -1,3 +1,4 @@
+from app.api.v1.campaigns.service import require_unassigned
 """
 VaccinationRecord service - business logic.
 """
@@ -120,6 +121,7 @@ class VaccinationRecordService:
         request: VaccinationRecordUpdate,
         current_user_id: int,
     ) -> VaccinationRecord:
+        await require_unassigned(db,'VACCINATION',record_id)
         record = await VaccinationRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(
@@ -208,6 +210,7 @@ class VaccinationRecordService:
 
     @staticmethod
     async def delete(db: AsyncSession, record_id: int, current_user_id: int) -> None:
+        await require_unassigned(db,'VACCINATION',record_id)
         record = await VaccinationRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(

@@ -4,7 +4,7 @@ from typing import Literal
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-SourceType = Literal['SALE', 'PURCHASE', 'EXPENSE', 'CASH', 'STOCK', 'PRODUCTION', 'FEED']
+SourceType = Literal['SALE', 'PURCHASE', 'EXPENSE', 'CASH', 'STOCK', 'PRODUCTION', 'FEED', 'VACCINATION', 'MEDICATION', 'MORTALITY', 'PAYROLL_ALLOC']
 
 
 class ActivityCreate(BaseModel):

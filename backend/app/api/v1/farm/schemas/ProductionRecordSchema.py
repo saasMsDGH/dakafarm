@@ -43,6 +43,8 @@ class ProductionRecordResponse(BaseModel):
     damaged_eggs: int
     good_eggs: int
     laying_percentage: Decimal
+    period_start_date: Optional[date] = None
+    bird_days: Optional[int] = None
     
     recorded_by: Optional[int] = None
     created_at: Optional[datetime] = None

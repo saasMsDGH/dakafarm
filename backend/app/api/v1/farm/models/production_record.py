@@ -11,6 +11,8 @@ class ProductionRecord(Base):
     flock_id = Column(Integer, ForeignKey("flocks.id", ondelete="CASCADE"), nullable=False)
     
     record_date = Column(Date, nullable=False)
+    period_start_date = Column(Date, nullable=True)
+    bird_days = Column(Integer, nullable=True)
     
     total_birds = Column(Integer, nullable=False)
     total_eggs = Column(Integer, nullable=False)

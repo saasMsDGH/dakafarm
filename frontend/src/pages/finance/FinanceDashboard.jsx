@@ -42,7 +42,7 @@ export default () => {
   };
 
   const formatCurrency = (val) => {
-    return Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' TZS';
+    return Number(val || 0).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' FCFA';
   };
 
   if (loading) {

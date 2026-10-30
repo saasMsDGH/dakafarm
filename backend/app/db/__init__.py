@@ -29,3 +29,5 @@ from app.api.v1.finance.models.transaction import FinancialTransaction
 __all__ = ["Base","Users","Roles","UserRole","House","Flock","FeedRecord", "ProductionRecord", "MortalityRecord", "MedicationRecord", "VaccinationRecord", "ProductCategory", "Product", "StockMovement", "Customer", "Sale", "SaleItem", "Payment", "Supplier", "Purchase", "PurchaseItem", "PurchasePayment", "Expense", "ExpensePayment", "Employee", "Payroll", "PayrollPayment", "Asset", "AssetDistribution", "AssetPayment", "FinancialAccount", "FinancialTransaction"]
 
 from app.api.v1.campaigns.models import Activity, Campaign, CampaignEvent, ProductValuation
+
+from app.api.v1.campaigns.poultry_models import PoultryCampaign, PayrollAllocation, RetiredDemoSource

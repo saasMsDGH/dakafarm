@@ -110,11 +110,11 @@ export default () => {
 
         // Horizontal Bar Chart Data (Page 1)
         const whereMoneyWentData = [
-            { name: "Money In (Sales)", amount: totalSales, fill: "#2563EB", label: `TZS ${(totalSales / 1000000).toFixed(2)}M` },
-            { name: "Feed & Stock", amount: cogs, fill: "#A16207", label: `TZS ${(cogs / 1000000).toFixed(1)}M` },
-            { name: "Running Costs", amount: expenses, fill: "#D97706", label: `TZS ${formatMoney(expenses)}` },
-            { name: "Wages", amount: payroll, fill: "#F59E0B", label: `TZS ${formatMoney(payroll)}` },
-            { name: "Profit Left", amount: Math.max(0, netProfit), fill: "#10B981", label: `TZS ${formatMoney(netProfit)}` },
+            { name: "Money In (Sales)", amount: totalSales, fill: "#2563EB", label: `FCFA ${(totalSales / 1000000).toFixed(2)}M` },
+            { name: "Feed & Stock", amount: cogs, fill: "#A16207", label: `FCFA ${(cogs / 1000000).toFixed(1)}M` },
+            { name: "Running Costs", amount: expenses, fill: "#D97706", label: `FCFA ${formatMoney(expenses)}` },
+            { name: "Wages", amount: payroll, fill: "#F59E0B", label: `FCFA ${formatMoney(payroll)}` },
+            { name: "Profit Left", amount: Math.max(0, netProfit), fill: "#10B981", label: `FCFA ${formatMoney(netProfit)}` },
         ];
 
         // 2. Cash & Debt Calculations (Page 2)
@@ -140,11 +140,11 @@ export default () => {
 
         let liquidityNarrative = "";
         if (cashAvailable >= supplierPayable * 1.5 && cashAvailable > 0) {
-            liquidityNarrative = `Most of the farm's ready cash sits in the ${topCashAccount}. Against TZS ${formatMoney(supplierPayable)} owed to suppliers and TZS ${formatMoney(customerOwed)} owed by customers, the farm's own system marks this as a strong liquidity position — enough ready cash to cover what it owes several times over.`;
+            liquidityNarrative = `Most of the farm's ready cash sits in the ${topCashAccount}. Against FCFA ${formatMoney(supplierPayable)} owed to suppliers and FCFA ${formatMoney(customerOwed)} owed by customers, the farm's own system marks this as a strong liquidity position — enough ready cash to cover what it owes several times over.`;
         } else if (cashAvailable >= supplierPayable) {
-            liquidityNarrative = `Most of the farm's ready cash sits in the ${topCashAccount}. The farm holds enough cash on hand to clear all current supplier bills of TZS ${formatMoney(supplierPayable)}, leaving TZS ${formatMoney(netCashPosition)} in surplus working capital.`;
+            liquidityNarrative = `Most of the farm's ready cash sits in the ${topCashAccount}. The farm holds enough cash on hand to clear all current supplier bills of FCFA ${formatMoney(supplierPayable)}, leaving FCFA ${formatMoney(netCashPosition)} in surplus working capital.`;
         } else {
-            liquidityNarrative = `The farm has TZS ${formatMoney(supplierPayable)} in supplier bills coming due with TZS ${formatMoney(cashAvailable)} in ready cash. Collecting the TZS ${formatMoney(customerOwed)} owed by customers will be important to settle supplier commitments smoothly.`;
+            liquidityNarrative = `The farm has FCFA ${formatMoney(supplierPayable)} in supplier bills coming due with FCFA ${formatMoney(cashAvailable)} in ready cash. Collecting the FCFA ${formatMoney(customerOwed)} owed by customers will be important to settle supplier commitments smoothly.`;
         }
 
         // 3. Poultry Operations Calculations (Page 3)
@@ -175,8 +175,8 @@ export default () => {
         const lowStockCount = Number(inv.low_stock_count || 0) + Number(inv.out_of_stock_count || 0);
 
         const propertyBarData = [
-            { name: "Equipment & Machinery", amount: assetCost, fill: "#1B4332", displayVal: `TZS ${formatMoney(assetCost)}` },
-            { name: "Feed & Supplies in Store", amount: stockValuation, fill: "#D97706", displayVal: `TZS ${formatMoney(stockValuation)}` },
+            { name: "Equipment & Machinery", amount: assetCost, fill: "#1B4332", displayVal: `FCFA ${formatMoney(assetCost)}` },
+            { name: "Feed & Supplies in Store", amount: stockValuation, fill: "#D97706", displayVal: `FCFA ${formatMoney(stockValuation)}` },
         ];
 
         let propertyFractionText = "three-quarters";
@@ -213,7 +213,7 @@ export default () => {
         // Common Footer Generator
         const renderFooter = (pageNum) => (
             <div className="pdf-footer d-flex justify-content-between text-muted">
-                <span>DAKAFARM Performance Report - amounts in Tanzanian Shillings (TZS)</span>
+                <span>DAKAFARM Performance Report - amounts in francs CFA (FCFA)</span>
                 <span>Page {pageNum} of 4</span>
             </div>
         );
@@ -230,7 +230,7 @@ export default () => {
 
                         {/* Plain English Lead Paragraph */}
                         <div className="pdf-lead-text my-4">
-                            DAKAFARM brought in TZS {formatMoney(totalSales)} from sales and spent TZS {formatMoney(farmCosts)} running the farm, leaving TZS {formatMoney(netProfit)} in profit. Cash on hand across the safe, bank and mobile money comes to TZS {formatMoney(cashAvailable)}, and the farm owns TZS {formatMoney(totalWealth)} in equipment, machinery and stored feed.
+                            DAKAFARM brought in FCFA {formatMoney(totalSales)} from sales and spent FCFA {formatMoney(farmCosts)} running the farm, leaving FCFA {formatMoney(netProfit)} in profit. Cash on hand across the safe, bank and mobile money comes to FCFA {formatMoney(cashAvailable)}, and the farm owns FCFA {formatMoney(totalWealth)} in equipment, machinery and stored feed.
                             <div className="pdf-sub-lead mt-1">
                                 {dateRange.date_from || dateRange.date_to 
                                     ? `These figures cover the reporting window from ${moment(dateRange.date_from).format('D MMM YYYY')} to ${moment(dateRange.date_to).format('D MMM YYYY')}.`
@@ -244,28 +244,28 @@ export default () => {
                             <Col xs={6}>
                                 <div className="report-stat-card stripe-gold">
                                     <div className="stat-label">TOTAL SALES</div>
-                                    <div className="stat-value">TZS {formatMoney(totalSales)}</div>
+                                    <div className="stat-value">FCFA {formatMoney(totalSales)}</div>
                                     <div className="stat-sublabel text-amber">Gross margin {f.gross_margin || '0.0%'}</div>
                                 </div>
                             </Col>
                             <Col xs={6}>
                                 <div className="report-stat-card stripe-red">
                                     <div className="stat-label">FARM COSTS</div>
-                                    <div className="stat-value">TZS {formatMoney(farmCosts)}</div>
+                                    <div className="stat-value">FCFA {formatMoney(farmCosts)}</div>
                                     <div className="stat-sublabel text-muted">Feed, running costs & wages</div>
                                 </div>
                             </Col>
                             <Col xs={6}>
                                 <div className="report-stat-card stripe-green">
                                     <div className="stat-label">NET PROFIT</div>
-                                    <div className="stat-value">TZS {formatMoney(netProfit)}</div>
+                                    <div className="stat-value">FCFA {formatMoney(netProfit)}</div>
                                     <div className="stat-sublabel text-emerald">{salesKeptPct}% of sales kept</div>
                                 </div>
                             </Col>
                             <Col xs={6}>
                                 <div className="report-stat-card stripe-blue">
                                     <div className="stat-label">CASH AVAILABLE NOW</div>
-                                    <div className="stat-value">TZS {formatMoney(cashAvailable)}</div>
+                                    <div className="stat-value">FCFA {formatMoney(cashAvailable)}</div>
                                     <div className="stat-sublabel text-secondary">Safe + bank + mobile money</div>
                                 </div>
                             </Col>
@@ -284,7 +284,7 @@ export default () => {
                                         >
                                             <XAxis type="number" hide />
                                             <YAxis dataKey="name" type="category" width={85} tick={{ fontSize: 10, fill: '#334155' }} />
-                                            <Tooltip formatter={(val) => `TZS ${Number(val).toLocaleString()}`} />
+                                            <Tooltip formatter={(val) => `FCFA ${Number(val).toLocaleString()}`} />
                                             <Bar dataKey="amount" radius={[0, 4, 4, 0]} barSize={16} isAnimationActive={false}>
                                                 {whereMoneyWentData.map((e, idx) => (
                                                     <Cell key={`bar-${idx}`} fill={e.fill} />
@@ -298,7 +298,7 @@ export default () => {
                             <Col xs={6}>
                                 <div className="pdf-narrative-text">
                                     <p className="mb-3">
-                                        For every TZS 100 in sales, about TZS {cogsPer100} went to feed and stock, TZS {costsPer100} to running costs (electricity, fuel, repairs), TZS {wagesPer100} to wages, and TZS {profitPer100} was kept as profit.
+                                        For every FCFA 100 in sales, about FCFA {cogsPer100} went to feed and stock, FCFA {costsPer100} to running costs (electricity, fuel, repairs), FCFA {wagesPer100} to wages, and FCFA {profitPer100} was kept as profit.
                                     </p>
                                     <p className="mb-1 text-muted">
                                         <strong>Gross margin</strong> (before running costs and wages): {f.gross_margin || '0.0%'}
@@ -345,7 +345,7 @@ export default () => {
                                                     <Cell key={`cash-${idx}`} fill={e.fill} />
                                                 ))}
                                             </Pie>
-                                            <Tooltip formatter={(val) => `TZS ${Number(val).toLocaleString()}`} />
+                                            <Tooltip formatter={(val) => `FCFA ${Number(val).toLocaleString()}`} />
                                         </PieChart>
                                         <div style={{
                                             position: 'absolute',
@@ -356,7 +356,7 @@ export default () => {
                                             pointerEvents: 'none'
                                         }}>
                                             <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#1B4332' }}>
-                                                TZS {(cashAvailable / 1000000).toFixed(2)}M
+                                                FCFA {(cashAvailable / 1000000).toFixed(2)}M
                                             </div>
                                             <div style={{ fontSize: '0.65rem', color: '#6B7280' }}>
                                                 ready to use
@@ -366,9 +366,9 @@ export default () => {
 
                                     {/* Donut Legend */}
                                     <div className="d-flex justify-content-center gap-3 mt-2 small" style={{ fontSize: '0.72rem' }}>
-                                        <div><span style={{ color: '#F59E0B' }}>■</span> Farm Safe (TZS {formatMoney(cashSafe)})</div>
-                                        <div><span style={{ color: '#2563EB' }}>■</span> Bank (TZS {formatMoney(bank)})</div>
-                                        <div><span style={{ color: '#0D9488' }}>■</span> Mobile Money (TZS {formatMoney(mobileMoney)})</div>
+                                        <div><span style={{ color: '#F59E0B' }}>■</span> Farm Safe (FCFA {formatMoney(cashSafe)})</div>
+                                        <div><span style={{ color: '#2563EB' }}>■</span> Bank (FCFA {formatMoney(bank)})</div>
+                                        <div><span style={{ color: '#0D9488' }}>■</span> Mobile Money (FCFA {formatMoney(mobileMoney)})</div>
                                     </div>
                                 </div>
                             </Col>
@@ -380,12 +380,12 @@ export default () => {
                                     
                                     <div className="d-flex justify-content-between py-2 border-bottom" style={{ fontSize: '0.85rem' }}>
                                         <span className="text-secondary">Customers owe the farm</span>
-                                        <span className="fw-bold font-monospace text-dark">TZS {formatMoney(customerOwed)}</span>
+                                        <span className="fw-bold font-monospace text-dark">FCFA {formatMoney(customerOwed)}</span>
                                     </div>
                                     
                                     <div className="d-flex justify-content-between py-2 border-bottom" style={{ fontSize: '0.85rem' }}>
                                         <span className="text-secondary">The farm owes suppliers</span>
-                                        <span className="fw-bold font-monospace text-dark">TZS {formatMoney(supplierPayable)}</span>
+                                        <span className="fw-bold font-monospace text-dark">FCFA {formatMoney(supplierPayable)}</span>
                                     </div>
 
                                     <div className="p-3 my-3 rounded" style={{ backgroundColor: '#F1F5F9', border: '1px solid #E2E8F0' }}>
@@ -393,7 +393,7 @@ export default () => {
                                             <span className="fw-bold text-dark" style={{ fontSize: '0.88rem' }}>Net position, after both</span>
                                             <div className="text-end">
                                                 <div className="fw-bolder font-monospace text-dark fs-5">
-                                                    TZS {formatMoney(netCashPosition)}
+                                                    FCFA {formatMoney(netCashPosition)}
                                                 </div>
                                             </div>
                                         </div>
@@ -522,7 +522,7 @@ export default () => {
                             </div>
                             <div className="kv-row d-flex justify-content-between">
                                 <span className="text-secondary">Feed bought, all-time</span>
-                                <span className="fw-bold text-dark font-monospace">TZS {formatMoney(o.feed_cost)}</span>
+                                <span className="fw-bold text-dark font-monospace">FCFA {formatMoney(o.feed_cost)}</span>
                             </div>
                             <div className="kv-row d-flex justify-content-between">
                                 <span className="text-secondary">Feed used, most recent batch</span>
@@ -564,16 +564,16 @@ export default () => {
                             <Col xs={4}>
                                 <div className="report-stat-card stripe-slate">
                                     <div className="stat-label">EQUIPMENT & MACHINERY</div>
-                                    <div className="stat-value">TZS {formatMoney(assetCost)}</div>
+                                    <div className="stat-value">FCFA {formatMoney(assetCost)}</div>
                                     <div className="stat-sublabel text-emerald">
-                                        {assetPayable === 0 ? "Fully paid off" : `TZS ${formatMoney(assetPayable)} balance`}
+                                        {assetPayable === 0 ? "Fully paid off" : `FCFA ${formatMoney(assetPayable)} balance`}
                                     </div>
                                 </div>
                             </Col>
                             <Col xs={4}>
                                 <div className="report-stat-card stripe-gold">
                                     <div className="stat-label">FEED & SUPPLIES IN STORE</div>
-                                    <div className="stat-value">TZS {formatMoney(stockValuation)}</div>
+                                    <div className="stat-value">FCFA {formatMoney(stockValuation)}</div>
                                     <div className={`stat-sublabel ${lowStockCount === 0 ? 'text-emerald' : 'text-amber'}`}>
                                         {lowStockCount === 0 ? "Above reorder buffer" : `${lowStockCount} items low`}
                                     </div>
@@ -582,7 +582,7 @@ export default () => {
                             <Col xs={4}>
                                 <div className="report-stat-card stripe-slate">
                                     <div className="stat-label">TOTAL PHYSICAL WEALTH</div>
-                                    <div className="stat-value">TZS {formatMoney(totalWealth)}</div>
+                                    <div className="stat-value">FCFA {formatMoney(totalWealth)}</div>
                                     <div className="stat-sublabel text-secondary">Equipment + stock</div>
                                 </div>
                             </Col>
@@ -597,7 +597,7 @@ export default () => {
                                         <BarChart data={propertyBarData} margin={{ top: 20, right: 10, left: 10, bottom: 5 }}>
                                             <XAxis dataKey="name" tick={{ fontSize: 9, fill: '#475569' }} interval={0} />
                                             <YAxis hide />
-                                            <Tooltip formatter={(val) => `TZS ${Number(val).toLocaleString()}`} />
+                                            <Tooltip formatter={(val) => `FCFA ${Number(val).toLocaleString()}`} />
                                             <Bar dataKey="amount" radius={[4, 4, 0, 0]} barSize={42} isAnimationActive={false}>
                                                 {propertyBarData.map((e, idx) => (
                                                     <Cell key={`prop-${idx}`} fill={e.fill} />
@@ -610,7 +610,7 @@ export default () => {
                             </Col>
                             <Col xs={7}>
                                 <div className="pdf-narrative-text">
-                                    About {propertyFractionText} of the farm's TZS {(totalWealth / 1000000).toFixed(2)} million in property is equipment and machinery. The rest is feed and supplies sitting in storage.
+                                    About {propertyFractionText} of the farm's FCFA {(totalWealth / 1000000).toFixed(2)} million in property is equipment and machinery. The rest is feed and supplies sitting in storage.
                                 </div>
                             </Col>
                         </Row>
@@ -624,16 +624,16 @@ export default () => {
                             </div>
                             <div className="kv-row d-flex justify-content-between">
                                 <span className="text-secondary">Total salaries this period</span>
-                                <span className="fw-bold text-dark font-monospace">TZS {formatMoney(netSalaries)}</span>
+                                <span className="fw-bold text-dark font-monospace">FCFA {formatMoney(netSalaries)}</span>
                             </div>
                             <div className="kv-row d-flex justify-content-between">
                                 <span className="text-secondary">Already paid</span>
-                                <span className="fw-bold text-dark font-monospace">TZS {formatMoney(paidSalaries)} ({salaryPaidPct}%)</span>
+                                <span className="fw-bold text-dark font-monospace">FCFA {formatMoney(paidSalaries)} ({salaryPaidPct}%)</span>
                             </div>
                             <div className="kv-row d-flex justify-content-between">
                                 <span className="text-secondary">Pending balance</span>
                                 <span className={`fw-bold font-monospace ${pendingSalaries > 0 ? 'text-danger' : 'text-dark'}`}>
-                                    TZS {formatMoney(pendingSalaries)}
+                                    FCFA {formatMoney(pendingSalaries)}
                                 </span>
                             </div>
                         </div>

@@ -153,7 +153,7 @@ export default () => {
   };
 
   const formatCurrency = (amount) => {
-    return Number(amount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    return Number(amount).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' FCFA';
   };
 
   const handleDelete = async (id) => {
@@ -355,7 +355,7 @@ export default () => {
                   <thead className="bg-light">
                     <tr>
                       <th className="text-uppercase text-muted py-3">Description</th>
-                      <th className="text-uppercase text-muted py-3 text-end">Amount (TZS)</th>
+                      <th className="text-uppercase text-muted py-3 text-end">Amount (FCFA)</th>
                     </tr>
                   </thead>
                   <tbody>

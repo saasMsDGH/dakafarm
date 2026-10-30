@@ -492,7 +492,7 @@ export default () => {
               </Col>
               <Col md={4} className="mb-3">
                 <Form.Group>
-                  <Form.Label>{t('cost_price', 'Unit Cost (TSh)')} *</Form.Label>
+                  <Form.Label>{t('cost_price', 'Unit Cost (FCFA)')} *</Form.Label>
                   <Form.Control required type="number" step="0.01" min="0" value={currentAsset.cost_price} onChange={(e) => setCurrentAsset({...currentAsset, cost_price: e.target.value})} />
                 </Form.Group>
               </Col>
@@ -546,7 +546,7 @@ export default () => {
                 <Row>
                   <Col md={4} className="mb-3">
                     <Form.Group>
-                      <Form.Label>Amount Paid (TSh)</Form.Label>
+                      <Form.Label>Amount Paid (FCFA)</Form.Label>
                       <Form.Control 
                         type="number" 
                         step="0.01" 
@@ -629,24 +629,24 @@ export default () => {
                 <div className="d-flex justify-content-between mb-1">
                   <span className="text-muted">Total Cost:</span>
                   <span className="fw-bold">
-                    {formatCurrency((paymentAsset.quantity || 1) * parseFloat(paymentAsset.cost_price || 0))} TSh
+                    {formatCurrency((paymentAsset.quantity || 1) * parseFloat(paymentAsset.cost_price || 0))} FCFA
                   </span>
                 </div>
                 <div className="d-flex justify-content-between mb-1">
                   <span className="text-muted">Total Paid:</span>
-                  <span className="fw-bold text-success">{formatCurrency(paymentAsset.amount_paid)} TSh</span>
+                  <span className="fw-bold text-success">{formatCurrency(paymentAsset.amount_paid)} FCFA</span>
                 </div>
                 <div className="d-flex justify-content-between pt-2 border-top mt-2">
                   <span className="fw-bold text-dark">Remaining Balance:</span>
                   <span className="fw-bold text-danger">
-                    {formatCurrency(Math.max(0, ((paymentAsset.quantity || 1) * parseFloat(paymentAsset.cost_price || 0)) - parseFloat(paymentAsset.amount_paid || 0)))} TSh
+                    {formatCurrency(Math.max(0, ((paymentAsset.quantity || 1) * parseFloat(paymentAsset.cost_price || 0)) - parseFloat(paymentAsset.amount_paid || 0)))} FCFA
                   </span>
                 </div>
               </div>
             )}
 
             <Form.Group className="mb-3">
-              <Form.Label>Payment Amount (TSh) *</Form.Label>
+              <Form.Label>Payment Amount (FCFA) *</Form.Label>
               <Form.Control 
                 required 
                 type="number" 
@@ -717,13 +717,13 @@ export default () => {
                   <Col md={6}>
                     <p className="mb-1"><strong>Purchase Date:</strong> {selectedAsset.purchase_date ? new Date(selectedAsset.purchase_date).toLocaleDateString() : 'N/A'}</p>
                     <p className="mb-1"><strong>Quantity:</strong> {selectedAsset.quantity}</p>
-                    <p className="mb-1"><strong>Unit Cost:</strong> {formatCurrency(selectedAsset.cost_price)} TSh</p>
-                    <p className="mb-1"><strong>Total Cost:</strong> <span className="fw-bold">{formatCurrency((selectedAsset.quantity || 1) * parseFloat(selectedAsset.cost_price || 0))} TSh</span></p>
-                    <p className="mb-1"><strong>Amount Paid:</strong> <span className="text-success fw-bold">{formatCurrency(selectedAsset.amount_paid)} TSh</span></p>
+                    <p className="mb-1"><strong>Unit Cost:</strong> {formatCurrency(selectedAsset.cost_price)} FCFA</p>
+                    <p className="mb-1"><strong>Total Cost:</strong> <span className="fw-bold">{formatCurrency((selectedAsset.quantity || 1) * parseFloat(selectedAsset.cost_price || 0))} FCFA</span></p>
+                    <p className="mb-1"><strong>Amount Paid:</strong> <span className="text-success fw-bold">{formatCurrency(selectedAsset.amount_paid)} FCFA</span></p>
                     <p className="mb-1">
                       <strong>Remaining Balance:</strong>{' '}
                       <span className={`fw-bold ${((selectedAsset.quantity || 1) * parseFloat(selectedAsset.cost_price || 0)) - parseFloat(selectedAsset.amount_paid || 0) > 0 ? 'text-danger' : 'text-success'}`}>
-                        {formatCurrency(Math.max(0, ((selectedAsset.quantity || 1) * parseFloat(selectedAsset.cost_price || 0)) - parseFloat(selectedAsset.amount_paid || 0)))} TSh
+                        {formatCurrency(Math.max(0, ((selectedAsset.quantity || 1) * parseFloat(selectedAsset.cost_price || 0)) - parseFloat(selectedAsset.amount_paid || 0)))} FCFA
                       </span>
                     </p>
                     <p className="mb-1">
@@ -760,7 +760,7 @@ export default () => {
                       <th>Date</th>
                       <th>Method</th>
                       <th>Account</th>
-                      <th className="text-end">Amount (TSh)</th>
+                      <th className="text-end">Amount (FCFA)</th>
                     </tr>
                   </thead>
                   <tbody>

@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+from app.api.v1.campaigns.poultry_models import PayrollAllocation
 from app.api.v1.hr.models.payroll import Payroll
 from app.api.v1.hr.models.payroll_payment import PayrollPayment
 from app.api.v1.finance.models.transaction import FinancialTransaction
@@ -121,6 +122,8 @@ class PayrollService:
 
     @staticmethod
     async def update(db: AsyncSession, payroll_id: int, request: PayrollUpdate) -> Payroll:
+        if await db.scalar(select(PayrollAllocation.id).where(PayrollAllocation.payroll_id==payroll_id).limit(1)):
+            raise HTTPException(409, 'Paie déjà ventilée : une correction doit conserver les affectations salariales et leurs preuves.')
         payroll = await PayrollRepo.get_by_id(db, payroll_id)
         if not payroll:
             raise HTTPException(
@@ -150,6 +153,8 @@ class PayrollService:
 
     @staticmethod
     async def delete(db: AsyncSession, payroll_id: int) -> None:
+        if await db.scalar(select(PayrollAllocation.id).where(PayrollAllocation.payroll_id==payroll_id).limit(1)):
+            raise HTTPException(409, 'Paie déjà ventilée : une correction doit conserver les affectations salariales et leurs preuves.')
         payroll = await PayrollRepo.get_by_id(db, payroll_id)
         if not payroll:
             raise HTTPException(

@@ -1,3 +1,4 @@
+from app.api.v1.campaigns.service import require_unassigned
 """
 MortalityRecord service — business logic.
 """
@@ -89,6 +90,7 @@ class MortalityRecordService:
         request: MortalityRecordUpdate,
     ) -> MortalityRecord:
         """Update a mortality record and adjust flock quantity if needed."""
+        await require_unassigned(db,'MORTALITY',record_id)
         record = await MortalityRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(
@@ -136,6 +138,7 @@ class MortalityRecordService:
     @staticmethod
     async def delete(db: AsyncSession, record_id: int) -> None:
         """Delete a mortality record and restore flock quantity."""
+        await require_unassigned(db,'MORTALITY',record_id)
         record = await MortalityRecordRepo.get_by_id(db, record_id)
         if not record:
             raise HTTPException(

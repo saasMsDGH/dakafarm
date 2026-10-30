@@ -211,6 +211,10 @@ async def main(if_absent=False):
         if not actor: raise RuntimeError('Administrateur actif absent.')
         result = await seed_demo(db, actor, if_absent=if_absent)
         await db.commit()
+        from app.poultry_seed import seed_poultry
+        poultry=await seed_poultry(db,actor,if_absent=if_absent)
+        await db.commit()
+        print(json.dumps({k:poultry[k] for k in ['extension','employee_count','monthly_payroll_fcfa','source_count','replayed']},ensure_ascii=False))
         print(json.dumps({key: result[key] for key in ['dataset','activity_count','campaigns_per_activity','source_count','replayed']}, ensure_ascii=False))
     await engine.dispose()
 

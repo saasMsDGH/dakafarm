@@ -63,7 +63,8 @@ leurs mouvements de stock à la même campagne ; inversement, leur sortie demand
 son document d'origine. Les transactions SALE/PURCHASE/EXPENSE doivent se
 rapprocher de leur paiement et du document rattaché à la même campagne.
 
-Les flux PAYROLL, OTHER_INCOME, ASSET_PURCHASE, ADJUSTMENT et les types inconnus
+Les flux PAYROLL rapprochés de paies ventilées sont pris en charge (voir POULTRY.md).
+Les flux OTHER_INCOME, ASSET_PURCHASE, ADJUSTMENT et les types inconnus
 restent visibles en caisse mais bloquent le résultat économique : leur traitement
 métier n'est pas encore validé. OWNER_INVESTMENT n'est pas assimilé à un revenu.
 Les ajustements de stock restent également à qualifier. Un coût inconnu, une
